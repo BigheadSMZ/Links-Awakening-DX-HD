@@ -105,6 +105,11 @@ namespace ProjectZ.InGame.GameObjects.Things
             return true;
         }
 
+        public bool IsHeavy()
+        {
+            return _isHeavy;
+        }
+
         private bool DamagePlayer()
         {
             if (MapManager.ObjLink.HitPlayer(_damageBox.Box, HitType.Enemy, 2))
