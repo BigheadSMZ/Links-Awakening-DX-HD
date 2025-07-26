@@ -230,6 +230,30 @@ namespace ProjectZ.InGame.Controls
             return false;
         }
 
+        public static bool ButtonReleased(CButtons button)
+        {
+            var direction = GetGamepadDirection();
+            if (direction.Length() >= Values.ControllerDeadzone)
+            {
+                var dir = AnimationHelper.GetDirection(direction);
+                if ((dir == 0 && button == CButtons.Left) || (dir == 1 && button == CButtons.Up) ||
+                    (dir == 2 && button == CButtons.Right) || (dir == 3 && button == CButtons.Down))
+                    return true;
+            }
+
+            // check the keyboard buttons
+            for (var i = 0; i < ButtonDictionary[button].Keys.Length; i++)
+                if (InputHandler.KeyReleased(ButtonDictionary[button].Keys[i]))
+                    return true;
+
+            // check the gamepad buttons
+            for (var i = 0; i < ButtonDictionary[button].Buttons.Length; i++)
+                if (InputHandler.GamePadReleased(ButtonDictionary[button].Buttons[i]))
+                    return true;
+
+            return false;
+        }
+
         public static CButtons GetPressedButtons()
         {
             CButtons pressedButtons = 0;
