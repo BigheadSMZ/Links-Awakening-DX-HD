@@ -112,6 +112,7 @@ namespace ProjectZ.InGame.Screens
         private DictAtlasEntry _spriteMountain;
         private DictAtlasEntry _spriteLogo0;
         private DictAtlasEntry _spriteLogo1;
+        private DictAtlasEntry _spriteDX;
 
         private readonly Rectangle _treesRectangle = new Rectangle(0, 320, 32, 46);
         private readonly Rectangle _sandRectangle = new Rectangle(0, 364, 32, 16);
@@ -182,6 +183,7 @@ namespace ProjectZ.InGame.Screens
             _spriteMountain = Resources.GetSprite("intro_mountain");
             _spriteLogo0 = Resources.GetSprite("intro_logo_0");
             _spriteLogo1 = Resources.GetSprite("intro_logo_1");
+            _spriteDX = Resources.GetSprite("intro_dx");
 
             _mountainLeftPosition.X = -_spriteBackground.SourceRectangle.Width / 2 - _spriteMountain.SourceRectangle.Width;
             _mountainLeftPosition.Y = 0;
@@ -267,7 +269,28 @@ namespace ProjectZ.InGame.Screens
 
             if (Game1.FinishedLoading &&
                 (ControlHandler.ButtonPressed(CButtons.A) || ControlHandler.ButtonPressed(CButtons.Start)))
-                Game1.ScreenManager.ChangeScreen(Values.ScreenNameMenu);
+            {
+                if (_currentState == States.StrandLogo)
+                {
+                    Game1.ScreenManager.ChangeScreen(Values.ScreenNameMenu);
+                } 
+                else
+                {
+                    Game1.GameManager.SetMusic(12, 0);
+
+                    _cameraState = 0;
+                    _cameraCenter = new Vector2(0, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
+                    _cameraStart = _cameraCenter;
+                    _cameraTarget = new Vector2(_cameraCenter.X, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
+                    _marinPosition.X = -1000;
+                    _marinPosition.Y = -1000;
+
+                    _logoCounter = 1500;
+
+                    _currentState = States.StrandLogo;
+
+                }
+            }
 
             if (!Game1.FinishedLoading)
                 _loadingAnimator.Update();
@@ -846,6 +869,10 @@ namespace ProjectZ.InGame.Screens
                 spriteBatch.Draw(_spriteLogo0.Texture,
                     new Rectangle((int)_logoPosition.X, (int)_logoPosition.Y + _spriteLogo0.SourceRectangle.Height / 2 - logoHeight / 2,
                     _spriteLogo0.SourceRectangle.Width, logoHeight), _spriteLogo0.ScaledRectangle, Color.White);
+
+                spriteBatch.Draw(_spriteDX.Texture,
+                    new Rectangle((int)_logoPosition.X, (int)_logoPosition.Y + _spriteDX.SourceRectangle.Height / 1 - logoHeight / 1,
+                    _spriteLogo0.SourceRectangle.Width, logoHeight), _spriteDX.ScaledRectangle, Color.White); 
 
                 var textTransparency = Math.Clamp((_logoState - 0.5f) * 2, 0, 1);
                 DrawHelper.DrawNormalized(spriteBatch, _spriteLogo1, _logoPosition, Color.White * textTransparency);
