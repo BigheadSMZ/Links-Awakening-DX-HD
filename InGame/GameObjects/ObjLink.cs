@@ -1568,7 +1568,7 @@ namespace ProjectZ.InGame.GameObjects
                     Game1.GameManager.PlaySoundEffect("D360-43-2B", false);
                 }
 
-                if (Game1.GbsPlayer.SoundGenerator.WasStopped && Game1.GbsPlayer.SoundGenerator.FinishedPlaying())
+                if (Game1.GbsPlayer.SoundGenerator.WasStopped)
                 {
                     Game1.GameManager.SetMusic(-1, 0);
                     Game1.GameManager.SetMusic(-1, 2);
@@ -2459,7 +2459,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseSword()
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting &&
+            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting && CurrentState != State.Blocking &&
                 (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
@@ -2909,7 +2909,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void HoldShield(bool lastKeyDown)
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing)
+            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Charging)
                 return;
 
             if (!_wasBlocking)
