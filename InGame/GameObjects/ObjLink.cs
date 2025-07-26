@@ -2459,7 +2459,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseSword()
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting && CurrentState != State.Blocking &&
+            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting &&
                 (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
@@ -2909,7 +2909,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void HoldShield(bool lastKeyDown)
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Charging)
+            if (CurrentState != State.Idle && CurrentState != State.Pushing)
                 return;
 
             if (!_wasBlocking)
