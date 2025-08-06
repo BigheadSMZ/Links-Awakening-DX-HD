@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Timers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -109,6 +110,7 @@ namespace ProjectZ.InGame.GameObjects
         public int HoleTeleporterId;
         public bool WasHoleReset;
         private double _holeTeleportCounter;
+
         // counter to start the level change
         private float _holeFallCounter;
         private bool _isFallingIntoHole;
@@ -130,6 +132,7 @@ namespace ProjectZ.InGame.GameObjects
         // show item
         public GameItem ShowItem;
         private Vector2 _showItemOffset;
+
         // used to only collect the item after it was shown
         private GameItemCollected _collectedShowItem;
         private string _pickupDialogOverride;
@@ -224,6 +227,7 @@ namespace ProjectZ.InGame.GameObjects
         private float _pullCounter;
         private bool _isPulling;
         private bool _wasPulling;
+
         // pick up time
         private const float PreCarryTime = 200;
         private float _preCarryCounter;
@@ -358,6 +362,10 @@ namespace ProjectZ.InGame.GameObjects
         public string SaveMap;
         public Vector2 SavePosition;
         public int SaveDirection;
+
+        // low hearts
+        private Timer _lowHealthTimer;
+        public bool playLowHealthBeep = true;
 
         // other stuff
         public Point CollisionBoxSize;
@@ -596,7 +604,7 @@ namespace ProjectZ.InGame.GameObjects
                 return;
             }
 
-            UpdateHeartWarningSound();
+            UpdateHeartWarningTimer();
 
             if (CurrentState == State.FinalInstruments)
             {
@@ -2102,13 +2110,38 @@ namespace ProjectZ.InGame.GameObjects
                 Animation.Play(_drownCounter > 300 ? "swim_" + Direction : "dive");
         }
 
-        private void UpdateHeartWarningSound()
+        private void UpdateHeartWarningTimer()
         {
-            if (Game1.GameManager.CurrentHealth <= 4)
+            if (Game1.GameManager.CurrentHealth <= 4 &&
+                Game1.GameManager.CurrentHealth > 0)
+                HeartWarningTimerStart();
+            else if (Game1.GameManager.CurrentHealth > 4 || 
+                Game1.GameManager.CurrentHealth <= 0)
+                HeartWarningTimerStop();
+        }
+
+        private void HeartWarningTimerStart()
+        {
+            if (_lowHealthTimer == null)
             {
-
+                _lowHealthTimer = new Timer();
+                _lowHealthTimer.Interval = 1000;
+                _lowHealthTimer.AutoReset = true;
+                _lowHealthTimer.Elapsed += new ElapsedEventHandler(HeartWarningTimerElapsed);
             }
+            _lowHealthTimer.Start();
+        }
 
+        private void HeartWarningTimerStop()
+        {
+            if (_lowHealthTimer != null && _lowHealthTimer.Enabled)
+                _lowHealthTimer.Stop();
+        }
+
+        private void HeartWarningTimerElapsed(object sender, ElapsedEventArgs e)
+        {
+            if (playLowHealthBeep)
+                Game1.GameManager.PlaySoundEffect("D370-04-04");
         }
 
         private void UpdateDive()
