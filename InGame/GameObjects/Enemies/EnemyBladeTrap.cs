@@ -98,15 +98,20 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private void UpdateSnap()
         {
             _movePosition += 2 * Game1.TimeMultiplier;
+            Box blockRectangle = Box.Empty;
 
-            // collision?
+            // Collided with an object such as a block.
+            if (Map.Objects.Collision(new Box(EntityPosition.X, EntityPosition.Y, 0, 16, 16, 16), 
+                Box.Empty, Values.CollisionTypes.Normal, 0, 0, ref blockRectangle))
+                _maxPosition[_moveDir] = (int)_movePosition;
+
+            // Reached the end of its destination.
             if (_movePosition >= _maxPosition[_moveDir])
             {
                 _movePosition = _maxPosition[_moveDir];
                 _aiComponent.ChangeState("wait");
                 Game1.GameManager.PlaySoundEffect("D360-07-07");
             }
-
             UpdatePosition();
         }
 
