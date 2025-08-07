@@ -326,7 +326,7 @@ namespace ProjectZ.InGame.GameObjects
             // remove ladder collider while climbing
             if (_isClimbing || _tryClimbing)
                 _body.CollisionTypes &= ~(Values.CollisionTypes.LadderTop);
-            else if (CurrentState == State.Jumping)
+            else if (CurrentState == State.Jumping || CurrentState == State.ChargeJumping)
             {
                 // only collide with the top of a ladder block
                 _body.CollisionTypes |= Values.CollisionTypes.LadderTop;
@@ -434,6 +434,7 @@ namespace ProjectZ.InGame.GameObjects
             _isWalking = false;
 
             if ((CurrentState != State.Idle && CurrentState != State.Jumping &&
+                CurrentState != State.ChargeJumping &&
                 CurrentState != State.Attacking && CurrentState != State.Blocking &&
                 CurrentState != State.AttackBlocking && CurrentState != State.Carrying && 
                 CurrentState != State.Charging && CurrentState != State.ChargeBlocking && 
@@ -504,7 +505,8 @@ namespace ProjectZ.InGame.GameObjects
                     CurrentState != State.ChargeBlocking && 
                     CurrentState != State.Attacking && 
                     CurrentState != State.AttackBlocking && 
-                    CurrentState != State.Jumping)
+                    CurrentState != State.Jumping && 
+                    CurrentState != State.ChargeJumping)
                     Direction = newDirection;
 
                 if (_body.IsGrounded)
@@ -642,8 +644,10 @@ namespace ProjectZ.InGame.GameObjects
             _waterJump = false;
 
             // while attacking the player can still jump but without the animation
-            if (CurrentState != State.Attacking && CurrentState != State.AttackBlocking &&
-                CurrentState != State.Charging && CurrentState != State.ChargeBlocking)
+            if (CurrentState != State.Attacking && 
+                CurrentState != State.AttackBlocking &&
+                CurrentState != State.Charging && 
+                CurrentState != State.ChargeBlocking)
             {
                 _playedJumpAnimation = false;
                 CurrentState = State.Jumping;

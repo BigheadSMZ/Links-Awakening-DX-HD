@@ -614,9 +614,10 @@ namespace ProjectZ.InGame.GameObjects.NPCs
             }
 
             // jump
-            if (MapManager.ObjLink.CurrentState == ObjLink.State.Jumping &&
+            if ((MapManager.ObjLink.CurrentState == ObjLink.State.Jumping || 
+                 MapManager.ObjLink.CurrentState == ObjLink.State.ChargeJumping) &&
                 ((!MapManager.ObjLink.IsRailJumping() && MapManager.ObjLink._body.Velocity.Z < 0) ||
-                MapManager.ObjLink.GetRailJumpAmount() > 0.45f) && _body.IsGrounded)
+                 MapManager.ObjLink.GetRailJumpAmount() > 0.45f) && _body.IsGrounded)
             {
                 Game1.GameManager.PlaySoundEffect("D360-36-24");
                 _body.Velocity.Z = 2.35f;
