@@ -25,7 +25,8 @@ namespace ProjectZ.InGame.GameObjects
     {
         public enum State
         {
-            Idle, Pushing, Grabbing, Pulling, Jumping, Attacking, Charging, Blocking, PreCarrying, Carrying, Throwing, CarryingItem, PickingUp, Falling,
+            Idle, Pushing, Grabbing, Pulling, Jumping, PreCarrying, Carrying, Throwing, CarryingItem, PickingUp, Falling,
+            Attacking, Blocking, AttackBlocking, Charging, ChargeBlocking, 
             Ocarina, OcarinaTelport, Rafting, Pushed,
             FallRotateEntry,
             Drowning, Drowned, Swimming,
@@ -277,6 +278,7 @@ namespace ProjectZ.InGame.GameObjects
         // shield
         public bool CarryShield;
         private bool _wasBlocking;
+        private bool _blockButton;
 
         // hookshot
         public ObjHookshot Hookshot = new ObjHookshot();
@@ -844,7 +846,9 @@ namespace ProjectZ.InGame.GameObjects
 
             // draw the sword/magic rod
             if (CurrentState == State.Attacking ||
+                CurrentState == State.AttackBlocking ||
                 CurrentState == State.Charging ||
+                CurrentState == State.ChargeBlocking ||
                 CurrentState == State.SwordShow0 ||
                 CurrentState == State.MagicRod ||
                 (_bootsRunning && CarrySword))
@@ -1414,7 +1418,7 @@ namespace ProjectZ.InGame.GameObjects
                 if ((collision & Values.BodyCollision.Vertical) != 0 && _body.VelocityTarget.Y == 0)
                     _hitVelocity.Y = 0;
 
-                if (CurrentState == State.Charging &&
+                if ((CurrentState == State.Charging || CurrentState == State.ChargeBlocking) &&
                     ((collision & Values.BodyCollision.Left) != 0 && Direction == 0 ||
                      (collision & Values.BodyCollision.Top) != 0 && Direction == 1 ||
                      (collision & Values.BodyCollision.Right) != 0 && Direction == 2 ||
@@ -1509,7 +1513,7 @@ namespace ProjectZ.InGame.GameObjects
                     CurrentState = State.Idle;
             }
 
-            if (_isRafting && (CurrentState == State.Rafting || CurrentState == State.Charging))
+            if (_isRafting && (CurrentState == State.Rafting || CurrentState == State.Charging || CurrentState == State.ChargeBlocking))
             {
                 var moveVelocity = ControlHandler.GetMoveVector2();
 
@@ -1522,7 +1526,7 @@ namespace ProjectZ.InGame.GameObjects
                     _isWalking = true;
                     _objRaft.TargetVelocity(moveVelocity * 0.5f);
 
-                    if (CurrentState != State.Charging)
+                    if (CurrentState != State.Charging && CurrentState != State.ChargeBlocking)
                     {
                         var vectorDirection = ToDirection(moveVelocity);
                         Direction = vectorDirection;
@@ -1950,13 +1954,22 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UpdateWalking()
         {
-            if (CurrentState != State.Idle && (CurrentState != State.Carrying || _isFlying) && CurrentState != State.Charging && CurrentState != State.Swimming &&
-                CurrentState != State.CarryingItem && (CurrentState != State.MagicRod || _body.IsGrounded) && (CurrentState != State.Jumping || _railJump) &&
-                CurrentState != State.Pushing && CurrentState != State.Blocking && CurrentState != State.Attacking ||
+            if (CurrentState != State.Idle && 
+                CurrentState != State.Charging && 
+                CurrentState != State.ChargeBlocking && 
+                CurrentState != State.Swimming && 
+                CurrentState != State.CarryingItem && 
+                CurrentState != State.Pushing && 
+                CurrentState != State.Blocking && 
+                CurrentState != State.Attacking && 
+                (CurrentState != State.Carrying || _isFlying) && 
+                (CurrentState != State.MagicRod || _body.IsGrounded) && 
+                (CurrentState != State.Jumping || _railJump) && 
+                CurrentState != State.AttackBlocking ||
                 !CanWalk || _isRafting) return;
 
             var walkVelocity = Vector2.Zero;
-            if (!_isLocked && (CurrentState != State.Attacking || !_body.IsGrounded))
+            if (!_isLocked && (CurrentState != State.Attacking && CurrentState != State.AttackBlocking || !_body.IsGrounded))
                 walkVelocity = ControlHandler.GetMoveVector2();
 
             var walkVelLength = walkVelocity.Length();
@@ -2021,7 +2034,8 @@ namespace ProjectZ.InGame.GameObjects
                 }
 
                 // update the direction the player is facing
-                if (CurrentState != State.Attacking && CurrentState != State.Charging)
+                if (CurrentState != State.Attacking && CurrentState != State.AttackBlocking && 
+                    CurrentState != State.Charging && CurrentState != State.ChargeBlocking)
                     Direction = vectorDirection;
             }
 
@@ -2087,7 +2101,7 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState == State.Charging ||
                 CurrentState == State.Rafting) && _isWalking)
                 Animation.Play("walk" + shieldString + Direction);
-            else if (CurrentState == State.Blocking)
+            else if (CurrentState == State.Blocking || CurrentState == State.ChargeBlocking)
                 Animation.Play((!_isWalking ? "standb" : "walkb") + shieldString + Direction);
             else if ((CurrentState == State.Carrying || CurrentState == State.CarryingItem) && !_isFlying)
                 Animation.Play((!_isWalking ? "standc_" : "walkc_") + Direction);
@@ -2347,7 +2361,7 @@ namespace ProjectZ.InGame.GameObjects
                         FreeTrappedPlayer();
                 }
 
-                // use/hold item
+                // use/hold/release item
                 if (!DisableItems && (!_isTrapped || !_trappedDisableItems))
                 {
                     for (var i = 0; i < Values.HandItemSlots; i++)
@@ -2360,6 +2374,11 @@ namespace ProjectZ.InGame.GameObjects
                             ControlHandler.ButtonDown((CButtons)((int)CButtons.A * Math.Pow(2, i))))
                             HoldItem(Game1.GameManager.Equipment[i],
                                 ControlHandler.LastButtonDown((CButtons)((int)CButtons.A * Math.Pow(2, i))));
+
+                        if (Game1.GameManager.Equipment[i] != null &&
+                            ControlHandler.ButtonReleased((CButtons)((int)CButtons.A * Math.Pow(2, i))))
+                            ReleaseItem(Game1.GameManager.Equipment[i],
+                                ControlHandler.LastButtonDown((CButtons)((int)CButtons.A * Math.Pow(2, i))));
                     }
                 }
             }
@@ -2367,7 +2386,7 @@ namespace ProjectZ.InGame.GameObjects
             UpdatePegasusBoots();
 
             // shield pushing
-            if (CurrentState == State.Blocking || _bootsRunning && CarryShield)
+            if (CurrentState == State.Blocking || CurrentState == State.ChargeBlocking || _bootsRunning && CarryShield)
                 UpdateShieldPush();
 
             // pick up animation
@@ -2383,7 +2402,7 @@ namespace ProjectZ.InGame.GameObjects
             }
 
             // stop attacking
-            if (CurrentState == State.Attacking && !Animation.IsPlaying)
+            if ((CurrentState == State.Attacking || CurrentState == State.AttackBlocking) && !Animation.IsPlaying)
             {
                 _isSwingingSword = false;
 
@@ -2391,18 +2410,22 @@ namespace ProjectZ.InGame.GameObjects
                     ReturnToIdle();
                 else
                 {
+                    if (CurrentState == State.Blocking || CurrentState == State.AttackBlocking)
+                        CurrentState = State.ChargeBlocking;
+                    else
+                        CurrentState = State.Charging;
+
                     // start charging sword
-                    CurrentState = State.Charging;
                     AnimatorWeapons.Play("stand_" + Direction);
                     _swordPokeCounter = _swordPokeTime;
                 }
             }
 
-            if (CurrentState == State.Charging)
+            if (CurrentState == State.Charging || CurrentState == State.ChargeBlocking)
                 UpdateCharging();
 
             // hit stuff with the sword
-            if (CurrentState == State.Attacking || _bootsRunning && CarrySword)
+            if (CurrentState == State.Attacking || CurrentState == State.AttackBlocking || _bootsRunning && CarrySword)
                 UpdateAttacking();
 
             if (CurrentState == State.PickingUp)
@@ -2490,11 +2513,23 @@ namespace ProjectZ.InGame.GameObjects
             }
         }
 
+        private void ReleaseItem(GameItemCollected item, bool lastKeyUp)
+        {
+            switch (item.Name)
+            {
+                case "shield":
+                case "mirrorShield":
+                    ReleaseShield(lastKeyUp);
+                    break;
+            }
+        }
+
         private void UseSword()
         {
             if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting &&
-                (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap)
-                && CurrentState != State.Attacking)
+                (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap) && 
+                CurrentState != State.Attacking && CurrentState != State.Blocking &&
+                CurrentState != State.AttackBlocking && CurrentState != State.ChargeBlocking)
                 return;
 
             var slashSounds = new[] { "D378-02-02", "D378-20-14", "D378-21-15", "D378-24-18" };
@@ -2512,7 +2547,10 @@ namespace ProjectZ.InGame.GameObjects
             _shotSword = false;
             StopRaft();
 
-            CurrentState = State.Attacking;
+            if (CurrentState == State.Blocking)
+                CurrentState = State.AttackBlocking;
+            else
+                CurrentState = State.Attacking;
         }
 
         private void HoldSword()
@@ -2945,14 +2983,40 @@ namespace ProjectZ.InGame.GameObjects
 
         private void HoldShield(bool lastKeyDown)
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing)
+            if (CurrentState != State.Idle && 
+                CurrentState != State.Pushing && 
+                CurrentState != State.Attacking && 
+                CurrentState != State.Charging)
                 return;
 
-            if (!_wasBlocking)
+            if (!_wasBlocking & !_blockButton)
                 Game1.GameManager.PlaySoundEffect("D378-22-16");
 
+            _wasBlocking = _blockButton = true;
+
+            if (CurrentState == State.Attacking)
+                CurrentState = State.AttackBlocking;
+            else if (CurrentState == State.Charging)
+                CurrentState = State.ChargeBlocking;
+            else
+                CurrentState = State.Blocking;
+        }
+
+        private void ReleaseShield(bool lastKeyUp)
+        {
+            _blockButton = false;
+
+            if (CurrentState != State.Blocking && 
+                CurrentState != State.AttackBlocking && 
+                CurrentState != State.ChargeBlocking)
+                return;
+
             _wasBlocking = true;
-            CurrentState = State.Blocking;
+
+            if (CurrentState == State.AttackBlocking)
+                CurrentState = State.Attacking;
+            if (CurrentState == State.ChargeBlocking)
+                CurrentState = State.Charging;
         }
 
         private void HoldPegasusBoots()
@@ -3037,7 +3101,11 @@ namespace ProjectZ.InGame.GameObjects
                     _swordPoked = true;
                     Animation.Play("poke_" + Direction);
                     AnimatorWeapons.Play("poke_" + Direction);
-                    CurrentState = State.Attacking;
+
+                    if (CurrentState == State.Blocking)
+                        CurrentState = State.AttackBlocking;
+                    else
+                        CurrentState = State.Attacking;
 
                     // get repelled
                     RepelPlayer(hitCollision, direction);
@@ -3063,7 +3131,10 @@ namespace ProjectZ.InGame.GameObjects
 
         private void StartSwordSpin()
         {
-            CurrentState = State.Attacking;
+            if (CurrentState == State.Blocking || CurrentState == State.ChargeBlocking)
+                CurrentState = State.AttackBlocking;
+            else
+                CurrentState = State.Attacking;
 
             Animation.Play("swing_" + Direction);
             AnimatorWeapons.Play("swing_" + Direction);
@@ -3393,7 +3464,9 @@ namespace ProjectZ.InGame.GameObjects
             if ((!force && (
                 CurrentState != State.Idle &&
                 CurrentState != State.Attacking &&
+                CurrentState != State.AttackBlocking &&
                 CurrentState != State.Charging &&
+                CurrentState != State.ChargeBlocking &&
                 CurrentState != State.Pushing &&
                 CurrentState != State.Blocking &&
                 CurrentState != State.Rafting)) ||
@@ -3432,15 +3505,13 @@ namespace ProjectZ.InGame.GameObjects
             _body.Velocity.Z = JumpAcceleration;
 
             // while attacking the player can still jump but without the animation
-            if (CurrentState != State.Attacking &&
-                CurrentState != State.Charging)
+            if (CurrentState != State.Attacking && CurrentState != State.AttackBlocking &&
+                CurrentState != State.Charging && CurrentState != State.ChargeBlocking)
             {
                 // start the jump animation
                 Animation.Play("jump_" + Direction);
-
                 CurrentState = State.Jumping;
             }
-
             return true;
         }
 
@@ -4364,7 +4435,7 @@ namespace ProjectZ.InGame.GameObjects
                 {
                     Direction = (Direction + 1) % 4;
                     // rotate the sword if the player is currently charging
-                    if (CurrentState == State.Charging)
+                    if (CurrentState == State.Charging || CurrentState == State.ChargeBlocking)
                         AnimatorWeapons.Play("stand_" + Direction);
                 }
             }

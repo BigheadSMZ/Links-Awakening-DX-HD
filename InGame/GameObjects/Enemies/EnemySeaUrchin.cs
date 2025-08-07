@@ -70,7 +70,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                 return false;
 
             // push the enemy away if the player is holding a shield in the push direction
-            if (MapManager.ObjLink.CurrentState == ObjLink.State.Blocking &&
+            if ((MapManager.ObjLink.CurrentState == ObjLink.State.Blocking &&
+                MapManager.ObjLink.CurrentState == ObjLink.State.ChargeBlocking) &&
                 AnimationHelper.GetDirection(direction) == MapManager.ObjLink.Direction)
             {
                 _body.Velocity = new Vector3(direction.X, direction.Y, 0) * _moveSpeed;
