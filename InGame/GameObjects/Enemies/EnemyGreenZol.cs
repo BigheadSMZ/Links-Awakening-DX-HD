@@ -172,7 +172,6 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _pushable = true;
             _body.IsActive = true;
             _damageState.IsActive = true;
-            _damageField.IsActive = true;
 
             // fall down
             EntityPosition.Z = 5;
@@ -238,6 +237,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void ShakingEnd()
         {
+            _damageField.IsActive = true;
             _animationComponent.SpriteOffset.X = -6;
             _animationComponent.UpdateSprite();
             _aiComponent.ChangeState("waiting");
