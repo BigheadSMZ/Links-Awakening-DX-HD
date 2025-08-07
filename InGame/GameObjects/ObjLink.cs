@@ -2540,10 +2540,10 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseSword()
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting &&
-                (CurrentState != State.Swimming || !Map.Is2dMap) && 
+            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting && CurrentState != State.Blocking &&
                 CurrentState != State.Attacking && CurrentState != State.Blocking &&
-                CurrentState != State.AttackBlocking && CurrentState != State.ChargeBlocking && _railJump)
+                CurrentState != State.AttackBlocking && CurrentState != State.ChargeBlocking &&
+                (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
             var slashSounds = new[] { "D378-02-02", "D378-20-14", "D378-21-15", "D378-24-18" };
