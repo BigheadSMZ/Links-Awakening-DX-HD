@@ -2563,8 +2563,6 @@ namespace ProjectZ.InGame.GameObjects
 
             if (CurrentState == State.Blocking)
                 CurrentState = State.AttackBlocking;
-            else if (CurrentState == State.Jumping)
-                CurrentState = State.Attacking;
             else
                 CurrentState = State.Attacking;
         }
