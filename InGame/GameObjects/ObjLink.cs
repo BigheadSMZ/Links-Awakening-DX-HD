@@ -2628,6 +2628,7 @@ namespace ProjectZ.InGame.GameObjects
 
             if (CurrentState != State.Idle &&
                 CurrentState != State.Rafting &&
+                CurrentState != State.Pushing &&
                 (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
