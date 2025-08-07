@@ -1174,6 +1174,7 @@ nightmare
 213;1184;1712;visiblehole;;;;;;
 213;1184;1728;;;;;;;
 213;1200;336;;;;;;;
+213;1200;1504;visiblehole;;;;;;
 213;1200;1520;visiblehole;;;;;;
 213;1200;1536;visiblehole;;;;;;
 213;1200;1552;;;;;;;
@@ -1188,6 +1189,7 @@ nightmare
 213;1200;1728;;;;;;;
 213;1216;336;;;;;;;
 213;1216;352;;;;;;;
+213;1216;1504;visiblehole;;;;;;
 213;1216;1520;visiblehole;;;;;;
 213;1216;1536;visiblehole;;;;;;
 213;1216;1552;;;;;;;
@@ -8441,7 +8443,6 @@ nightmare
 215;1200;928;;;;;;;
 215;1200;944;;;;;;;
 215;1200;1088;;;;;;;
-215;1200;1504;;;;;;;
 215;1200;1648;;;;;;;
 215;1200;1664;;;;;;;
 215;1200;1808;;;;;;;
@@ -8455,7 +8456,6 @@ nightmare
 215;1216;1088;;;;;;;
 215;1216;1472;;;;;;;
 215;1216;1488;;;;;;;
-215;1216;1504;;;;;;;
 215;1216;1808;;;;;;;
 215;1216;1824;;;;;;;
 215;1232;800;;;;;;;
@@ -9249,8 +9249,8 @@ nightmare
 165;688;1760;;stone;
 165;1408;720;ow_goldLeafCrow;stone;
 164;48;688;spawn_toadstool;1;item;..toadstool.;
-164;96;128;ow_tutle_rock;;c1;;
 164;96;128;ghost_blockade;1;pushDialog;ghost_blockade;
+164;96;128;ow_tutle_rock;;c1;;
 164;216;1344;final_show;1;bobWowSmall;;
 164;224;624;raccoon_transformed;;teleporter;20.16.64.16;
 164;224;640;raccoon_warning;;pushDialog;raccoon_warning;
@@ -9267,8 +9267,8 @@ nightmare
 164;400;1984;final_show;1;e2;;
 164;416;1216;ow_weather_bird;1;stairsCastle;;
 164;432;2000;final_show;1;e2;;
-164;448;672;ow_woods_stone;1;stairsWoods;;
 164;448;672;ow_woods_stone;;stoneWoods;..ow_woods_stone;False
+164;448;672;ow_woods_stone;1;stairsWoods;;
 164;592;1680;ghost_blockade;1;pushDialog;ghost_blockade;
 164;688;880;ghost_grave_powder;1;dialogBox;ghost_grave_powder_dialog;
 164;704;272;ghost_blockade;1;pushDialog;ghost_blockade;
@@ -9319,8 +9319,8 @@ nightmare
 164;1840;296;ow_de4;;waterfallSound;;
 164;1840;944;monkeyBusiness;;c1;;
 164;1856;928;monkeyBusiness;3;oneWayBridge0;;
-164;1984;816;shellsFound;1;chest;ruby20..shell_22.2;False
 164;1984;816;shellsFound;;chest;shellChest..shell_22.2;False
+164;1984;816;shellsFound;1;chest;ruby20..shell_22.2;False
 164;2000;1616;hide_rabbit_3;;personNew;.animal_rabbit.rabbit_3..;
 164;2016;1712;maria_state;4;maria;;
 164;2064;1976;seq_rabit;1;personNew;.animal_rabbit.seqRabit.stand_3.;
