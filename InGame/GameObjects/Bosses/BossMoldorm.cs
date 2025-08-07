@@ -200,6 +200,8 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         private void ToDying()
         {
+            RemoveComponent(DamageFieldComponent.Index);
+
             _body.Velocity = new Vector3(_body.VelocityTarget.X, _body.VelocityTarget.Y, _body.Velocity.Z);
             _body.VelocityTarget = Vector2.Zero;
 

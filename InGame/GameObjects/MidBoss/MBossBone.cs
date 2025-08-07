@@ -57,6 +57,11 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _animator.Play("move");
         }
 
+        public void RemoveHitDetection()
+        {
+            RemoveComponent(DamageFieldComponent.Index);
+        }
+
         public void Delete()
         {
             _isDying = true;
