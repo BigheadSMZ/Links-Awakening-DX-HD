@@ -362,6 +362,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             if (_aiDamageState.CurrentLives <= 0)
             {
                 RemoveComponent(HittableComponent.Index);
+                RemoveComponent(DamageFieldComponent.Index);
 
                 _animator.Stop();
                 _body.VelocityTarget = Vector2.Zero;
