@@ -237,8 +237,9 @@ marin_dungeon_leave_time ...You're late! I thought you'd never come back!
 marin_dungeon_hearts ...EEEK! You're hurt! Arrrgh! Don't be so reckless!
 marin_dungeon_hearts_alt ...You idiot! I told you this would happen... Eh?! What? I didn't say anything, really!
 
-marin_cucco_0 Ha ha ha! Do it! Do it! Do it moooore! ... ... Hunh? No, it's nothing... I didn't mean it.
-marin_cucco_1 No!  No!  Poor  hen!\nStop that!
+
+marin_cucco_0 No!  No!  Poor  hen!\nStop that!
+marin_cucco_1 Ha ha ha! Do it! Do it! Do it moooore! ... ... Hunh? No, it's nothing... I didn't mean it.
 
 marin_pot_0 Yes!! Yes!! Break them! Break them all! ... ... ... ... What? What's wrong?
 marin_pot_1 Ahhh! Ahhh, you are a bad boy, [NAME]!
