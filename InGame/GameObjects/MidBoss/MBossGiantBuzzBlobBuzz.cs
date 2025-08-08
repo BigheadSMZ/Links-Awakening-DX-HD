@@ -6,12 +6,12 @@ using ProjectZ.InGame.Things;
 
 namespace ProjectZ.InGame.GameObjects.MidBoss
 {
-    class MBossBuzz : GameObject
+    class MBossGiantBuzzBlobBuzz : GameObject
     {
         private readonly CSprite _sprite;
         private float _liveCounter = 2000;
 
-        public MBossBuzz(Map.Map map, Vector2 position, Vector2 velocity, string spriteId, float spriteRotation) : base(map)
+        public MBossGiantBuzzBlobBuzz(Map.Map map, Vector2 position, Vector2 velocity, string spriteId, float spriteRotation) : base(map)
         {
             Tags = Values.GameObjectTag.Enemy;
 
@@ -61,8 +61,6 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         private Values.HitCollision OnHit(GameObject originObject, Vector2 direction, HitType type, int damage, bool pieceOfPower)
         {
-
-
             return Values.HitCollision.RepellingParticle;
         }
     }

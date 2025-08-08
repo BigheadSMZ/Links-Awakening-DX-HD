@@ -199,7 +199,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             {
                 var rotation = MathF.PI / 2 * i + direction * MathF.PI / 4;
                 var offset = new Vector2(-MathF.Cos(rotation), MathF.Sin(rotation));
-                var objBuzz = new MBossBuzz(Map, new Vector2(spawnOrigin.X + offset.X * 20, spawnOrigin.Y + offset.Y * 20), offset, "buzz_" + direction, MathF.PI / 2 * i);
+                var objBuzz = new MBossGiantBuzzBlobBuzz(Map, new Vector2(spawnOrigin.X + offset.X * 20, spawnOrigin.Y + offset.Y * 20), offset, "buzz_" + direction, MathF.PI / 2 * i);
                 Map.Objects.SpawnObject(objBuzz);
             }
         }
@@ -324,6 +324,11 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         public Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
+            if (_aiDamageState.CurrentLives <= 0)
+            {
+                RemoveComponent(HittableComponent.Index);
+                RemoveComponent(DamageFieldComponent.Index);
+            }
             if (_aiDamageState.CurrentLives <= 0 || _aiDamageState.IsInDamageState())
                 return Values.HitCollision.None;
 
