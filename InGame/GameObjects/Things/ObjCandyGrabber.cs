@@ -147,7 +147,7 @@ namespace ProjectZ.InGame.GameObjects.Things
                 case State.Grab0:
                     _waitCounter += Game1.DeltaTime;
 
-                    if (_waitCounter > 1000)
+                    if (_waitCounter > 1200)
                     {
                         _waitCounter = 0;
                         // open the grabber
@@ -159,7 +159,7 @@ namespace ProjectZ.InGame.GameObjects.Things
                 case State.Grab1:
                     _waitCounter += Game1.DeltaTime;
 
-                    if (_waitCounter > 1000)
+                    if (_waitCounter > 1200)
                     {
                         _currentState = State.Grab2;
                     }
