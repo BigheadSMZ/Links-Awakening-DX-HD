@@ -78,5 +78,10 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         {
             _animator.Play("head_3");
         }
+
+        public void Death()
+        {
+            RemoveComponent(DamageFieldComponent.Index);
+        }
     }
 }

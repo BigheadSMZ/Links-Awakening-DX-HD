@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Microsoft.Xna.Framework;
 using ProjectZ.Base;
 using ProjectZ.InGame.GameObjects.Base;
@@ -346,6 +347,13 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             }
             else
             {
+                // Remove damage component from head and body parts.
+                _head.Death();
+
+                foreach (var part in _bodyParts)
+                    if (part != null)
+                        part.Death();
+
                 _aiComponent.ChangeState("despawning");
                 Game1.GameManager.PlaySoundEffect("D370-16-10");
             }
