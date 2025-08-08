@@ -10,14 +10,14 @@ test_sign_0:0 -> [music:53:1] -> [stop_music:3000:1]
 test_sign_1:0 -> npc_tracy_8
 
 
-// overworld
+// Init Overworld
 overworld:0 -> [set:dungeon_1:0] -> [set:dungeon_2:0] -> [set:dungeon_3:0] -> [set:dungeon_4:0] -> [set:dungeon_5:0] -> [set:dungeon_6:0] -> [set:dungeon_7:0] -> [set:dungeon_8:0] -> [set:crystal_hard:0] -> [set:pondReset:0] -> [set:rabbit_0Jump:533] -> [set:rabbit_1Jump:533] -> [set:rabbit_3Jump:533] -> [path:overworldMusic]
 
-// before the sword is collected the overworld music is changed
+// Play the intro music before sword is collected
 overworldMusic:introMusic:1 -> [music:28:1]
 overworldMusic:0 ->
 
-// before the sword is collected the house music is changed
+// Play the same music while inside houses
 houseMusic:introMusic:1 -> [music:28:1]
 houseMusic:0 ->
 
@@ -26,134 +26,148 @@ bowWowHouse:0 ->
 
 ocarina:0 -> ocarina
 
-// dungeon intro text
+// Dungeon intro text
 dungeon_1:0 -> dungeon_1 -> [set:1]
 dungeon_1:1 ->
-
 dungeon_2:0 -> dungeon_2 -> [set:1]
 dungeon_2:1 ->
-
 dungeon_3:0 -> dungeon_3 -> [set:1]
 dungeon_3:1 ->
-
 dungeon_4:0 -> dungeon_4 -> [set:1]
 dungeon_4:1 ->
-
 dungeon_5:0 -> dungeon_5 -> [set:1]
 dungeon_5:1 ->
-
 dungeon_6:0 -> dungeon_6 -> [set:1]
 dungeon_6:1 ->
-
 dungeon_7:0 -> dungeon_7 -> [set:1]
 dungeon_7:1 ->
-
 dungeon_8:0 -> dungeon_8 -> [set:1]
 dungeon_8:1 ->
 
-// maria in the house
+// Marin in the house
 marin_intro:0 -> maria_0_0 -> [set:maria:1] -> [set:tarin:0] -> [set:introMusic:1]
-
 maria:1 -> maria_0_1
 
-// maria standing outside and singing
-// tarin is missing
+// Marin standing outside and singing
 marin_start_singing:0 -> [wait:dialogOpen:0] -> [set:maria_sing:1]
 marin_start_singing_animals:0 -> [wait:dialogOpen:0] -> [set:maria_sing_animals:1]
 
+// Tarin is in the forest dialog
 maria:2 -> maria_1_0 -> [path:marin_start_singing]
-maria:1_1 -> maria_1_1 -> [path:marin_start_singing]
-// tarin sleeping
-maria:1_2 -> maria_1_2 -> [path:marin_start_singing]
 
+// Marin loves singing dialog
+maria:1_1 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_1]
+
+// Tarin sleeping dialog
+maria:1_2 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_2]
+
+// One-shot dialog after song was learned
 maria:4 -> maria_1_8 -> [set:3]
 
+// End game dialog
 maria:marin_thanks:1 -> marin_5_0 -> [set:marin_thanks:]
 
-// tarin is back -> sing
-maria:maria_state:1 -> [check_item:ocarina_maria:1:learned_song] -> [path:maria_learned_song]
-// in the right village
-maria:maria_state:4 -> [check_item:ocarina_maria:1:learned_song] -> [path:maria_learned_song_2]
+// NOTE: The statement below this note never seemed to trigger, since "maria" is always in state "1_1" or "1_2" until she is found in animal village, meaning 
+// the dialog statements above took priority. This made it impossible to learn "Ballad of the Wind Fish" in Mabe Village. The above statements were rewritten 
+// so that the ocarina check always takes place. This statement probably remains redundant, but I'll keep it here for now just to be safe. The two statements 
+// after this one are most likely still required after Marin leaves Mabe Village. I have no idea why there are two different variables to track these events.
 
-maria:maria_state:6 -> [check_item:ocarina_maria:1:learned_song] -> [path:maria_learned_song_3]
+// Probably redundant but keeping to be safe
+maria:maria_state:1 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_1]
 
-// coming out of the dungeon
+// Marin in the animal village
+maria:maria_state:4 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_3]
+
+// Marin was saved from bridge
+maria:maria_state:6 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_4]
+
+// Marin leaving a dungeon
 marin_dungeon_leave:marin_dungeon_hearts:1 -> marin_dungeon_hearts
 marin_dungeon_leave:marin_dungeon_hearts:2 -> marin_dungeon_hearts_alt
 marin_dungeon_leave:marin_dungeon_time:1 -> marin_dungeon_leave_time
 marin_dungeon_leave:0 -> marin_dungeon_leave
 
-// digging while marin is following the player
+// Digging while marin is following the player
 dig_dialog:maria_state:3 -> [countdown:100] -> marin_digging
 dig_dialog:0 ->
 
+// Breaking a pot while marin is following the player
 break_pot:maria_state:3 -> [path:marin_break_pot_dungeon]
 break_pot:0 ->
-// dont show the message in the dungeon when marin is not following the player
+
+// Don't show the message in the dungeon when Marin is not following the player.
 marin_break_pot_dungeon:maria_dungeon:0 -> [path:marin_break_pot]
 marin_break_pot_dungeon:maria_dungeon:1 ->
 marin_break_pot:0 -> [countdown:275] -> marin_pot_0 -> [set:1]
 marin_break_pot:1 -> [countdown:275] -> marin_pot_1
 
-// hitting a bird
+// Hitting a bird while marin is following the player
 bird_hit:maria_state:3 -> [path:bird_hit_marin]
 bird_hit:0 ->
-
 bird_hit_marin:0 -> marin_cucco_0 -> [set:1]
 bird_hit_marin:1 -> marin_cucco_1
 
-// marin in the mountains
+// Marin on the mountain
 marin_help:0 -> [update_objects] -> marin_4_0 -> marin_4_1
 marin_saved:0 -> [save_history:true] -> [set:link_direction:2] -> [freeze:250] -> marin_4_2 -> marin_4_3 -> marin_4_4 -> [set:seq_tarin:1] -> [set:seqTarinFade:-125] -> [set:seqTarinMove:72,0,1] -> [freeze:seqTarinMoving:0] -> [set:seqTarinAnimation:stand_1] -> [set:maria_play_animation:stand_3] -> marin_4_5 -> [freeze:600] -> [set:link_direction:3] -> marin_4_6 -> [freeze:600] -> [set:maria_play_animation:stand_0] -> [set:seqTarinAnimation:-] -> [set:seqTarinMove:-72,0,0.5] -> [set:maria_walk:0,14,0.5] -> [freeze:1] -> [set:maria_walk:-14,0,0.5] -> [freeze:marinMoving:0] -> [set:maria_play_animation:stand_1] -> [freeze:1000] -> [set:seqTarinFade:125] -> [freeze:500] -> [set:maria_walk:-64,0,0.75] -> [freeze:1000] -> [set:maria_fade:125] -> [set:seq_tarin:0] -> [set:marin_thanks:1] -> [set:owl:8_0] -> [save_history:false]
 
+// Papahl at home
 npc08:0 -> npc08_0
 npc08:1 -> npc08_1
 
-// lost boy on the mountain
+// Papahl on the mountain
 npc_lost_boy:0 -> [check_item:trade6:1:has_item] -> [path:npc_lost_boy_item]
 npc_lost_boy:1 -> npc_lost_boy_4
-
 npc_lost_boy_item:has_item:0 -> [dialog:choice:npc_lost_boy_0:choice_Nope:choice_Cant] -> [path:npc_lost_boy_choice_0]
 npc_lost_boy_item:has_item:1 -> [dialog:choice:npc_lost_boy_0:choice_Yes:choice_Nope] -> [path:npc_lost_boy_choice_1]
-// do not have the item so we cant trade it
+
+// Papahl trade sequence: item missing
 npc_lost_boy_choice_0:choice:0 -> npc_lost_boy_1
 npc_lost_boy_choice_0:choice:1 -> npc_lost_boy_1
 
-// trading sequence
+// Papahl trade sequence: item traded
 npc_lost_boy_choice_1:choice:0 -> [save_history:true] -> [remove_item:trade6:1:result] -> npc_lost_boy_2 -> [wait:dialogOpen:0] -> [music_speed:1.5] -> [set:npc_lost_boy_eat:1] -> [freeze:3300] -> [music_speed:1] -> npc_lost_boy_3 -> [wait:dialogOpen:0] -> [add_item:trade7:1] -> [set:ow_npc_bag:0] -> [set:npc_lost_boy_state:2] -> [set:npc08:1] -> [set:npc07:0] -> [set:npc_lost_boy:1] -> [save_history:false]
 npc_lost_boy_choice_1:choice:1 -> npc_lost_boy_1
 
-// not learned song -> check ocarina || learned song -> just sing
-maria_learned_song:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing]
-maria_learned_song:learned_song:1 -> maria_1_1 -> [path:marin_start_singing]
-// no ocarina -> sing for herself || ocarina -> teach song
-marin_singing:has_ocarina:0 -> maria_1_1 -> [path:marin_start_singing]
-marin_singing:has_ocarina:1 -> maria_1_3 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
+// Learn song when dialog is "Marin loves singing"
+marin_learn_song_1:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_1]
+marin_learn_song_1:learned_song:1 -> maria_1_1 -> [path:marin_start_singing]
+marin_singing_1:has_ocarina:0 -> maria_1_1 -> [path:marin_start_singing]
+marin_singing_1:has_ocarina:1 -> maria_1_3 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
 
-maria_learned_song_3:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing]
-maria_learned_song_3:learned_song:1 -> [path:marin_learned_song]
-// learned the song after getting saved
-marin_learned_song:0 -> maria_1_8 -> [set:1]
-marin_learned_song:1 -> marin_5_1
-
-maria_learned_song_2:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_2]
-maria_learned_song_2:learned_song:1 -> maria_1_9 -> [path:marin_start_singing_animals]
-marin_singing_2:has_ocarina:0 -> maria_1_9 -> [path:marin_start_singing_animals]
+// Learn song when dialog is "Tarin is sleeping
+marin_learn_song_2:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_2]
+marin_learn_song_2:learned_song:1 -> maria_1_2 -> [path:marin_start_singing]
+marin_singing_2:has_ocarina:0 -> maria_1_2 -> [path:marin_start_singing]
 marin_singing_2:has_ocarina:1 -> maria_1_3 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
 
+// Learn song while Marin is in Animal Village
+marin_learn_song_3:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_3]
+marin_learn_song_3:learned_song:1 -> maria_1_9 -> [path:marin_start_singing_animals]
+marin_singing_3:has_ocarina:0 -> maria_1_9 -> [path:marin_start_singing_animals]
+marin_singing_3:has_ocarina:1 -> maria_1_3 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
+
+// Learn song after Marin is saved
+marin_learn_song_4:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_4]
+marin_learn_song_4:learned_song:1 -> [path:marin_singing_4]
+marin_singing_4:0 -> maria_1_8 -> [set:1]
+marin_singing_4:1 -> marin_5_1
+
+// Confirmation the song has been learned
 marin_singing_end:0 -> [dialog:choice:maria_1_4:choice_Yes:choice_No] -> [path:maria_song_repeat]
 
-// get the song || replay the song
+// Learn / Repeat song dialog choice
 maria_song_repeat:choice:0 -> [set:maria:4] -> [add_item:ocarina_maria:1]
 maria_song_repeat:choice:1 -> maria_1_6 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
 
-// maria at the beach
+// Marin at the beach
 maria:6 -> [dialog:choice:marin_2_0:choice_Yes!:choice_No...] -> [path:maria_beach_choice]
 maria_beach_choice:choice:0 -> [set:maria:7] -> [start_sequence:marinBeach]
 maria_beach_choice:choice:1 -> marin_2_1
 
 maria:7 ->
 
+// Ocarina when no songs are learned
 ocarina_bad:maria_state:3 -> ocarina_bad_marin
 ocarina_bad:0 -> ocarina_bad
 
