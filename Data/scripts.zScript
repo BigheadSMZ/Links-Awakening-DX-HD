@@ -67,12 +67,7 @@ maria:4 -> maria_1_8 -> [set:3]
 // End game dialog
 maria:marin_thanks:1 -> marin_5_0 -> [set:marin_thanks:]
 
-// NOTE: The statement below this note never seemed to trigger, since "maria" is always in state "1_1" or "1_2" until she is found in animal village, meaning 
-// the dialog statements above took priority. This made it impossible to learn "Ballad of the Wind Fish" in Mabe Village. The above statements were rewritten 
-// so that the ocarina check always takes place. This statement probably remains redundant, but I'll keep it here for now just to be safe. The two statements 
-// after this one are most likely still required after Marin leaves Mabe Village. I have no idea why there are two different variables to track these events.
-
-// Probably redundant but keeping to be safe
+// Marin loves singing dialog fallback
 maria:maria_state:1 -> [check_item:ocarina_maria:1:learned_song] -> [path:marin_learn_song_1]
 
 // Marin in the animal village
@@ -135,7 +130,7 @@ marin_learn_song_1:learned_song:1 -> maria_1_1 -> [path:marin_start_singing]
 marin_singing_1:has_ocarina:0 -> maria_1_1 -> [path:marin_start_singing]
 marin_singing_1:has_ocarina:1 -> maria_1_3 -> [wait:dialogOpen:0] -> [freeze:350] -> [set:maria_start_duo:1]
 
-// Learn song when dialog is "Tarin is sleeping
+// Learn song when dialog is "Tarin is sleeping"
 marin_learn_song_2:learned_song:0 -> [check_item:ocarina:1:has_ocarina] -> [path:marin_singing_2]
 marin_learn_song_2:learned_song:1 -> maria_1_2 -> [path:marin_start_singing]
 marin_singing_2:has_ocarina:0 -> maria_1_2 -> [path:marin_start_singing]
@@ -627,15 +622,15 @@ check_item0:npc_hidden:1 -> [check_item:bow:0:has_bow] -> [path:check_bow]
 check_item0:0 -> [check_item:shovel:1:has_shovel] -> [path:check_shovel]
 
 check_shovel:has_shovel:0 -> [set:shopItem0:0]
-check_shovel:has_shovel:1 -> [check_item:bow:0:has_bow] -> [path:check_bow]
+check_shovel:has_shovel:1 -> [set:shopLevel:1] -> [check_item:bow:0:has_bow] -> [path:check_bow]
 
 check_bow:has_bow:0 -> [set:shopItem0:1]
 check_bow:has_bow:1 -> [set:shopItem0:2]
 
 // -- candy trendy --
 npc_trendy:trendy_closed:1 -> npc_trendy_closed
-
 npc_trendy:0 -> [path:npc_trand_init_0]
+
 // play again dialog
 npc_trendy:1 -> [path:npc_trand_init_1]
 
@@ -1197,7 +1192,6 @@ d2_instrument_music:0 ->
 // set bowwow to a state where it gets returned; make bomb buyable in the shop
 instrument1:0 -> [update_objects] -> instrument1 -> [set:bowWow:3] -> [set:ulrira:3_0] -> [set:tarin:4] -> [set:tarin_state:3] -> [set:maria:1_1] -> [set:npc_boy_1:2] -> [set:shopLevel:1]
 
-
 // == dungeon three ==
 
 // first floor
@@ -1698,6 +1692,7 @@ photo_sequence_ulrich:1 ->
 // photo sequence BowWow
 start_BowWow_Seq:photoMouseActive:0 ->
 start_BowWow_Seq:photoMouseActive:1 -> [path:photo_sequence_BowWow]
+
 // check if BowWow is at the pool
 photo_sequence_BowWow:bowWow:0 -> [path:photo_sequence_3]
 photo_sequence_BowWow:bowWow:4 -> [path:photo_sequence_3]
