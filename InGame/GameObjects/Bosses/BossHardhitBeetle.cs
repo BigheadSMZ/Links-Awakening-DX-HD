@@ -268,6 +268,8 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 _damageField.IsActive = false;
                 _body.VelocityTarget = Vector2.Zero;
                 _aiDamageState.OnHit(gameObject, direction, damageType, damage, false);
+                RemoveComponent(HittableComponent.Index);
+                RemoveComponent(DamageFieldComponent.Index);
             }
             else
             {
