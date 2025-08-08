@@ -99,8 +99,19 @@ marin_break_pot:1 -> [countdown:275] -> marin_pot_1
 // Hitting a bird while marin is following the player
 bird_hit:maria_state:3 -> [path:bird_hit_marin]
 bird_hit:0 ->
+
+// In the original, it's a very rare chance to see her encourage Link to whack it.
+// Randomization is not possible with this system, so just show it after 10 hits.
 bird_hit_marin:0 -> marin_cucco_0 -> [set:1]
-bird_hit_marin:1 -> marin_cucco_1
+bird_hit_marin:1 -> marin_cucco_0 -> [set:2]
+bird_hit_marin:2 -> marin_cucco_0 -> [set:3]
+bird_hit_marin:3 -> marin_cucco_0 -> [set:4]
+bird_hit_marin:4 -> marin_cucco_0 -> [set:5]
+bird_hit_marin:5 -> marin_cucco_0 -> [set:6]
+bird_hit_marin:6 -> marin_cucco_0 -> [set:7]
+bird_hit_marin:7 -> marin_cucco_0 -> [set:8]
+bird_hit_marin:8 -> marin_cucco_0 -> [set:9]
+bird_hit_marin:9 -> marin_cucco_1 -> [set:0]
 
 // Marin on the mountain
 marin_help:0 -> [update_objects] -> marin_4_0 -> marin_4_1
