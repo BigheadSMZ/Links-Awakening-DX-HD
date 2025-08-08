@@ -10,7 +10,7 @@ using ProjectZ.InGame.Things;
 
 namespace ProjectZ.InGame.GameObjects.MidBoss
 {
-    internal class MBossBone : GameObject
+    internal class MBossRollingBonesBone : GameObject
     {
         private readonly Animator _animator;
         private readonly BodyComponent _body;
@@ -22,7 +22,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private float _deathCount;
         private int _deathState;
 
-        public MBossBone(Map.Map map, int posX, int posY, int offset) : base(map)
+        public MBossRollingBonesBone(Map.Map map, int posX, int posY, int offset) : base(map)
         {
             var fieldRectangle = map.GetField(posX, posY, 16);
 

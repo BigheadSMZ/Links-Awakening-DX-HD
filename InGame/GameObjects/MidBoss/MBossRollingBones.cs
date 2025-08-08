@@ -13,7 +13,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 {
     internal class MBossRollingBones : GameObject
     {
-        private readonly MBossBone _bone;
+        private readonly MBossRollingBonesBone _bone;
 
         private readonly BodyComponent _body;
         private readonly AiComponent _aiComponent;
@@ -127,7 +127,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
                 boneOffset = 32;
             }
 
-            _bone = new MBossBone(map, posX, posY, boneOffset);
+            _bone = new MBossRollingBonesBone(map, posX, posY, boneOffset);
             map.Objects.SpawnObject(_bone);
         }
 
