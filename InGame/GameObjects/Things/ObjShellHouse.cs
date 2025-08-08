@@ -89,7 +89,7 @@ namespace ProjectZ.InGame.GameObjects.Things
                 _soundCounter -= Game1.DeltaTime;
                 if (_soundCounter < 0)
                 {
-                    _soundCounter += 150;
+                    _soundCounter += Game1.RandomNumber.Next(50, 200);;
                     Game1.GameManager.PlaySoundEffect("D370-06-06");
                 }
 
