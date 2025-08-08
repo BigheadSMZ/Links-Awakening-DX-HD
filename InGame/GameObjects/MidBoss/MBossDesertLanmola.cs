@@ -1,5 +1,4 @@
 using System;
-using System.Threading;
 using Microsoft.Xna.Framework;
 using ProjectZ.Base;
 using ProjectZ.InGame.GameObjects.Base;
@@ -38,6 +37,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         private bool _jumpLandSound;
         private bool _playerLeft = true;
+        private bool _defeated;
 
         private const int CooldownTime = 350;
         private const int DespawnTime = 5500;
@@ -114,7 +114,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             Game1.GameManager.SaveManager.SetString(_triggerKey, "0");
 
             // was triggered?
-            if (_playerLeft && triggerState == "1")
+            if (_playerLeft && triggerState == "1" && !_defeated)
             {
                 _playerLeft = false;
 
@@ -323,6 +323,9 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
             // spawn the fish dungeon key
             Map.Objects.SpawnObject(new ObjItem(Map, (int)_head.EntityPosition.X - 8, (int)_head.EntityPosition.Y - 16, "j", "dkey3Collected", "dkey3", null));
+
+            // prevent recurrent spawns after defeat
+            _defeated = true;
         }
 
         private void SetEffect(SpriteShader effect)
