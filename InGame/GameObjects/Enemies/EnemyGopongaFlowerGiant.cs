@@ -54,11 +54,12 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             AddComponent(BaseAnimationComponent.Index, animationComponent);
             AddComponent(DrawComponent.Index, new BodyDrawComponent(body, sprite, Values.LayerPlayer) { WaterOutline = false });
         }
-
+         
         private Values.HitCollision OnHit(GameObject originObject, Vector2 direction, HitType type, int damage, bool pieceOfPower)
         {
             // only bowwow can attack
-            if (type != HitType.BowWow && type != HitType.Hookshot && type != HitType.MagicRod && type != HitType.Boomerang)
+            if (type != HitType.BowWow && type != HitType.Hookshot && type != HitType.MagicRod && type != HitType.Boomerang &&
+                ((type & HitType.Sword2) == 0 || (type & HitType.SwordSpin) == 0))
                 return Values.HitCollision.Blocking;
 
             if (type != HitType.BowWow && (type == HitType.MagicRod || damage >= _aiDamageState.CurrentLives))
