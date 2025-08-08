@@ -601,10 +601,6 @@ shopkeeper_buy:itemShopItem:bomb -> [update_objects] -> [dialog:choice:itemShop_
 shopkeeper_buy:0 -> [update_objects] -> [dialog:choice:itemShop_dialog:itemShop_buy:itemShop_dont] -> [path:itemShop]
 
 shopkeeper_try_steal:0 -> shopkeeper_4
-shopkeeper_steal:0 -> shopkeeper_5 -> [path:stealing_photo]
-// unlock the photo if link already talked to the photo mouse
-stealing_photo:photo_1:0 ->
-stealing_photo:photo_1:1 -> [set:photo_7:1] -> [path:photo_count_increase]
 
 itemShop:choice:0 -> [buy:result] -> [path:itemBuy]
 itemShop:choice:1 -> [set:result:1] -> [set:holdItem:0]
@@ -1654,7 +1650,9 @@ photo_mouse_house:has_ghost:1 -> photo_mouse_follower
 photo_mouse_house:has_marin:1 -> photo_mouse_follower
 photo_mouse_house:has_rooster:1 -> photo_mouse_follower
 
-// photo sequence 1
+//-------------------------------------------------------------------------------
+// Photo 01: "Here Stands A Brave Man" / "Game Over" - First Photograph at Camera Shop
+
 photo_mouse_house:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:photoMouseActive:1] -> [dialog:choice:photo_01_0:choice_YES:choice_NO] -> [path:photo_mouse_choice]
 photo_mouse_house:1 -> photo_01_1
 
@@ -1682,73 +1680,19 @@ photo_mouse_take_photo:0 -> [update_objects] -> [freeze:photo_mouse_houseMoving:
 // the player can not leave the house after triggering the sequence
 photo_house_blockade:0 -> photo_01_9
 
-// photo sequence Ulrich
-photo_sequence_2:photoMouseActive:0 ->
-photo_sequence_2:photoMouseActive:1 -> [path:photo_sequence_ulrich]
+//-------------------------------------------------------------------------------
+Photo 02: "..." - Link & Marin / Toronbo Shores
 
-photo_sequence_ulrich:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:spawnMouseSeq2:1] -> [set:mouseSeq2Fade:-75] -> [set:mouseSeq2Move:-56,0,1] -> [freeze:mouseSeq2Moving:0] -> [freeze:500] -> [set:link_direction:2] -> photo_02_0 -> [wait:dialogOpen:0] -> [set:mouseSeq2Move:-10,0,1] -> [set:link_push:-10,0,200] -> [freeze:1] -> [freeze:mouseSeq2Moving:0] -> [set:mouseSeq2Animation:stand_1] -> [set:link_direction:1] -> photo_02_1 -> [wait:dialogOpen:0] -> [set:photo_flash:1] -> [freeze:350] -> [set:photo_5:1] -> [set:photoSequencePhoto:photo_5] -> [start_sequence:photo] -> [set:spawnMouseSeq2:0] -> [set:mouseSeq2Move:56,0,1] -> [freeze:350] -> [set:mouseSeq2Fade:75] -> [save_history:false] -> [path:photo_count_increase]
-photo_sequence_ulrich:1 ->
+check_cliff_sequence:1 ->
+check_cliff_sequence:photoMouseActive:1 -> [path:cliff_sequence_marin]
+check_cliff_sequence:0 ->
+cliff_sequence_marin:has_marin:0 ->
+cliff_sequence_marin:has_marin:1 -> [save_history:true] -> [set:check_cliff_sequence:1] -> [set:photo_2:1] -> [start_sequence:marinCliff]
 
-// photo sequence BowWow
-start_BowWow_Seq:photoMouseActive:0 ->
-start_BowWow_Seq:photoMouseActive:1 -> [path:photo_sequence_BowWow]
+seq_cliff:0 -> [music:77:2] -> [freeze:750] -> marin_cliff_0 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_2 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_3 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:1500] -> marin_cliff_4 -> [wait:dialogOpen:0] -> [freeze:750] -> [sound:D378-63-40] -> [seq_color:cliffPhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:cliffPhotoFlash:0:0:0:0:150] -> [freeze:750] -> marin_cliff_5 -> [wait:dialogOpen:0] -> [freeze:500] -> [music:-1:2] -> [close_overlay] -> [path:photo_count_increase] -> [save_history:false]
 
-// check if BowWow is at the pool
-photo_sequence_BowWow:bowWow:0 -> [path:photo_sequence_3]
-photo_sequence_BowWow:bowWow:4 -> [path:photo_sequence_3]
-photo_sequence_BowWow:0 ->
-
-photo_sequence_3:0 -> [save_history:true] -> [set:1] -> [set:photo_6:1] -> [start_sequence:bowWow]
-photo_sequence_3:1 -> [set:2] -> photo_03_0
-photo_sequence_3:2 -> [set:3] -> photo_03_1 -> [freeze:1000] -> photo_03_2
-photo_sequence_3:3 -> [set:4] -> photo_03_3
-photo_sequence_3:4 -> [set:5] -> photo_03_4 -> photo_03_5 -> [path:photo_count_increase]
-photo_sequence_3:5 -> [save_history:false]
-
-// photo castle sequence
-photo_sequence_4:photoMouseActive:0 ->
-photo_sequence_4:photoMouseActive:1 -> [path:photo_sequence_castle]
-
-photo_sequence_castle:1 ->
-photo_sequence_castle:npc_frog_boy:1 -> [save_history:true] -> [set:1] -> [set:photo_10:1] -> [start_sequence:castle] -> [path:photo_count_increase]
-photo_sequence_castle:0 ->
-
-castle_sequence:0 -> [music:63:2] -> [freeze:1000] -> [seq_lerp:castleLink:91:-35:0.325] -> [seq_play:castleLink:walk] -> [seq_lerp:castleMouse:22:0:0.255] -> [seq_play:castleMouse:walk_2] -> [freeze:castleMouseMoving:0] -> [seq_finish_animation:castleMouse:0] -> [freeze:1000] -> [seq_lerp:castleMouse:-32:0:0.25] -> [seq_play:castleMouse:walk_0] -> [freeze:castleMouseMoving:0] -> [seq_finish_animation:castleMouse:0] -> [freeze:castleLinkMoving:0] -> [seq_finish_animation:castleLink:0] -> photo_05_0 -> [wait:dialogOpen:0] -> [seq_lerp:castleBoy:-44:-14:0.325] -> [seq_play:castleBoy:walk] -> [freeze:castleBoyMoving:0] -> [seq_finish_animation:castleBoy:0] -> photo_05_1 -> [wait:dialogOpen:0] -> [seq_play:castleLink:forward] -> [seq_lerp:castleMouse:0:64:0.25] -> [seq_play:castleMouse:walk_3] -> [seq_lerp:castleBoy:-39:-11:0.325] -> [seq_play:castleBoy:walk] -> [freeze:castleBoyMoving:0] -> [seq_play:castleBoy:forward] -> photo_05_2 -> [wait:dialogOpen:0] -> [freeze:1000] -> [seq_play:castleLink:piece] -> [seq_play:castleBoy:piece] -> [freeze:750] -> [sound:D378-63-40] -> [seq_color:castleFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:castleFlash:0:0:0:0:150] -> [freeze:750] -> [seq_play:castleBoy:stand] -> photo_05_3 -> [wait:dialogOpen:0] -> [seq_play:castleLink:forward] -> [seq_lerp:castleBoy:-112:28:0.325] -> [seq_play:castleBoy:walk] -> [freeze:2500] -> [close_overlay] -> [music:-1:2] -> [save_history:false]
-
-
-photo_sequence_grave:photoMouseActive:0 ->
-photo_sequence_grave:photoMouseActive:1 -> [path:photo_sequence_grave_start]
-
-photo_sequence_grave_start:0 -> [save_history:true] -> [set:1] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
-photo_sequence_grave_start:1 ->
-
-// photo sequence gravestone
-seq_gravestone:0 -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
-
-// photo sequence zora
-npc_zora_script:0 -> [check_item:trade13:1:result] -> [path:npc_zora_item_check]
-
-npc_zora_item_check:result:0 ->
-npc_zora_item_check:result:1 -> [path:npc_zora_spawn]
-
-npc_zora_spawn:photoMouseActive:0 -> [path:npc_spawn_zora_normal]
-npc_zora_spawn:photoMouseActive:1 -> [path:npc_zora_photo_sequence]
-
-npc_spawn_zora_normal:npc_spawn_zora:0 -> [update_objects] -> [set:npc_spawn_zora:1] -> [set:npc_zoraAnimation:spawn] -> [freeze:750] -> [set:npc_zoraAnimation:idle]
-npc_spawn_zora_normal:0 ->
-
-npc_zora_photo_sequence:photo_9:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:photo_9:1] -> [set:npc_spawn_zora:1] -> [set:npc_zoraAnimation:spawn] -> [freeze:750] -> [set:npc_zoraAnimation:idle] -> photo_11_0 -> [wait:dialogOpen:0] -> [set:spawnMouseZora:1] -> [set:mouseSeqZoraFade:-75] -> [set:mouseSeqZoraMove:0,-52,1] -> [freeze:1] -> [set:mouseSeqZoraMove:40,0,1] -> [freeze:mouseSeqZoraMoving:0] -> [set:mouseSeqZoraAnimation:stand_1] -> [freeze:500] -> photo_11_1 -> [wait:dialogOpen:0] -> [set:photo_flash:1] -> [freeze:1000] -> [set:photoSequencePhoto:photo_9] -> [start_sequence:photo] -> [set:spawnMouseZora:0] -> [set:mouseSeqZoraFade:75] -> [save_history:false] -> [path:photo_count_increase]
-npc_zora_photo_sequence:photo_9:1 -> [path:npc_spawn_zora_normal]
-
-npc_zora:0 -> npc_zora
-
-// photo sequence mountain
-mountain_mouse_seq:photoMouseActive:0 ->
-mountain_mouse_seq:photoMouseActive:1 -> [path:start_mountain_seq]
-
-start_mountain_seq:0 -> [update_objects] -> [save_history:true] -> [freeze:500] -> [set:1] -> [set:photo_12:1] -> [set:mountain_beetle_hide:1] -> [set:spawnMouseMountain:1] -> [set:mouseSeqMountainFade:-75]] -> [set:mouseSeqMountainMove:96,0,1] -> [freeze:mouseSeqMountainMoving:0] -> [set:link_direction:0] -> photo_12_0 -> photo_12_1 -> photo_12_2 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:-10,0,1] -> [set:mouseSeqMountainAnimation:walk_2] -> [freeze:1] -> [freeze:mouseSeqMountainMoving:0] -> photo_12_3 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:-5,6,1] -> [set:mouseSeqMountainAnimation:duck] -> [freeze:1] -> [freeze:mouseSeqMountainMoving:0] -> photo_12_4 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:0,48,1.5] -> [set:mouseSeqMountainAnimation:duck] -> [freeze:300] -> [set:photo_flash:1] -> [freeze:350] -> [set:photoSequencePhoto:photo_12] -> [start_sequence:photo] -> [set:spawnMouseMountain:0] -> [set:mouseSeqMountainFade:75] -> [set:mountain_beetle_hide:0] -> [save_history:false] -> [path:photo_count_increase]
-start_mountain_seq:1 ->
-
+//-------------------------------------------------------------------------------
+// Photo 03: "Heads Up!" - Link & Marin / Mabe Village Well
 
 // make sure to spawn the mouse before the real sequence is started when marin hits the ground
 seq_fountain_mouse_spawn:1 ->
@@ -1769,31 +1713,116 @@ sequence_fountain_marin:fallen_on_link:1 -> [update_objects] -> [set:link_animat
 photo_sequence_fountain:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:photo_3:1] -> [set:link_animation:stunned] -> [freeze:500] -> photo_08_0 -> [wait:dialogOpen:0] -> [set:photo_flash:1] -> [freeze:250] -> photo_08_1 -> [wait:dialogOpen:0] -> [set:mouseSeqFountainMove:0,-48,1] -> [freeze:350] -> [set:link_idle:1] -> [freeze:mouseSeqFountainMoving:0] -> [set:spawnMouseFountain:0] -> [set:mouseSeqFountainFade:75] -> [save_history:false] -> [path:photo_count_increase]
 photo_sequence_fountain:1 -> [path:sequence_fountain_marin]
 
+//-------------------------------------------------------------------------------
+Photo 04: "Say "Mushroom!" - Link & Marin / Weathervane / Flying Rooster
 
-// photo sequence weather bird
 start_weather_bird_seq:photoMouseActive:0 ->
 start_weather_bird_seq:photoMouseActive:1 -> [path:seq_weather_bird_marin]
+
 seq_weather_bird_marin:has_marin:0 ->
 seq_weather_bird_marin:has_marin:1 -> [path:photo_sequence_weather_bird]
+
 photo_sequence_weather_bird:0 -> [save_history:true] -> [set:1] -> [set:photo_4:1] -> [start_sequence:weatherBird] -> [path:photo_count_increase]
 photo_sequence_weather_bird:1 ->
 
 seq_weather_bird:0 -> [music:1:2] -> [seq_lerp:weatherBirdLink:130:0:0.5] -> [seq_lerp:weatherBirdMarin:133:0:0.5] -> [freeze:weatherBirdLinkMoving:0] -> [seq_play:weatherBirdLink:stand]  -> [freeze:weatherBirdMarinMoving:0] -> [seq_play:weatherBirdMarin:stand] -> [seq_play:weatherBirdUlrich:walk] -> [seq_lerp:weatherBirdUlrich:-48:0:0.5] -> [freeze:weatherBirdUlrichMoving:0] -> [seq_play:weatherBirdUlrich:stopped] -> photo_09_0 -> [wait:dialogOpen:0] -> [seq_lerp:weatherBirdUlrich:-48:0:0.5] -> [seq_play:weatherBirdUlrich:walk] -> [freeze:weatherBirdUlrichMoving:0] -> [seq_play:weatherBirdUlrich:stand] -> [seq_lerp:weatherBirdLink:8:0:0.5] -> [freeze:100] -> [seq_lerp:weatherBirdMarin:-2:0:0.5] -> [freeze:100] -> [set:weatherBirdUlrichFront:1] -> photo_09_1 -> [wait:dialogOpen:0] -> [sound:D378-63-40] -> [seq_color:weatherBirdPhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:weatherBirdPhotoFlash:0:0:0:0:150] -> [freeze:1000] -> photo_09_2 -> [wait:dialogOpen:0] -> [seq_lerp:weatherBirdUlrich:-128:0:0.5] -> [seq_play:weatherBirdUlrich:walk] -> [freeze:1500] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
 
+//-------------------------------------------------------------------------------
+// Photo 05: "Link Discovers Ulrira's Secret!" - Mabe Village / Ulrira's House
 
-// photo sequence cliff
-check_cliff_sequence:1 ->
-check_cliff_sequence:photoMouseActive:1 -> [path:cliff_sequence_marin]
-check_cliff_sequence:0 ->
-cliff_sequence_marin:has_marin:0 ->
-cliff_sequence_marin:has_marin:1 -> [save_history:true] -> [set:check_cliff_sequence:1] -> [set:photo_2:1] -> [start_sequence:marinCliff]
+photo_sequence_2:photoMouseActive:0 ->
+photo_sequence_2:photoMouseActive:1 -> [path:photo_sequence_ulrich]
 
-seq_cliff:0 -> [music:77:2] -> [freeze:750] -> marin_cliff_0 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_2 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_3 -> [wait:dialogOpen:0] -> [freeze:125] -> marin_cliff_1 -> [wait:dialogOpen:0] -> [freeze:1500] -> marin_cliff_4 -> [wait:dialogOpen:0] -> [freeze:750] -> [sound:D378-63-40] -> [seq_color:cliffPhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:cliffPhotoFlash:0:0:0:0:150] -> [freeze:750] -> marin_cliff_5 -> [wait:dialogOpen:0] -> [freeze:500] -> [music:-1:2] -> [close_overlay] -> [path:photo_count_increase] -> [save_history:false]
+photo_sequence_ulrich:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:spawnMouseSeq2:1] -> [set:mouseSeq2Fade:-75] -> [set:mouseSeq2Move:-56,0,1] -> [freeze:mouseSeq2Moving:0] -> [freeze:500] -> [set:link_direction:2] -> photo_02_0 -> [wait:dialogOpen:0] -> [set:mouseSeq2Move:-10,0,1] -> [set:link_push:-10,0,200] -> [freeze:1] -> [freeze:mouseSeq2Moving:0] -> [set:mouseSeq2Animation:stand_1] -> [set:link_direction:1] -> photo_02_1 -> [wait:dialogOpen:0] -> [set:photo_flash:1] -> [freeze:350] -> [set:photo_5:1] -> [set:photoSequencePhoto:photo_5] -> [start_sequence:photo] -> [set:spawnMouseSeq2:0] -> [set:mouseSeq2Move:56,0,1] -> [freeze:350] -> [set:mouseSeq2Fade:75] -> [save_history:false] -> [path:photo_count_increase]
+photo_sequence_ulrich:1 ->
 
+//-------------------------------------------------------------------------------
+// Photo 06: "Link Plays With Bow-Wow!" - Mabe Village / Madam MeowMeow's House
 
-// photo sequence bridge
+start_BowWow_Seq:photoMouseActive:0 ->
+start_BowWow_Seq:photoMouseActive:1 -> [path:photo_sequence_BowWow]
+
+// The photo is available when Bow-Wow is tied to his pole.
+photo_sequence_BowWow:bowWow:0 -> [path:photo_sequence_3]
+photo_sequence_BowWow:bowWow:4 -> [path:photo_sequence_3]
+photo_sequence_BowWow:0 ->
+
+photo_sequence_3:0 -> [save_history:true] -> [set:1] -> [set:photo_6:1] -> [start_sequence:bowWow]
+photo_sequence_3:1 -> [set:2] -> photo_03_0
+photo_sequence_3:2 -> [set:3] -> photo_03_1 -> [freeze:1000] -> photo_03_2
+photo_sequence_3:3 -> [set:4] -> photo_03_3
+photo_sequence_3:4 -> [set:5] -> photo_03_4 -> photo_03_5 -> [path:photo_count_increase]
+photo_sequence_3:5 -> [save_history:false]
+
+//-------------------------------------------------------------------------------
+// Photo 07: "Are you proud of yourself?" - Mabe Village / Stealing From Shop
+
+shopkeeper_steal:0 -> shopkeeper_5 -> [path:stealing_photo]
+
+// unlock the photo if link already talked to the photo mouse
+stealing_photo:photo_1:0 ->
+stealing_photo:photo_1:1 -> [set:photo_7:1] -> [path:photo_count_increase]
+
+//-------------------------------------------------------------------------------
+// Photo 08: "Be more careful next time!" - Martha's Bay / Bridge / Mermaid Statue / Fisherman
+
 photo_sequence_bridge:photoMouseActive:0 -> npc_bridge_5
 photo_sequence_bridge:photoMouseActive:1 -> [save_history:true] -> [set:1] -> [set:bridge_photo:1] -> [set:photo_8:1] -> photo_10_0 -> npc_bridge_3 -> [wait:dialogOpen:0] -> [set:mouse_catch:1] -> [freeze:mouse_pulled:1] -> [music_speed:2] -> [freeze:1000] -> [set:npc_bridgeAnimation:pull] -> [freeze:750] -> npc_bridge_4 -> [wait:dialogOpen:0] -> [set:mousePullUp:1] -> [freeze:mousePulledUp:1] -> [set:npc_bridgeAnimation:pull_look] -> photo_10_1 -> [wait:dialogOpen:0] -> [freeze:1000] -> [set:fisherman_fall:1] -> [freeze:250] -> [set:photo_flash:1] -> [freeze:500] -> [set:photoSequencePhoto:photo_8] -> [start_sequence:photo] -> [freeze:125] -> [set:fisherman_reset:1] -> [path:photo_count_increase] -> [music_speed:1] -> [save_history:false]
+
+//-------------------------------------------------------------------------------
+// Photo 09: "I Found Zora!" - Magnifying Lens / Animal Village / Hidden Zora
+
+npc_zora_script:0 -> [check_item:trade13:1:result] -> [path:npc_zora_item_check]
+
+npc_zora_item_check:result:0 ->
+npc_zora_item_check:result:1 -> [path:npc_zora_spawn]
+
+npc_zora_spawn:photoMouseActive:0 -> [path:npc_spawn_zora_normal]
+npc_zora_spawn:photoMouseActive:1 -> [path:npc_zora_photo_sequence]
+
+npc_spawn_zora_normal:npc_spawn_zora:0 -> [update_objects] -> [set:npc_spawn_zora:1] -> [set:npc_zoraAnimation:spawn] -> [freeze:750] -> [set:npc_zoraAnimation:idle]
+npc_spawn_zora_normal:0 ->
+
+npc_zora_photo_sequence:photo_9:0 -> [update_objects] -> [save_history:true] -> [set:1] -> [set:photo_9:1] -> [set:npc_spawn_zora:1] -> [set:npc_zoraAnimation:spawn] -> [freeze:750] -> [set:npc_zoraAnimation:idle] -> photo_11_0 -> [wait:dialogOpen:0] -> [set:spawnMouseZora:1] -> [set:mouseSeqZoraFade:-75] -> [set:mouseSeqZoraMove:0,-52,1] -> [freeze:1] -> [set:mouseSeqZoraMove:40,0,1] -> [freeze:mouseSeqZoraMoving:0] -> [set:mouseSeqZoraAnimation:stand_1] -> [freeze:500] -> photo_11_1 -> [wait:dialogOpen:0] -> [set:photo_flash:1] -> [freeze:1000] -> [set:photoSequencePhoto:photo_9] -> [start_sequence:photo] -> [set:spawnMouseZora:0] -> [set:mouseSeqZoraFade:75] -> [save_history:false] -> [path:photo_count_increase]
+npc_zora_photo_sequence:photo_9:1 -> [path:npc_spawn_zora_normal]
+
+npc_zora:0 -> npc_zora
+
+//-------------------------------------------------------------------------------
+// Photo 10: "I've Just Decided to Wait at Home" - Richard's Castle Gate / Golden Leaf Quest
+
+photo_sequence_4:photoMouseActive:0 ->
+photo_sequence_4:photoMouseActive:1 -> [path:photo_sequence_castle]
+
+// The photo is only available as long as the door to the castle is still closed.
+photo_sequence_castle:1 ->
+photo_sequence_castle:ow_castle_door:0 -> [save_history:true] -> [set:1] -> [set:photo_10:1] -> [start_sequence:castle] -> [path:photo_count_increase]
+photo_sequence_castle:0 ->
+
+castle_sequence:0 -> [music:63:2] -> [freeze:1000] -> [seq_lerp:castleLink:91:-35:0.325] -> [seq_play:castleLink:walk] -> [seq_lerp:castleMouse:22:0:0.255] -> [seq_play:castleMouse:walk_2] -> [freeze:castleMouseMoving:0] -> [seq_finish_animation:castleMouse:0] -> [freeze:1000] -> [seq_lerp:castleMouse:-32:0:0.25] -> [seq_play:castleMouse:walk_0] -> [freeze:castleMouseMoving:0] -> [seq_finish_animation:castleMouse:0] -> [freeze:castleLinkMoving:0] -> [seq_finish_animation:castleLink:0] -> photo_05_0 -> [wait:dialogOpen:0] -> [seq_lerp:castleBoy:-44:-14:0.325] -> [seq_play:castleBoy:walk] -> [freeze:castleBoyMoving:0] -> [seq_finish_animation:castleBoy:0] -> photo_05_1 -> [wait:dialogOpen:0] -> [seq_play:castleLink:forward] -> [seq_lerp:castleMouse:0:64:0.25] -> [seq_play:castleMouse:walk_3] -> [seq_lerp:castleBoy:-39:-11:0.325] -> [seq_play:castleBoy:walk] -> [freeze:castleBoyMoving:0] -> [seq_play:castleBoy:forward] -> photo_05_2 -> [wait:dialogOpen:0] -> [freeze:1000] -> [seq_play:castleLink:piece] -> [seq_play:castleBoy:piece] -> [freeze:750] -> [sound:D378-63-40] -> [seq_color:castleFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:castleFlash:0:0:0:0:150] -> [freeze:750] -> [seq_play:castleBoy:stand] -> photo_05_3 -> [wait:dialogOpen:0] -> [seq_play:castleLink:forward] -> [seq_lerp:castleBoy:-112:28:0.325] -> [seq_play:castleBoy:walk] -> [freeze:2500] -> [close_overlay] -> [music:-1:2] -> [save_history:false]
+
+//-------------------------------------------------------------------------------
+// Photo 11: "I Was Very Afraid" - Ghost Quest / House by the Bay / Grave at Koholint Prairie
+
+photo_sequence_grave:photoMouseActive:0 ->
+photo_sequence_grave:photoMouseActive:1 -> [path:photo_sequence_grave_start]
+
+photo_sequence_grave_start:0 ->
+photo_sequence_grave_start:ghost_return:1 -> [save_history:true] -> [set:1] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
+photo_sequence_grave_start:1 ->
+
+seq_gravestone:0 -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
+
+//-------------------------------------------------------------------------------
+// Photo 12: "Close Call"
+
+mountain_mouse_seq:photoMouseActive:0 ->
+mountain_mouse_seq:photoMouseActive:1 -> [path:start_mountain_seq]
+
+start_mountain_seq:0 -> [update_objects] -> [save_history:true] -> [freeze:500] -> [set:1] -> [set:photo_12:1] -> [set:mountain_beetle_hide:1] -> [set:spawnMouseMountain:1] -> [set:mouseSeqMountainFade:-75]] -> [set:mouseSeqMountainMove:96,0,1] -> [freeze:mouseSeqMountainMoving:0] -> [set:link_direction:0] -> photo_12_0 -> photo_12_1 -> photo_12_2 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:-10,0,1] -> [set:mouseSeqMountainAnimation:walk_2] -> [freeze:1] -> [freeze:mouseSeqMountainMoving:0] -> photo_12_3 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:-5,6,1] -> [set:mouseSeqMountainAnimation:duck] -> [freeze:1] -> [freeze:mouseSeqMountainMoving:0] -> photo_12_4 -> [freeze:dialogOpen:0] -> [set:mouseSeqMountainMove:0,48,1.5] -> [set:mouseSeqMountainAnimation:duck] -> [freeze:300] -> [set:photo_flash:1] -> [freeze:350] -> [set:photoSequencePhoto:photo_12] -> [start_sequence:photo] -> [set:spawnMouseMountain:0] -> [set:mouseSeqMountainFade:75] -> [set:mountain_beetle_hide:0] -> [save_history:false] -> [path:photo_count_increase]
+start_mountain_seq:1 ->
+
+//-------------------------------------------------------------------------------
 
 
 // player enters the egg
