@@ -24,6 +24,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly CSprite _sprite;
         private readonly Animator _animator;
         private readonly AnimationComponent _animationComponent;
+        private readonly DamageFieldComponent _damageFieldComponent;
 
         private readonly string _saveKey;
 
@@ -136,7 +137,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             var hittableBox = new CBox(EntityPosition, -6, -16, 0, 12, 16, 8, true);
             var damageBox = new CBox(EntityPosition, -8, -14, 0, 16, 14, 8, true);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 2));
+            AddComponent(DamageFieldComponent.Index, _damageFieldComponent = new DamageFieldComponent(damageBox, HitType.Enemy, 2));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(PushableComponent.Index, new PushableComponent(damageBox, OnPush));
             AddComponent(BodyComponent.Index, _body);
@@ -558,6 +559,8 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
             if (_damageState.CurrentLives <= 0)
             {
+                _objGlove.OnDeath();
+                _damageFieldComponent.IsActive = false;
                 _animator.IsPlaying = false;
                 _body.VelocityTarget = Vector2.Zero;
                 Map.Objects.DeleteObjects.Add(_objGlove);

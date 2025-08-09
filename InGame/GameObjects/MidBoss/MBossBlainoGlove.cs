@@ -100,5 +100,10 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _blaino.OnPush(direction, type);
             return true;
         }
+
+        public void OnDeath()
+        {
+            _damageFieldComponent.IsActive = false;
+        }
     }
 }
