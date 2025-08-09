@@ -260,7 +260,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
             {
                 _returning = true;
                 _aiComponent.ChangeState("return");
-                Game1.GameManager.SaveManager.SetString("ghost_return", "1");
+                Game1.GameManager.SaveManager.RemoveString("ghost_return");
             }
         }
     }

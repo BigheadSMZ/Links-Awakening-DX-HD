@@ -177,52 +177,12 @@ maria:7 ->
 ocarina_bad:maria_state:3 -> ocarina_bad_marin
 ocarina_bad:0 -> ocarina_bad
 
-// rooster wake up dialog
-rooster:0 -> [save_history:true] -> [set:chicken_dude:1] -> [set:has_rooster:1] -> [set:ulrira_d7:2] -> [freeze:1000] -> rooster_0 -> [save_history:false]
-
-// ghost grave powder dialog
-ghost_grave_powder_dialog:has_ghost:0 -> [set:ghost_grave_powder:0]
-ghost_grave_powder_dialog:0 -> ghost_grave_powder -> [set:ghost_grave_powder:0]
-
-// ghost
-ghost_start_following:0 -> [set:has_ghost:1] -> [set:ghost_blockade:1] -> [set:ulrira_ghost:1]
-
-ghost_return:0 -> [cooldown:60000:result] -> [path:ghost_return_cooldown]
-ghost_return:1 ->
-ghost_return_cooldown:result:0 ->
-ghost_return_cooldown:result:1 -> [sound:D360-45-2D] -> [path:ghost_return_dialog]
-ghost_return_dialog:0 -> ghost_0
-ghost_return_dialog:1 -> ghost_5
-
-// go in dialog
-ghost_house_dialog:0 -> [path:ghost_house_dialog_check]
-ghost_house_dialog:1 -> 
-ghost_house_dialog_check:has_ghost:0 ->
-ghost_house_dialog_check:has_ghost:1 -> [cooldown:60000:result] -> [path:ghost_house_dialog_cooldown]
-ghost_house_dialog_cooldown:result:0 ->
-ghost_house_dialog_cooldown:result:1 -> ghost_2
-
-// house sequence
-ghost_house_sequence:has_ghost:0 ->
-ghost_house_sequence:has_ghost:1 -> [path:ghost_house_seq]
-ghost_house_seq:0 -> [save_history:true] -> [set:1] -> [set:ghost_return_dialog:1] -> [set:ghost_house_dialog:1] -> [set:ghost_move:0,-56,0.5] -> [freeze:2500] -> [set:ghost_move:-21,-10,0.5] -> [freeze:2000] -> [set:ghost_move:-10,-21,0.5] -> [freeze:1700] -> [set:ghost_move:53,13,0.5] -> [freeze:3100] -> ghost_3 -> [set:ghost_move:-20,50,0.5] -> [freeze:1750] -> ghost_4 -> [set:ghost_follow:1] -> [wait:dialogOpen:0] -> [set:link_move:0,1] -> [set:lock_player:1000] -> [save_history:false]
-ghost_house_seq:1 ->
-
-// grave sequence
-ghost_grave_sequence:has_ghost:0 ->
-ghost_grave_sequence:has_ghost:1 -> [update_objects] -> [save_history:true] -> [set:ghost_blockade:0] -> [set:ghost_return:1] -> [set:ghost_shell:1] -> [freeze:2000] -> ghost_6 -> [wait:dialogOpen:0] -> [set:ghost_fade:175] -> [freeze:500] -> [remove_item:ghost:1:result] -> [set:has_ghost:0] -> [set:ulrira_ghost:0] -> [set:owl:5_0] -> [save_history:false]
-
 // beach sequence
 seq_beach:0 -> [save_history:true] -> [music:77:2] -> [countdown:2000] -> [set:1] -> [path:seq_beach]
 seq_beach:1 -> marin_2_2 -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_look] -> [countdown:3300] -> marin_2_3 -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_look] -> [countdown:4000] -> [seq_play:marin:ocean_ask] -> [dialog:choice:marin_2_4:choice_Yeah:choice_No...] -> [path:maria_beach_listening]
 maria_beach_listening:choice:0 -> marin_2_6 -> [set:seq_beach:2] -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_sit] -> [countdown:750] -> [path:seq_beach]
 maria_beach_listening:choice:1 -> marin_2_5 -> [set:seq_beach:1] -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_sit] -> [countdown:750] -> [path:seq_beach]
 seq_beach:2 -> [seq_play:marin:ocean_ask] -> marin_2_7 -> [wait:dialogOpen:0] -> [countdown:1000] -> [close_overlay] -> [music:-1:2] -> [set:maria:7] -> [set:maria_state:3] -> [add_item:marin:1] -> [set:has_marin:1] -> [save_history:false]
-
-// block walking into dungeons when the ghost is following the player
-ghost_blockade:0 ->
-ghost_blockade:1 -> ghost_1
-
 
 // waking up the walrus
 walrus:has_marin:0 -> [update_objects] -> walrus_0
@@ -239,6 +199,53 @@ npc_house_chest:0 -> npc_house_chest
 
 bookcase:has_marin:1 -> npc_house_chest_marin
 bookcase:0 -> bookcase
+
+// rooster wake up dialog
+rooster:0 -> [save_history:true] -> [set:chicken_dude:1] -> [set:has_rooster:1] -> [set:ulrira_d7:2] -> [freeze:1000] -> rooster_0 -> [save_history:false]
+
+//-------------------------------------------------------------------------------
+// The Ghost - Follows Link after completing 4th dungeon
+
+// Start following Link.
+ghost_start_following:0 -> [set:has_ghost:1] -> [set:ghost_blockade:1] -> [set:ulrira_ghost:1] -> [set:ghost_returned:0] -> [set:ghost_seenhouse:0]
+
+// Occasionally show reminder of where to go next.
+ghost_return:0 -> [cooldown:60000:result] -> [path:ghost_return_cooldown]
+ghost_return:1 ->
+ghost_return_cooldown:result:0 ->
+ghost_return_cooldown:result:1 -> [sound:D360-45-2D] -> [path:ghost_return_dialog]
+ghost_return_dialog:0 -> ghost_0
+ghost_return_dialog:1 -> ghost_5
+
+// Arrive at the house by the bay.
+ghost_house_dialog:0 -> [path:ghost_house_dialog_check]
+ghost_house_dialog:1 -> 
+ghost_house_dialog_check:has_ghost:0 ->
+ghost_house_dialog_check:has_ghost:1 -> [cooldown:60000:result] -> [path:ghost_house_dialog_cooldown]
+ghost_house_dialog_cooldown:result:0 ->
+ghost_house_dialog_cooldown:result:1 -> ghost_2
+
+// Enter the house by the bay.
+ghost_house_sequence:has_ghost:0 ->
+ghost_house_sequence:has_ghost:1 -> [path:ghost_house_seq]
+ghost_house_seq:0 -> [save_history:true] -> [set:1] -> [set:ghost_return_dialog:1] -> [set:ghost_house_dialog:1] -> [set:ghost_move:0,-56,0.5] -> [freeze:2500] -> [set:ghost_move:-21,-10,0.5] -> [freeze:2000] -> [set:ghost_move:-10,-21,0.5] -> [freeze:1700] -> [set:ghost_move:53,13,0.5] -> [freeze:3100] -> ghost_3 -> [set:ghost_move:-20,50,0.5] -> [freeze:1750] -> ghost_4 -> [set:ghost_follow:1] -> [wait:dialogOpen:0] -> [set:link_move:0,1] -> [set:lock_player:1000] -> [set:ghost_seenhouse:1] -> [save_history:false]
+ghost_house_seq:1 ->
+
+// Approach the ghost's gravestone.
+ghost_grave_sequence:has_ghost:0 ->
+ghost_grave_sequence:has_ghost:1 -> [path:ghost_grave_seq]
+ghost_grave_seq:ghost_seenhouse:0 ->
+ghost_grave_seq:ghost_seenhouse:1 -> [update_objects] -> [save_history:true] -> [set:ghost_blockade:0] -> [set:ghost_return:1] -> [set:ghost_returned:1] -> [set:ghost_shell:1] -> [freeze:2000] -> ghost_6 -> [wait:dialogOpen:0] -> [set:ghost_fade:175] -> [freeze:500] -> [remove_item:ghost:1:result] -> [set:has_ghost:0] -> [set:ulrira_ghost:0] -> [set:owl:5_0] -> [save_history:false]
+
+// Don't allow entering dungeons with the ghost.
+ghost_blockade:0 ->
+ghost_blockade:1 -> ghost_1
+
+// Sprinkling powder on the ghost's grave. The "ghost_returned" var can be "2" after the photo is taken.
+ghost_grave_powder_dialog:ghost_shell:0 -> [set:ghost_grave_powder:0]
+ghost_grave_powder_dialog:ghost_shell:1 -> ghost_grave_powder -> [set:ghost_grave_powder:0]
+
+//-------------------------------------------------------------------------------
 
 // tarin house
 // can not look into the chest while tarin is around awake
@@ -1816,11 +1823,11 @@ castle_sequence:0 -> [music:63:2] -> [freeze:1000] -> [seq_lerp:castleLink:91:-3
 photo_sequence_grave:photoMouseActive:0 ->
 photo_sequence_grave:photoMouseActive:1 -> [path:photo_sequence_grave_start]
 
-photo_sequence_grave_start:ghost_return:0 ->
-photo_sequence_grave_start:ghost_return:1 -> [save_history:true] -> [set:1] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
-photo_sequence_grave_start:ghost_return:2 ->
+photo_sequence_grave_start:ghost_returned:0 ->
+photo_sequence_grave_start:ghost_returned:1 -> [save_history:true] -> [set:ghost_returned:2] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
+photo_sequence_grave_start:ghost_returned:2 ->
 
-seq_gravestone:0 -> [set:ghost_return:2] -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
+seq_gravestone:0 -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
 
 //-------------------------------------------------------------------------------
 // Photo 12: "Close Call"
