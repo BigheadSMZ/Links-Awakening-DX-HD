@@ -353,6 +353,10 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
                 _damageState.HitKnockBack(gameObject, direction, damageType, pieceOfPower, false);
             }
 
+            // remove damage box on death
+            if (_damageState.CurrentLives <= 0)
+                RemoveComponent(DamageFieldComponent.Index);
+
             return Values.HitCollision.RepellingParticle;
         }
 
