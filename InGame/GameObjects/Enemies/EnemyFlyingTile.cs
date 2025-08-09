@@ -221,8 +221,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
             if (_soundCounter < 0)
             {
-                _soundCounter += 225;
-                // @TODO: faster loop
+                _soundCounter += 135;
                 Game1.GameManager.PlaySoundEffect("D360-63-3F");
             }
         }
