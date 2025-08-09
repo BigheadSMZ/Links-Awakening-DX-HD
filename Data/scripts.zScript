@@ -1818,8 +1818,9 @@ photo_sequence_grave:photoMouseActive:1 -> [path:photo_sequence_grave_start]
 
 photo_sequence_grave_start:ghost_return:0 ->
 photo_sequence_grave_start:ghost_return:1 -> [save_history:true] -> [set:1] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
+photo_sequence_grave_start:ghost_return:2 ->
 
-seq_gravestone:0 -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
+seq_gravestone:0 -> [set:ghost_return:2] -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
 
 //-------------------------------------------------------------------------------
 // Photo 12: "Close Call"
