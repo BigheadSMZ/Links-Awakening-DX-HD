@@ -47,6 +47,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         private string _saveKey;
         private bool _attackable = false;
+        private bool _isDead = false;
 
         public MBossTurtleRock() : base("turtle rock") { }
 
@@ -187,7 +188,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                     direction.Normalize();
                 direction *= 1.5f;
 
-                if (damageBox.Intersects(playerDamageBox))
+                if (damageBox.Intersects(playerDamageBox) && !_isDead)
                     MapManager.ObjLink.HitPlayer(direction, HitType.Sword, 2, false, ObjLink.CooldownTime / 4);
             }
         }
@@ -438,9 +439,11 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
             if (_aiDamageState.CurrentLives <= 0)
             {
+                _isDead = true;
                 _body.VelocityTarget = Vector2.Zero;
                 _aiComponent.ChangeState("dead");
                 Game1.GameManager.StartDialogPath("turtle_rock_killed");
+                RemoveComponent(DamageFieldComponent.Index);
             }
 
             return Values.HitCollision.Enemy;
