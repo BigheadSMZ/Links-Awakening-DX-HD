@@ -189,9 +189,11 @@ namespace ProjectZ.InGame.GameObjects.Things
         private void UpdateIdle()
         {
             var distance = MapManager.ObjLink.EntityPosition.Position - new Vector2(EntityPosition.X, EntityPosition.Y + 1);
-            var isColliding = Math.Abs(distance.X) <= 3 && Math.Abs(distance.Y) <= 1;
 
-            if (_isActive && isColliding && !_wasColliding && MapManager.ObjLink.IsGrounded())
+            // Use a zone large enough players can't clip off the raft or jump over it.
+            var isColliding = Math.Abs(distance.X) <= 4 && Math.Abs(distance.Y) <= 2;
+
+            if (_isActive && isColliding && !_wasColliding)
                 EnterRaft();
 
             _wasColliding = isColliding;
