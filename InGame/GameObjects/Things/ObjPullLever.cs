@@ -92,8 +92,11 @@ namespace ProjectZ.InGame.GameObjects.Things
 
             _isGrabbed = true;
 
-            if (direction.X != 0 || direction.Y < 0)
+            // Rather than check both values, just check Y and zero out X.
+            if (direction.Y < 0)
                 return true;
+            else
+                direction = new Vector2(0, direction.Y);
 
             // play soundeffect on pull
             if (!_wasPulled && direction.Y > 0)
