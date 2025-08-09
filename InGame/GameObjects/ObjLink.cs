@@ -2609,6 +2609,7 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState != State.Jumping &&
                 CurrentState != State.ChargeJumping &&
                 CurrentState != State.Rafting &&
+                CurrentState != State.Pushing &&
                 (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
@@ -2690,6 +2691,7 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState != State.ChargeJumping &&
                 CurrentState != State.Rafting &&
                 CurrentState != State.Bombing &&
+                CurrentState != State.Pushing &&
                 (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
@@ -2823,7 +2825,10 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseHookshot()
         {
-            if (CurrentState != State.Idle && CurrentState != State.Rafting && (!Map.Is2dMap || CurrentState != State.Swimming))
+            if (CurrentState != State.Idle && 
+                CurrentState != State.Rafting && 
+                CurrentState != State.Pushing && 
+                (!Map.Is2dMap || CurrentState != State.Swimming))
                 return;
 
             var hookshotDirection = CurrentState == State.Swimming ? _swimDirection : Direction;
@@ -2849,6 +2854,7 @@ namespace ProjectZ.InGame.GameObjects
             if ((CurrentState != State.Idle &&
                 CurrentState != State.Jumping &&
                 CurrentState != State.ChargeJumping &&
+                CurrentState != State.Pushing &&
                 (CurrentState != State.Swimming || !Map.Is2dMap)) || !_boomerang.IsReady)
                 return;
 
@@ -2876,6 +2882,7 @@ namespace ProjectZ.InGame.GameObjects
         {
             if (CurrentState != State.Idle &&
                 CurrentState != State.Rafting &&
+                CurrentState != State.Pushing &&
                 (CurrentState != State.Swimming || !Map.Is2dMap) &&
                 (CurrentState != State.Jumping && CurrentState != State.ChargeJumping || _railJump))
                 return;
@@ -2897,7 +2904,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseOcarina()
         {
-            if (CurrentState != State.Idle || _isClimbing)
+            if ((CurrentState != State.Idle && CurrentState != State.Pushing) || _isClimbing)
                 return;
 
             _ocarinaNoteIndex = 0;
