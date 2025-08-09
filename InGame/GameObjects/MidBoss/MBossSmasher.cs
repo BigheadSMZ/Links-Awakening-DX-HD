@@ -22,6 +22,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly Animator _animator;
         private readonly CubicBezier _pickupCurveX;
         private readonly CubicBezier _pickupCurveY;
+        private readonly DamageFieldComponent _damageComponent;
 
         private readonly RectangleF _triggerRectangle;
         private Vector2 _moveDirection;
@@ -99,7 +100,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             var damageCollider = new CBox(EntityPosition, -7, -11, 0, 14, 11, 14, true);
             var hittableBox = new CBox(EntityPosition, -9, -14, 0, 18, 14, 16, true);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(AiComponent.Index, _aiComponent);
@@ -355,7 +356,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
             // remove damage box on death
             if (_damageState.CurrentLives <= 0)
-                RemoveComponent(DamageFieldComponent.Index);
+                _damageComponent.IsActive = false;
 
             return Values.HitCollision.RepellingParticle;
         }
