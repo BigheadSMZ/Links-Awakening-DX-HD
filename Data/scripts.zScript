@@ -212,7 +212,6 @@ ghost_house_seq:1 ->
 ghost_grave_sequence:has_ghost:0 ->
 ghost_grave_sequence:has_ghost:1 -> [update_objects] -> [save_history:true] -> [set:ghost_blockade:0] -> [set:ghost_return:1] -> [set:ghost_shell:1] -> [freeze:2000] -> ghost_6 -> [wait:dialogOpen:0] -> [set:ghost_fade:175] -> [freeze:500] -> [remove_item:ghost:1:result] -> [set:has_ghost:0] -> [set:ulrira_ghost:0] -> [set:owl:5_0] -> [save_history:false]
 
-
 // beach sequence
 seq_beach:0 -> [save_history:true] -> [music:77:2] -> [countdown:2000] -> [set:1] -> [path:seq_beach]
 seq_beach:1 -> marin_2_2 -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_look] -> [countdown:3300] -> marin_2_3 -> [wait:dialogOpen:0] -> [seq_play:marin:ocean_look] -> [countdown:4000] -> [seq_play:marin:ocean_ask] -> [dialog:choice:marin_2_4:choice_Yeah:choice_No...] -> [path:maria_beach_listening]
@@ -894,7 +893,6 @@ rabbit_3:0 -> rabbit_3_0
 rabbit_3:1 -> rabbit_3_1
 
 rabbit_2_script:0 -> [set:rabbit_2Jump:533]
-
 
 desert_bones:0 -> desert_bone_0 -> [set:desert_bones_powder:0]
 
@@ -1818,9 +1816,8 @@ castle_sequence:0 -> [music:63:2] -> [freeze:1000] -> [seq_lerp:castleLink:91:-3
 photo_sequence_grave:photoMouseActive:0 ->
 photo_sequence_grave:photoMouseActive:1 -> [path:photo_sequence_grave_start]
 
-photo_sequence_grave_start:0 ->
+photo_sequence_grave_start:ghost_return:0 ->
 photo_sequence_grave_start:ghost_return:1 -> [save_history:true] -> [set:1] -> [set:photo_11:1] -> [start_sequence:gravestone] -> [path:photo_count_increase]
-photo_sequence_grave_start:1 ->
 
 seq_gravestone:0 -> [music:71:2] -> [seq_lerp:graveMouse:-64:0:0.325] -> [seq_play:graveMouse:walk_0] -> [freeze:graveMouseMoving:0] -> [seq_finish_animation:graveMouse:0] -> photo_06_0 -> [wait:dialogOpen:0] -> [seq_play:graveLink:right] -> photo_06_1 -> [wait:dialogOpen:0] -> [seq_lerp:graveMouse:-28:58:0.325] -> [seq_play:graveMouse:walk_0] -> [seq_lerp:graveLink:25:-5:0.325]] -> [seq_play:graveLink:walk] -> [freeze:graveLinkMoving:0] -> [seq_play:graveLink:forward] -> [freeze:graveMouseMoving:0] -> photo_06_2 -> [wait:dialogOpen:0] -> [seq_play:graveLink:lean] -> [freeze:1000] -> [sound:D378-63-40] -> [seq_color:gravePhotoFlash:255:255:255:255:0] -> [freeze:125] -> [seq_color:gravePhotoFlash:0:0:0:0:150] -> [seq_color:gravePhoto:255:255:255:255:0] -> [freeze:2000] -> [music:-1:2] -> [close_overlay] -> [save_history:false]
 
