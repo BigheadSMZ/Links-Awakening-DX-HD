@@ -3,7 +3,6 @@ using ProjectZ.InGame.GameObjects.Base;
 using ProjectZ.InGame.GameObjects.Base.CObjects;
 using ProjectZ.InGame.GameObjects.Base.Components;
 using ProjectZ.InGame.Things;
-using System.Linq;
 
 namespace ProjectZ.InGame.GameObjects.Things
 {
@@ -19,8 +18,7 @@ namespace ProjectZ.InGame.GameObjects.Things
         private readonly bool _delete;
         private readonly bool _soundEffect;
 
-        // Dungeon 6 Doors Fix 1/2: Tracks doors in dungeon 6 that require throwing a heavy object at them.
-        private readonly string[] _heavyDoors = { "d6_door_1_hit", "d6_door_23_hit", "d6_door_7_hit", "d6_door_4_hit" };
+        private readonly string[] _faceShrineDoors = { "d6_door_1_hit", "d6_door_23_hit", "d6_door_7_hit", "d6_door_4_hit" };
 
         public ObjHitTrigger() : base("editor hit trigger") { }
 
@@ -55,13 +53,22 @@ namespace ProjectZ.InGame.GameObjects.Things
                 Activate();
         }
 
+        private bool IsFaceShrineDoor(string strKey)
+        {
+            foreach (string key in _faceShrineDoors)
+                if (key == strKey)
+                    return true;
+            return false;
+        }
+
+        private bool IsObjectStatue(GameObject gameObject)
+        {
+            return gameObject.GetType() == typeof(ObjStone) && ((ObjStone)gameObject).IsHeavy();
+        }
+
         private Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
-            if (_wasActivated)
-                return Values.HitCollision.None;
-
-            // Dungeon 6 Doors Fix 1/2: Check if the corresponding door was hit with a heavy object.
-            if (_heavyDoors.Contains(_strKey) && gameObject.GetType() == typeof(ObjStone) && !((ObjStone) gameObject).IsHeavy())
+            if (_wasActivated || (IsFaceShrineDoor(_strKey) && !IsObjectStatue(gameObject)))
                 return Values.HitCollision.None;
 
             if (damageType == _hitType)
