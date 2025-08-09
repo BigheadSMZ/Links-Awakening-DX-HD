@@ -304,7 +304,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
                 _body.Velocity.X = direction.X * 3.0f;
                 _body.Velocity.Y = direction.Y * 3.0f;
             }
-            else if (_hitRepelling)
+            if (_hitRepelling)
                 return Values.HitCollision.RepellingParticle;
 
             // In the original game, he could be damaged by the bow, a sword spin, or when dashing with pegasus boots.
