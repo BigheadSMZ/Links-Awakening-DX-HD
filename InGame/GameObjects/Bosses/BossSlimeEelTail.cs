@@ -38,5 +38,10 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         {
             _damageFieldComponent.IsActive = state;
         }
+
+        public void Death()
+        {
+            RemoveComponent(DamageFieldComponent.Index);
+        }
     }
 }

@@ -367,7 +367,12 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             if (damageType == HitType.Boomerang)
                 damage = 4;
 
-            return _aiDamageState.OnHit(gameObject, direction, damageType, damage, pieceOfPower);
+            _aiDamageState.OnHit(gameObject, direction, damageType, damage, pieceOfPower);
+
+            if (_aiDamageState.CurrentLives <= 0)
+                RemoveComponent(DamageFieldComponent.Index);
+
+            return Values.HitCollision.Enemy;
         }
     }
 }
