@@ -242,8 +242,9 @@ ghost_blockade:0 ->
 ghost_blockade:1 -> ghost_1
 
 // Sprinkling powder on the ghost's grave. The "ghost_returned" var can be "2" after the photo is taken.
-ghost_grave_powder_dialog:ghost_shell:0 -> [set:ghost_grave_powder:0]
-ghost_grave_powder_dialog:ghost_shell:1 -> ghost_grave_powder -> [set:ghost_grave_powder:0]
+ghost_grave_powder_dialog:ghost_returned:0 -> [set:ghost_grave_powder:0]
+ghost_grave_powder_dialog:ghost_returned:1 -> ghost_grave_powder -> [set:ghost_grave_powder:0]
+ghost_grave_powder_dialog:ghost_returned:2 -> ghost_grave_powder -> [set:ghost_grave_powder:0]
 
 //-------------------------------------------------------------------------------
 
