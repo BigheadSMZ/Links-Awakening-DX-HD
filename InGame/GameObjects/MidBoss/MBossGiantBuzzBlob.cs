@@ -18,6 +18,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly AiComponent _aiComponent;
         private readonly AiDamageState _aiDamageState;
         private readonly CSprite _sprite;
+        private readonly DamageFieldComponent _damageComponent;
 
         private ObjDungeonFairy _dungeonFairy;
 
@@ -112,7 +113,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             var damageBox = new CBox(EntityPosition, -8, -28, 0, 16, 28, 8, false);
             var hittableBox = new CBox(EntityPosition, -8, -28, 0, 16, 28, 8, false);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageBox, HitType.Enemy, 4));
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(AiComponent.Index, _aiComponent);
@@ -326,8 +327,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         {
             if (_aiDamageState.CurrentLives <= 0)
             {
-                RemoveComponent(HittableComponent.Index);
-                RemoveComponent(DamageFieldComponent.Index);
+                _damageComponent.IsActive = false;
             }
             if (_aiDamageState.CurrentLives <= 0 || _aiDamageState.IsInDamageState())
                 return Values.HitCollision.None;

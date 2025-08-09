@@ -14,6 +14,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
     {
         private readonly Animator _animator;
         private readonly BodyComponent _body;
+        private readonly DamageFieldComponent _damageComponent;
 
         private const float MoveSpeed = 1f;
 
@@ -43,7 +44,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             var hittableCollider = new CBox(EntityPosition, 0, 0, 0, 16, 96, 8);
             var damageCollider = new CBox(EntityPosition, 2, 0, 0, 12, 96, 4);
             AddComponent(HittableComponent.Index, new HittableComponent(hittableCollider, OnHit));
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 2));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageCollider, HitType.Enemy, 2));
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush) { RepelMultiplier = 1.5f });
             AddComponent(BodyComponent.Index, _body);
             AddComponent(UpdateComponent.Index, new UpdateComponent(Update));
@@ -57,9 +58,9 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _animator.Play("move");
         }
 
-        public void RemoveHitDetection()
+        public void bossDeath()
         {
-            RemoveComponent(DamageFieldComponent.Index);
+            _damageComponent.IsActive = false;
         }
 
         public void Delete()

@@ -53,7 +53,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         public void Death()
         {
-            RemoveComponent(DamageFieldComponent.Index);
+            _damageComponent.IsActive = false;
         }
     }
 }

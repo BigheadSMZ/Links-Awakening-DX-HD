@@ -21,6 +21,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         private readonly AiDamageState _damageState;
         private readonly Animator _animator;
         private readonly BodyDrawShadowComponent _shadowComponent;
+        private readonly DamageFieldComponent _damageComponent;
 
         private readonly Vector2 _startPosition;
 
@@ -99,7 +100,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
             AddComponent(AiComponent.Index, _aiComponent);
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(CollisionComponent.Index, new BoxCollisionComponent(_body.BodyBox, Values.CollisionTypes.Enemy));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableRectangle, OnHit));
             AddComponent(BodyComponent.Index, _body);

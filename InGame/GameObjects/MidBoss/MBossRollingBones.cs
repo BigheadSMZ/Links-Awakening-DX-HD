@@ -20,6 +20,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly AiDamageState _damageState;
         private readonly CSprite _sprite;
         private readonly Animator _animator;
+        private readonly DamageFieldComponent _damageField;
 
         private readonly string _triggerKey;
         private readonly string _saveKey;
@@ -103,7 +104,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
             if (!string.IsNullOrEmpty(_triggerKey))
                 AddComponent(KeyChangeListenerComponent.Index, new KeyChangeListenerComponent(KeyChanged));
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
             AddComponent(BodyComponent.Index, _body);
@@ -298,14 +299,13 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         private void OnDeath(bool pieceOfPower)
         {
-            RemoveComponent(DamageFieldComponent.Index);
-
-            _bone.RemoveHitDetection();
+            _bone.bossDeath();
 
             Game1.GameManager.PlaySoundEffect("D370-16-10");
 
             _aiComponent.ChangeState("blink");
             _damageState.IsActive = false;
+            _damageField.IsActive = false;
         }
     }
 }

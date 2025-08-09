@@ -21,6 +21,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly CSprite _sprite;
         private readonly Animator _animator;
         private readonly Animator _animatorFaceTrail;
+        private readonly DamageFieldComponent _damageField;
         private readonly AnimationComponent _animationComponent;
         private readonly AiTriggerCountdown _hitMoveReset;
 
@@ -345,6 +346,10 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         public Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
+            if (_damageState.CurrentLives <= 0)
+            {
+                _damageField.IsActive = false;
+            }
             if (damageType != HitType.MagicRod || _damageState.CurrentLives <= 0)
                 return Values.HitCollision.None;
 

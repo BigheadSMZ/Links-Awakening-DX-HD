@@ -485,6 +485,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             // stop if we are dead
             if (_damageState.CurrentLives <= 0)
                 _body.VelocityTarget = Vector2.Zero;
+                _damageField.IsActive = false;
 
             return damageReturn;
         }

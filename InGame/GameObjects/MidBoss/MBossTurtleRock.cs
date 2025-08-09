@@ -442,8 +442,8 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 _isDead = true;
                 _body.VelocityTarget = Vector2.Zero;
                 _aiComponent.ChangeState("dead");
+                _damageField.IsActive = false;
                 Game1.GameManager.StartDialogPath("turtle_rock_killed");
-                RemoveComponent(DamageFieldComponent.Index);
             }
 
             return Values.HitCollision.Enemy;

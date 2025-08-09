@@ -141,7 +141,6 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             _aiComponent.ChangeState("init");
 
             AddComponent(AiComponent.Index, _aiComponent);
-            //AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 2));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableRectangle, OnHit));
             AddComponent(DrawComponent.Index, new DrawComponent(Draw, Values.LayerBottom, EntityPosition));
             AddComponent(KeyChangeListenerComponent.Index, new KeyChangeListenerComponent(OnKeyChange));

@@ -24,6 +24,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         private readonly BodyComponent _body;
         private readonly AiComponent _aiComponent;
         private readonly Animator _animator;
+        private readonly DamageFieldComponent _damageField;
 
         private readonly Color _lightColor = new Color(255, 200, 200);
 
@@ -123,7 +124,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
             AddComponent(AiComponent.Index, _aiComponent);
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 6));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Enemy, 6));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableRectangle, OnHit));
             AddComponent(AnimationComponent.Index, animationComponent);
             AddComponent(BodyComponent.Index, _body);
@@ -348,7 +349,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                     Game1.GameManager.PlaySoundEffect("D370-16-10");
                     _aiComponent.ChangeState("blink");
                     _body.VelocityTarget = Vector2.Zero;
-                    RemoveComponent(DamageFieldComponent.Index);
+                    _damageField.IsActive = false;
                     return Values.HitCollision.Repelling;
                 }
                 else

@@ -19,6 +19,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         private readonly Animator _animator;
         private readonly PushableComponent _pushableComponent;
         private readonly BodyDrawShadowComponent _shadowComponent;
+        private readonly DamageFieldComponent _damageComponent;
         private readonly CSprite _sprite;
 
         private Rectangle _fieldRectangle;
@@ -89,7 +90,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             _pushableComponent = new PushableComponent(_body.BodyBox, OnPush);
             AddComponent(PushableComponent.Index, _pushableComponent);
             AddComponent(AiComponent.Index, _aiComponent);
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableRectangle, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(BaseAnimationComponent.Index, animationComponent);
@@ -264,6 +265,10 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
             _wasHit = true;
 
+            if (_damageState.CurrentLives <= 0)
+            {
+                _damageComponent.IsActive = false;
+            }
             return Values.HitCollision.Enemy;
         }
 

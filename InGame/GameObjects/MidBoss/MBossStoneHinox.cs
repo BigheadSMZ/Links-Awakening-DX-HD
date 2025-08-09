@@ -18,6 +18,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
         private readonly AiComponent _aiComponent;
         private readonly AiDamageState _aiDamageState;
         private readonly AnimationComponent _animationComponent;
+        private readonly DamageFieldComponent _damageComponent;
 
         private Vector2[] _walkOffset = { new Vector2(-24, 0), new Vector2(24, 0), new Vector2(0, 24) };
 
@@ -92,7 +93,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _aiComponent.ChangeState("idle");
 
             var damageCollider = new CBox(EntityPosition, -14, -24, 0, 28, 24, 8);
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
             AddComponent(HittableComponent.Index, new HittableComponent(_body.BodyBox, OnHit));
             AddComponent(AiComponent.Index, _aiComponent);
@@ -292,8 +293,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
             if (_aiDamageState.CurrentLives <= 0)
             {
-                RemoveComponent(HittableComponent.Index);
-                RemoveComponent(DamageFieldComponent.Index);
+                _damageComponent.IsActive = false;
                 _body.VelocityTarget = Vector2.Zero;
                 _animator.Pause();
             }

@@ -15,9 +15,11 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         private BossMoldormTail _tail;
 
         private BodyDrawComponent _bodyDrawComponent;
+        private DamageFieldComponent _damageField;
         private BodyComponent _body;
         private AiComponent _aiComponent;
         private CSprite _sprite;
+
 
         private Rectangle _headSourceRectangle = new Rectangle(2, 4, 28, 24);
         private Rectangle _headSourceRectangleDamage = new Rectangle(34, 4, 28, 24);
@@ -125,7 +127,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush) { RepelMultiplier = 2.0f });
             AddComponent(HittableComponent.Index, new HittableComponent(damageCollider, OnHit));
             AddComponent(DrawComponent.Index, new DrawComponent(Draw, Values.LayerPlayer, EntityPosition));
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
 
             // add the tail to the map
             _tail = new BossMoldormTail(map, this);
@@ -200,7 +202,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         private void ToDying()
         {
-            RemoveComponent(DamageFieldComponent.Index);
+            _damageField.IsActive = false;
 
             _body.Velocity = new Vector3(_body.VelocityTarget.X, _body.VelocityTarget.Y, _body.Velocity.Z);
             _body.VelocityTarget = Vector2.Zero;

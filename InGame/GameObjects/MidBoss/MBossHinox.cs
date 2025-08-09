@@ -361,8 +361,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             // stop walking and stop the animation when dead
             if (_aiDamageState.CurrentLives <= 0)
             {
-                RemoveComponent(HittableComponent.Index);
-                RemoveComponent(DamageFieldComponent.Index);
+                _damageFieldComponent.IsActive = false;
 
                 _animator.Stop();
                 _body.VelocityTarget = Vector2.Zero;

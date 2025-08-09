@@ -318,8 +318,6 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             var objItem = new ObjItem(Map, (int)EntityPosition.X - 8, (int)EntityPosition.Y - 16, "j", null, "heart", null);
             Map.Objects.SpawnObject(objItem);
 
-            _damageField.IsActive = false;
-
             Game1.GameManager.SaveManager.SetInt(_saveKey, _bossState + 1);
 
             if (_bossState == 1)
@@ -370,7 +368,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _aiDamageState.OnHit(gameObject, direction, damageType, damage, pieceOfPower);
 
             if (_aiDamageState.CurrentLives <= 0)
-                RemoveComponent(DamageFieldComponent.Index);
+                _damageField.IsActive = false;
 
             return Values.HitCollision.Enemy;
         }
