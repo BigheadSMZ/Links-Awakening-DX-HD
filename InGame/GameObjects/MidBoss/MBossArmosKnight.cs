@@ -293,8 +293,7 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
 
         public Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
-            if (_aiDamageState.CurrentLives <= 0 ||
-                _aiDamageState.IsInDamageState())
+            if (_aiDamageState.CurrentLives <= 0 || _aiDamageState.IsInDamageState())
                 return Values.HitCollision.None;
 
             // knock the boss back
@@ -305,18 +304,16 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
                 _body.Velocity.X = direction.X * 3.0f;
                 _body.Velocity.Y = direction.Y * 3.0f;
             }
-
-            if (_hitRepelling)
+            else if (_hitRepelling)
                 return Values.HitCollision.RepellingParticle;
 
-            if (((damageType & HitType.SwordSpin) != 0) || ((damageType & HitType.Bow) != 0))
+            // In the original game, he could be damaged by the bow, a sword spin, or when dashing with pegasus boots.
+            if ((damageType & HitType.SwordSpin) != 0 || (damageType & HitType.Bow) != 0 || (damageType & HitType.PegasusBootsSword) != 0 )
             {
                 var hitCollision = _aiDamageState.OnHit(gameObject, direction, damageType, damage, pieceOfPower);
 
                 if (_aiDamageState.CurrentLives <= 0)
-                {
                     _damageField.IsActive = false;
-                }
 
                 // boss should start jumping directly after getting hit
                 _jumpCount = 0;
