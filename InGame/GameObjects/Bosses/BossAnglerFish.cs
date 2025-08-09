@@ -217,7 +217,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             var randomX = Math.Clamp(MapManager.ObjLink.EntityPosition.X,
                 _body.FieldRectangle.Left + 25 + 8, _body.FieldRectangle.Right - 25 - 8) + (Game1.RandomNumber.Next(0, 50) - 25);
 
-            var objStone = new AnglerFishStone(Map, (int)randomX, 16);
+            var objStone = new BossAnglerFishStone(Map, (int)randomX, 16);
             Map.Objects.SpawnObject(objStone);
         }
 
@@ -241,7 +241,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
             var posX = (int)EntityPosition.X - 20;
             var posY = (int)EntityPosition.Y - 12 + 16;
-            var objBlob = new AngerFishBlob(Map, posX, posY);
+            var objBlob = new BossAnglerBlob(Map, posX, posY);
             Map.Objects.SpawnObject(objBlob);
         }
 
@@ -348,6 +348,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                     Game1.GameManager.PlaySoundEffect("D370-16-10");
                     _aiComponent.ChangeState("blink");
                     _body.VelocityTarget = Vector2.Zero;
+                    RemoveComponent(DamageFieldComponent.Index);
                     return Values.HitCollision.Repelling;
                 }
                 else

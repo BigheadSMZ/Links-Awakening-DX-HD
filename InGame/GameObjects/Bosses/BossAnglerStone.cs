@@ -7,12 +7,12 @@ using ProjectZ.InGame.Things;
 
 namespace ProjectZ.InGame.GameObjects.Bosses
 {
-    internal class AnglerFishStone : GameObject
+    internal class BossAnglerFishStone : GameObject
     {
         private readonly BodyComponent _body;
         private readonly CPosition _position;
 
-        public AnglerFishStone(Map.Map map, int posX, int posY) : base(map)
+        public BossAnglerFishStone(Map.Map map, int posX, int posY) : base(map)
         {
             _position = new CPosition(posX, posY, 0);
 

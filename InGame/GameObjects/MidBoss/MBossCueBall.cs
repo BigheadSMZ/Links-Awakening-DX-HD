@@ -212,6 +212,8 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
             _body.Velocity.X = _body.VelocityTarget.X;
             _body.Velocity.Y = _body.VelocityTarget.Y;
             _body.VelocityTarget = Vector2.Zero;
+
+            RemoveComponent(DamageFieldComponent.Index);
         }
 
         private void OnDeath(bool pieceOfPower)

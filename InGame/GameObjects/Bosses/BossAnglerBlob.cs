@@ -8,13 +8,13 @@ using ProjectZ.InGame.Things;
 
 namespace ProjectZ.InGame.GameObjects.Bosses
 {
-    internal class AngerFishBlob : GameObject
+    internal class BossAnglerBlob : GameObject
     {
         private readonly BodyComponent _body;
         private float _counter;
         private bool _init;
 
-        public AngerFishBlob(Map.Map map, int posX, int posY) : base(map)
+        public BossAnglerBlob(Map.Map map, int posX, int posY) : base(map)
         {
             EntityPosition = new CPosition(posX, posY, 0);
             EntitySize = new Rectangle(-2, -2, 5, 5);
