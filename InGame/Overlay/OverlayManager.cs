@@ -10,6 +10,7 @@ using ProjectZ.InGame.Map;
 using ProjectZ.InGame.Overlay.Sequences;
 using ProjectZ.InGame.Pages;
 using ProjectZ.InGame.Things;
+using System.Diagnostics;
 
 namespace ProjectZ.InGame.Overlay
 {
@@ -26,8 +27,8 @@ namespace ProjectZ.InGame.Overlay
 
         enum GameScaleDirection: short
         {
-            Smaller = -1, 
-            Bigger = 1
+            Decrease = -1, 
+            Increase = 1
         }
 
         private MenuState _currentMenuState = MenuState.None;
@@ -143,9 +144,9 @@ namespace ProjectZ.InGame.Overlay
 
             // toggle map scale
             if (_currentMenuState == MenuState.None && ControlHandler.ButtonPressed(CButtons.L))
-                UpdateGameScale(GameScaleDirection.Smaller);
+                UpdateGameScale(GameScaleDirection.Decrease);
             if (_currentMenuState == MenuState.None && ControlHandler.ButtonPressed(CButtons.R))
-                UpdateGameScale(GameScaleDirection.Bigger);
+                UpdateGameScale(GameScaleDirection.Increase);
 
             // toggle low heart beeps
             if (_currentMenuState == MenuState.None)

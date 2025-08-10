@@ -8,9 +8,10 @@ namespace ProjectZ.InGame.Pages
 {
     class GraphicSettingsPage : InterfacePage
     {
+        private readonly InterfaceSlider _uiScaleSlider;
+        private readonly InterfaceSlider _gameScaleSlider;
         private readonly InterfaceListLayout _bottomBar;
         private readonly InterfaceListLayout _toggleFullscreen;
-        private InterfaceSlider _uiScaleSlider;
 
         //private InterfaceSlider _uiScaleSlider;
 
@@ -22,14 +23,16 @@ namespace ProjectZ.InGame.Pages
             _graphicSettingsLayout.AddElement(new InterfaceLabel(Resources.GameHeaderFont, "settings_graphics_header",
                 new Point(buttonWidth, (int)(height * Values.MenuHeaderSize)), new Point(0, 0)));
             var contentLayout = new InterfaceListLayout { Size = new Point(width, (int)(height * Values.MenuContentSize)), Selectable = true, ContentAlignment = InterfaceElement.Gravities.Top };
-            contentLayout.AddElement(new InterfaceSlider(Resources.GameFont, "settings_graphics_game_scale",
+
+            _gameScaleSlider = new InterfaceSlider(Resources.GameFont, "settings_graphics_game_scale",
                 buttonWidth, new Point(1, 2), -1, 11, 1, GameSettings.GameScale + 1,
                 number =>
                 {
                     GameSettings.GameScale = number;
                     Game1.ScaleSettingChanged = true;
                 })
-            { SetString = number => GameSettings.GameScale == 11 ? "auto" : " x" + (number < 1 ? "1/" + (2 - number) : number.ToString()) });
+            { SetString = number => GameSettings.GameScale == 11 ? "auto" : " x" + (number < 1 ? "1/" + (2 - number) : number.ToString()) };
+            contentLayout.AddElement(_gameScaleSlider);
 
             _uiScaleSlider = new InterfaceSlider(Resources.GameFont, "settings_graphics_ui_scale",
                 buttonWidth, new Point(1, 2), 0, Game1.ScreenScale - 1, 1, GameSettings.UiScale,
@@ -90,6 +93,7 @@ namespace ProjectZ.InGame.Pages
             base.Update(pressedButtons, gameTime);
 
             UpdateFullscreenState();
+            UpdateGameScaleSlider();
 
             // close the page
             if (ControlHandler.ButtonPressed(CButtons.B))
@@ -106,10 +110,9 @@ namespace ProjectZ.InGame.Pages
             PageLayout.Deselect(false);
             PageLayout.Select(InterfaceElement.Directions.Top, false);
         }
-
         public override void OnResize(int newWidth, int newHeight)
         {
-            UpdateScaleSlider();
+            UpdateUIScaleSlider();
         }
 
         private void UpdateFullscreenState()
@@ -119,7 +122,13 @@ namespace ProjectZ.InGame.Pages
                 toggle.SetToggle(GameSettings.IsFullscreen);
         }
 
-        private void UpdateScaleSlider()
+        private void UpdateGameScaleSlider()
+        {
+            var currentScale = GameSettings.GameScale;
+            _gameScaleSlider.CurrentStep = currentScale + 1;
+        }
+
+        private void UpdateUIScaleSlider()
         {
             GameSettings.UiScale = MathHelper.Clamp(GameSettings.UiScale, 0, Game1.ScreenScale - 1);
             _uiScaleSlider.UpdateStepSize(0, Game1.ScreenScale - 1, 1);
