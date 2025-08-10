@@ -35,6 +35,7 @@ namespace ProjectZ.InGame.Screens
             StrandFading,
             StrandCamera,
             StrandMarin,
+            StrandPanning,
             StrandLogo
         };
 
@@ -113,6 +114,10 @@ namespace ProjectZ.InGame.Screens
         private DictAtlasEntry _spriteLogo0;
         private DictAtlasEntry _spriteLogo1;
         private DictAtlasEntry _spriteDX;
+        private DictAtlasEntry _spriteBigN;
+
+        private float _dxFadeInDelay;
+        private float _dxFadeInAlpha;
 
         private readonly Rectangle _treesRectangle = new Rectangle(0, 320, 32, 46);
         private readonly Rectangle _sandRectangle = new Rectangle(0, 364, 32, 16);
@@ -184,6 +189,7 @@ namespace ProjectZ.InGame.Screens
             _spriteLogo0 = Resources.GetSprite("intro_logo_0");
             _spriteLogo1 = Resources.GetSprite("intro_logo_1");
             _spriteDX = Resources.GetSprite("intro_dx");
+            _spriteBigN = Resources.GetSprite("intro_nintendo");
 
             _mountainLeftPosition.X = -_spriteBackground.SourceRectangle.Width / 2 - _spriteMountain.SourceRectangle.Width;
             _mountainLeftPosition.Y = 0;
@@ -241,7 +247,7 @@ namespace ProjectZ.InGame.Screens
             Game1.GbsPlayer.Play();
             // play track for 52sec
 #if WINDOWS
-            Game1.GbsPlayer.SoundGenerator.SetStopTime(48.75f);
+            Game1.GbsPlayer.SoundGenerator.SetStopTime(51.25f);
 #endif
         }
 
@@ -284,11 +290,8 @@ namespace ProjectZ.InGame.Screens
                     _cameraTarget = new Vector2(_cameraCenter.X, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
                     _marinPosition.X = -1000;
                     _marinPosition.Y = -1000;
-
                     _logoCounter = 1500;
-
-                    _currentState = States.StrandLogo;
-
+                    _currentState = States.StrandPanning;
                 }
             }
 
@@ -444,7 +447,8 @@ namespace ProjectZ.InGame.Screens
         private void UpdateBeach()
         {
             if (_currentState != States.StrandFading && _currentState != States.StrandCamera &&
-                _currentState != States.StrandMarin && _currentState != States.StrandLogo)
+                _currentState != States.StrandMarin && _currentState != States.StrandPanning &&
+                _currentState != States.StrandLogo)
                 return;
 
             if (_currentState == States.StrandFading)
@@ -485,12 +489,12 @@ namespace ProjectZ.InGame.Screens
                     _cameraTarget = new Vector2(_cameraCenter.X, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
 
                     _logoCounter = 0;
-                    _currentState = States.StrandLogo;
+                    _currentState = States.StrandPanning;
                 }
             }
-            else if (_currentState == States.StrandLogo)
+            else if (_currentState == States.StrandPanning)
             {
-                if (!MoveCamera(0.65f))
+                if (!MoveCamera(0.0014f))
                 {
                     _logoCounter += Game1.DeltaTime;
 
@@ -499,19 +503,21 @@ namespace ProjectZ.InGame.Screens
                         _logoState = AnimationHelper.MoveToTarget(_logoState, 1, 0.05f * Game1.TimeMultiplier);
 
                         if (_logoState == 1)
-                            Game1.GameManager.PlaySoundEffect("D378-25-19");
-                    }
-
-                    if (_logoCounter > 1500)
-                    {
-                        if (!_lightAnimation.IsPlaying)
                         {
-                            _lightAnimation.Play("idle");
-
-                            _lightIndex = (_lightIndex + Game1.RandomNumber.Next(1, _lightPositions.Length)) % _lightPositions.Length;
-                            _ligthPosition = _lightPositions[_lightIndex];
+                            Game1.GameManager.PlaySoundEffect("D378-25-19");
+                            _currentState = States.StrandLogo;
                         }
                     }
+                }
+            }
+            else if (_currentState == States.StrandLogo)
+            {
+                if (!_lightAnimation.IsPlaying)
+                {
+                    _lightAnimation.Play("idle");
+
+                    _lightIndex = (_lightIndex + Game1.RandomNumber.Next(1, _lightPositions.Length)) % _lightPositions.Length;
+                    _ligthPosition = _lightPositions[_lightIndex];
                 }
             }
             else
@@ -524,9 +530,9 @@ namespace ProjectZ.InGame.Screens
                 }
             }
 
-            if (_currentState != States.StrandLogo && _strandFadeCount < StrandFadeTime)
+            if (_currentState != States.StrandPanning && _currentState != States.StrandLogo && _strandFadeCount < StrandFadeTime)
             {
-                UpdateCamera(new Vector2(_marinPosition.X + 18, 210), _currentState == States.StrandMarin ? 1.0f : 0.75f);
+                UpdateCamera(new Vector2(_marinPosition.X + 18, 210), _currentState == States.StrandMarin ? 1.0f : 0.54f);
             }
 
             _marinAnimator.Update();
@@ -580,7 +586,7 @@ namespace ProjectZ.InGame.Screens
             if (_cameraCenter == _cameraTarget)
                 return false;
 
-            _cameraState += 0.005f * Game1.TimeMultiplier;
+            _cameraState += speed * Game1.TimeMultiplier;
             _cameraState = Math.Clamp(_cameraState, 0, 1);
 
             _cameraCenter = Vector2.Lerp(_cameraStart, _cameraTarget, 0.5f + MathF.Sin(-MathF.PI * 0.5f + _cameraState * MathF.PI) * 0.5f);
@@ -604,7 +610,7 @@ namespace ProjectZ.InGame.Screens
 
                 if (_marinPosition.X < _marinGoal.X)
                 {
-                    _marinPosition.X += Game1.TimeMultiplier * (marinState == MarinState.Walk ? 0.5f : 0.25f);
+                    _marinPosition.X += Game1.TimeMultiplier * (marinState == MarinState.Walk ? 0.45f : 0.20f);
                 }
                 else
                 {
@@ -671,7 +677,6 @@ namespace ProjectZ.InGame.Screens
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointWrap, null, null, null, TransformMatrix);
 
             DrawOcean(spriteBatch);
-
             DrawBeach(spriteBatch);
 
             spriteBatch.End();
@@ -786,14 +791,13 @@ namespace ProjectZ.InGame.Screens
                     DrawHelper.DrawNormalized(spriteBatch, _spriteOceanBoat, _oceanBoatPosition, Color.White * boatWhite);
                 }
             }
-
-            //spriteBatch.Draw(Resources.SprWhite, new Rectangle(-2, 72, 4, 4), Color.Red);
         }
 
         private void DrawBeach(SpriteBatch spriteBatch)
         {
             if (_currentState != States.StrandFading && _currentState != States.StrandCamera &&
-                _currentState != States.StrandMarin && _currentState != States.StrandLogo)
+                _currentState != States.StrandMarin && _currentState != States.StrandPanning && 
+                _currentState != States.StrandLogo)
                 return;
 
             var screenLeft = (int)Math.Floor(_cameraCenter.X) - (int)Math.Ceiling(Game1.WindowWidth / (double)_scale / 2.0);
@@ -866,18 +870,50 @@ namespace ProjectZ.InGame.Screens
                 var logoHeight = (int)(_spriteLogo0.SourceRectangle.Height * (MathF.Sin(_logoState * MathF.PI - MathF.PI / 2) * 0.5f + 0.5f));
                 logoHeight += logoHeight % 2;
 
-                spriteBatch.Draw(_spriteLogo0.Texture,
-                    new Rectangle((int)_logoPosition.X, (int)_logoPosition.Y + _spriteLogo0.SourceRectangle.Height / 2 - logoHeight / 2,
-                    _spriteLogo0.SourceRectangle.Width, logoHeight), _spriteLogo0.ScaledRectangle, Color.White);
+                Rectangle logoAPosition = new Rectangle 
+                {
+                     X = -_spriteBackground.SourceRectangle.Width / 2 + 16,
+                     Y = 3 + _spriteLogo0.SourceRectangle.Height / 2 - logoHeight / 2,
+                     Width = _spriteLogo0.SourceRectangle.Width,
+                     Height = logoHeight
+                };
+                spriteBatch.Draw(_spriteLogo0.Texture, logoAPosition, _spriteLogo0.ScaledRectangle, Color.White);
 
-                spriteBatch.Draw(_spriteDX.Texture,
-                    new Rectangle((int)_logoPosition.X, (int)_logoPosition.Y + _spriteDX.SourceRectangle.Height / 1 - logoHeight / 1,
-                    _spriteLogo0.SourceRectangle.Width, logoHeight), _spriteDX.ScaledRectangle, Color.White); 
+                Rectangle logoBPosition = new Rectangle 
+                {
+                     X = -_spriteBackground.SourceRectangle.Width / 2 + 16,
+                     Y = 3 + _spriteLogo1.SourceRectangle.Height / 2 - logoHeight / 2,
+                     Width = _spriteLogo1.SourceRectangle.Width,
+                     Height = logoHeight
+                };
+                spriteBatch.Draw(_spriteLogo1.Texture, logoBPosition, _spriteLogo1.ScaledRectangle, Color.White);
 
-                var textTransparency = Math.Clamp((_logoState - 0.5f) * 2, 0, 1);
-                DrawHelper.DrawNormalized(spriteBatch, _spriteLogo1, _logoPosition, Color.White * textTransparency);
+                if (_logoState == 1)
+                {
+                    Rectangle bigNPosition = new Rectangle
+                    {
+                         X = -_spriteBackground.SourceRectangle.Width / 2 + 25,
+                         Y = _spriteBackground.SourceRectangle.Height / 2 + 4,
+                         Width = _spriteBigN.SourceRectangle.Width,
+                         Height = _spriteBigN.SourceRectangle.Height
+                    };
+                    spriteBatch.Draw(_spriteBigN.Texture, bigNPosition, _spriteBigN.ScaledRectangle, Color.White);
+
+                    _dxFadeInDelay += Game1.DeltaTime;
+                    if (_dxFadeInDelay > 1000)
+                    {
+                        _dxFadeInAlpha += MathHelper.Clamp(Game1.DeltaTime / 1200.0f, 0, 1);
+                        Rectangle dxPosition = new Rectangle 
+                        {
+                             X = _spriteBackground.SourceRectangle.Width / 4 - 8,
+                             Y = _spriteBackground.SourceRectangle.Height / 4 + 9,
+                             Width = _spriteDX.SourceRectangle.Width,
+                             Height = _spriteDX.SourceRectangle.Height
+                        };
+                        spriteBatch.Draw(_spriteDX.Texture, dxPosition, _spriteDX.ScaledRectangle, Color.White * _dxFadeInAlpha); 
+                    }
+                }
             }
-
             var lightPosition = _logoPosition + _ligthPosition;
 
             // draw the light around the logo
