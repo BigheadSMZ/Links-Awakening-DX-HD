@@ -235,6 +235,10 @@ namespace ProjectZ.InGame.Screens
             _marinAnimator.Play("walk");
             _lightAnimation.Stop();
 
+            _logoState = 0;
+            _dxFadeInDelay = 0;
+            _dxFadeInAlpha = 0;
+
             _currentState = States.OceanCamera;
             _cameraCenter = new Vector2(-220, 55);
 
