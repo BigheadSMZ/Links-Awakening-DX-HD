@@ -10,7 +10,6 @@ using ProjectZ.InGame.Map;
 using ProjectZ.InGame.Overlay.Sequences;
 using ProjectZ.InGame.Pages;
 using ProjectZ.InGame.Things;
-using System.Diagnostics;
 
 namespace ProjectZ.InGame.Overlay
 {
@@ -483,7 +482,8 @@ namespace ProjectZ.InGame.Overlay
             if (newScale >= -1 && newScale <= 11)
             {
                 GameSettings.GameScale = newScale;
-                Game1.ScaleSettingChanged = true;
+                Game1.GameScaleChanged = true;
+                Game1.UIScaleChanged = true;
             }
         }
 

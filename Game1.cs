@@ -72,7 +72,8 @@ namespace ProjectZ
         public static int RenderWidth;
         public static int RenderHeight;
 
-        public static bool ScaleSettingChanged;
+        public static bool GameScaleChanged;
+        public static bool UIScaleChanged;
 
         private bool _wasMinimized;
         private static DoubleAverage _avgTotalMs = new DoubleAverage(30);
@@ -235,13 +236,15 @@ namespace ProjectZ
             Resources.LoadIntro(Graphics.GraphicsDevice, Content);
             ScreenManager.LoadIntro(Content);
 
+            // We need to set the UI scale now or the game will crash if fullscreen.
+            UpdateUIScale();
+
             // toggle fullscreen
             if (GameSettings.IsFullscreen)
             {
                 GameSettings.IsFullscreen = false;
                 ToggleFullscreen();
             }
-
             // set the fps settings of the game
             UpdateFpsSettings();
 
@@ -356,12 +359,17 @@ namespace ProjectZ
                 FpsSettingChanged = false;
             }
 
-            if (ScaleSettingChanged)
+            if (GameScaleChanged)
             {
-                ScaleSettingChanged = false;
-                OnUpdateScale();
+                GameScaleChanged = false;
+                UpdateGameScale();
             }
 
+            if (UIScaleChanged)
+            {
+                UIScaleChanged = false;
+                UpdateUIScale();
+            }
             ControlHandler.Update();
 
             if (EditorMode && InputHandler.KeyPressed(Values.DebugToggleDebugText))
@@ -890,15 +898,12 @@ namespace ProjectZ
 
             WindowWidth = Window.ClientBounds.Width;
             WindowHeight = Window.ClientBounds.Height;
-
-            OnUpdateScale();
+            UpdateGameScale();
+            UpdateUIScale();
         }
 
-        private void OnUpdateScale()
+        private void UpdateGameScale()
         {
-            // scale of the game
-            ScreenScale = MathHelper.Clamp(Math.Min(WindowWidth / Values.MinWidth, WindowHeight / Values.MinHeight), 1, 25);
-
             // float scale
             gameScale = MathHelper.Clamp(Math.Min(WindowWidth / (float)Values.MinWidth, WindowHeight / (float)Values.MinHeight), 1, 25);
 
@@ -913,10 +918,17 @@ namespace ProjectZ
             {
                 GameManager.SetGameScale(GameSettings.GameScale == 11 ? gameScale : GameSettings.GameScale);
             }
+        }
 
+        private void UpdateUIScale()
+        {
+            // Scale of the game field.
+            ScreenScale = MathHelper.Clamp(Math.Min(WindowWidth / Values.MinWidth, WindowHeight / Values.MinHeight), 1, 25);
+
+            // Scale of the user interface.
             UiScale = GameSettings.UiScale == 0 ? ScreenScale : MathHelper.Clamp(GameSettings.UiScale, 1, ScreenScale);
 
-            // update the ui manager
+            // Update the UI of the editor as well.
             EditorUi.SizeChanged();
 
             ScreenManager.OnResize(WindowWidth, WindowHeight);
