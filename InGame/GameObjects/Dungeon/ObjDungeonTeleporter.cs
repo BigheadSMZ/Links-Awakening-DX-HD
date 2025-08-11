@@ -76,7 +76,7 @@ namespace ProjectZ.InGame.GameObjects.Dungeon
         {
             // is the player close enough?
             var distance = TeleportPosition - MapManager.ObjLink.EntityPosition.Position;
-            if (distance.Length() < 2.5f)
+            if (distance.Length() < 4.25f)
                 OnCollision();
 
             _rotateCount -= Game1.DeltaTime;
