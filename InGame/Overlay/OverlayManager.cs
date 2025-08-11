@@ -482,8 +482,7 @@ namespace ProjectZ.InGame.Overlay
             if (newScale >= -1 && newScale <= 11)
             {
                 GameSettings.GameScale = newScale;
-                Game1.GameScaleChanged = true;
-                Game1.UIScaleChanged = true;
+                Game1.ScaleChanged = true;
             }
         }
 

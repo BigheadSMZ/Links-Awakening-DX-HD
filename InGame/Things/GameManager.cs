@@ -52,9 +52,23 @@ namespace ProjectZ.InGame.Things
         }
 
         // _activeRenderTarget == null ???
-        public Matrix GetMatrix => Matrix.CreateScale(new Vector3(
-            (float)_activeRenderTarget.Width / (int)(Game1.WindowWidth * _scaleMultiplier),
-            (float)_activeRenderTarget.Height / (int)(Game1.WindowHeight * _scaleMultiplier), 0));
+
+        // TODO: Based on the comment above, it seems the original developer has experienced this issue. Unfortunately, it
+        // was never actually fixed so the game would just outright crash. For now, if the render target is null return a
+        // basic matrix instead of crashing the game with a null exception.
+        public Matrix GetMatrix
+        {
+            get
+            {
+                if (_activeRenderTarget == null)
+                    return Matrix.Identity;
+
+                float scaleX = (float)_activeRenderTarget.Width / (int)(Game1.WindowWidth * _scaleMultiplier);
+                float scaleY = (float)_activeRenderTarget.Height / (int)(Game1.WindowHeight * _scaleMultiplier);
+
+                return Matrix.CreateScale(scaleX, scaleY, 1f);
+            }
+        }
 
         public int CurrentRenderWidth;
         public int CurrentRenderHeight;
@@ -251,6 +265,10 @@ namespace ProjectZ.InGame.Things
         {
             if (GameSettings.EnableShadows && MapManager.CurrentMap.UseShadows && !UseShockEffect)
             {
+                // TODO: Another place where null render target causes a crash. For now, just don't draw anything
+                // on the screen instead of crashing the game.
+                if (_shadowRenderTarget == null) return;
+
                 // render the shadows
                 RenderShadows(spriteBatch);
 
@@ -348,8 +366,12 @@ namespace ProjectZ.InGame.Things
             Game1.Graphics.GraphicsDevice.SetRenderTarget(Game1.MainRenderTarget);
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicWrap);
 
-            spriteBatch.Draw(_inactiveRenderTarget1, new Rectangle(0, 0, Game1.Graphics.PreferredBackBufferWidth, Game1.Graphics.PreferredBackBufferHeight), Color.White);
-
+            // TODO: Another place where null render target causes a crash. For now, just don't draw anything
+            // on the screen instead of crashing the game.
+            if (_inactiveRenderTarget1 != null)
+            {
+                spriteBatch.Draw(_inactiveRenderTarget1, new Rectangle(0, 0, Game1.Graphics.PreferredBackBufferWidth, Game1.Graphics.PreferredBackBufferHeight), Color.White);
+            }
             // debug stuff
             MapManager.Camera.Draw(spriteBatch);
 

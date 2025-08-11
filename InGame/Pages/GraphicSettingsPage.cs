@@ -28,8 +28,7 @@ namespace ProjectZ.InGame.Pages
                 number =>
                 {
                     GameSettings.GameScale = number;
-                    Game1.GameScaleChanged = true;
-                    Game1.UIScaleChanged = true;
+                    Game1.ScaleChanged = true;
                 })
             { SetString = number => GameSettings.GameScale == 11 ? "auto" : " x" + (number < 1 ? "1/" + (2 - number) : number.ToString()) };
             contentLayout.AddElement(_gameScaleSlider);
@@ -40,8 +39,7 @@ namespace ProjectZ.InGame.Pages
                 number =>
                 {
                     GameSettings.UiScale = number;
-                    Game1.GameScaleChanged = true;
-                    Game1.UIScaleChanged = true;
+                    Game1.ScaleChanged = true;
                 })
             { SetString = number => GameSettings.UiScale == 0 ? "auto" : " x" + number };
             contentLayout.AddElement(_uiScaleSlider);
@@ -51,8 +49,7 @@ namespace ProjectZ.InGame.Pages
                 "settings_game_fullscreen_mode", GameSettings.IsFullscreen,
                 newState => {
                     Game1.ToggleFullscreen();
-                    Game1.GameScaleChanged = true;
-                    Game1.UIScaleChanged = true;
+                    Game1.ScaleChanged = true;
                 });
             contentLayout.AddElement(_toggleFullscreen);
 
@@ -103,6 +100,7 @@ namespace ProjectZ.InGame.Pages
 
             UpdateFullscreenState();
             UpdateGameScaleSlider();
+            UpdateUIScaleSlider();
 
             // close the page
             if (ControlHandler.ButtonPressed(CButtons.B))
@@ -121,7 +119,7 @@ namespace ProjectZ.InGame.Pages
         }
         public override void OnResize(int newWidth, int newHeight)
         {
-            UpdateUIScaleSlider();
+          //  UpdateUIScaleSlider();
         }
 
         private void UpdateFullscreenState()
