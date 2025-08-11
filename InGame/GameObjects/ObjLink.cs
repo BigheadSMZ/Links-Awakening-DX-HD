@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Timers;
@@ -30,7 +29,7 @@ namespace ProjectZ.InGame.GameObjects
             Attacking, Blocking, AttackBlocking, Charging, ChargeBlocking, Jumping, ChargeJumping, 
             Ocarina, OcarinaTelport, Rafting, Pushed,
             FallRotateEntry,
-            Drowning, Drowned, Swimming,
+            Drowning, Drowned, Swimming, AttackSwimming, ChargeSwimming,
             Teleporting, MagicRod, Hookshot, Bombing, Powdering, Digging, BootKnockback,
             TeleporterUpWait, TeleporterUp, TeleportFallWait, TeleportFall,
             Dying, InitStunned, Stunned, Knockout,
@@ -518,32 +517,9 @@ namespace ProjectZ.InGame.GameObjects
             EntityPosition.AddPositionListener(typeof(CarriableComponent), UpdatePositionCarriedObject);
         }
 
+
         private void Update()
         {
-#if DEBUG
-            if (InputHandler.KeyPressed(Keys.Y))
-                Game1.GameManager.InitPieceOfPower();
-            if (InputHandler.KeyPressed(Keys.X))
-                _attackMode = !_attackMode;
-            if (_attackMode)
-            {
-                var damageBox = new Box(EntityPosition.X - 160, EntityPosition.Y - 140, 0, 320, 280, 16);
-                var damageOrigin = damageBox.Center;
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.Sword1, Game1.GameManager.PieceOfPowerIsActive ? 2 : 1, Game1.GameManager.PieceOfPowerIsActive);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.Bomb, 2, false);
-                Map.Objects.Hit(this, damageOrigin, damageBox, HitType.Bow, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.Hookshot, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.MagicRod, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.MagicPowder, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.PegasusBootsSword, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.PegasusBootsPush, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.ThrownObject, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.SwordShot, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.SwordHold, 2, false);
-                //Map.Objects.Hit(this, damageOrigin, damageBox, HitType.SwordSpin, 2, false);
-            }
-#endif
-
             if (CurrentState == State.FallRotateEntry)
             {
                 _fallEntryCounter += Game1.DeltaTime;
@@ -556,8 +532,8 @@ namespace ProjectZ.InGame.GameObjects
             }
 
             // @HACK
-            // this is only needed because the player should not be able to step into the door 1 frame after finishing the transition
-            // this would cause the door transition to not start
+            // this is only needed because the player should not be able to step into the door 1 frame
+            // after finishing the transition this would cause the door transition to not start
             if (IsTransitioning || _wasTransitioning)
             {
                 _wasTransitioning = IsTransitioning;
@@ -837,9 +813,6 @@ namespace ProjectZ.InGame.GameObjects
 
         private void Draw(SpriteBatch spriteBatch)
         {
-            Game1.DebugText += "Jump Timer: " + _railJumpPercentage + "\n";
-            Game1.DebugText += "Player State: " + CurrentState;
-
             if (!IsVisible)
                 return;
 
@@ -850,8 +823,10 @@ namespace ProjectZ.InGame.GameObjects
             // draw the sword/magic rod
             if (CurrentState == State.Attacking ||
                 CurrentState == State.AttackBlocking ||
+                CurrentState == State.AttackSwimming ||
                 CurrentState == State.Charging ||
                 CurrentState == State.ChargeBlocking ||
+                CurrentState == State.ChargeSwimming ||
                 CurrentState == State.ChargeJumping ||
                 CurrentState == State.SwordShow0 ||
                 CurrentState == State.MagicRod ||
@@ -1900,7 +1875,12 @@ namespace ProjectZ.InGame.GameObjects
 
                     if ((HasFlippers && !inLava) && CurrentState != State.Swimming)
                     {
-                        CurrentState = State.Swimming;
+                        if (Map.Is2dMap && (CurrentState == State.Attacking || CurrentState == State.AttackSwimming))
+                            CurrentState = State.AttackSwimming;
+                        else if (Map.Is2dMap && (CurrentState == State.Charging || CurrentState == State.ChargeSwimming))
+                            CurrentState = State.ChargeSwimming;
+                        else
+                            CurrentState = State.Swimming;
 
                         // only push the player if he walks into the water and does not jump
                         if (!_lastFieldState.HasFlag(fieldState))
@@ -2114,23 +2094,30 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState == State.TeleporterUp ||
                 CurrentState == State.FallRotateEntry)
                 Animation.Play("stand" + shieldString + Direction);
-            else if ((
-                CurrentState == State.Idle ||
+
+            else if ((CurrentState == State.Idle ||
                 CurrentState == State.Charging ||
                 CurrentState == State.Rafting) && _isWalking)
                 Animation.Play("walk" + shieldString + Direction);
+
             else if (CurrentState == State.Blocking || CurrentState == State.ChargeBlocking)
                 Animation.Play((!_isWalking ? "standb" : "walkb") + shieldString + Direction);
+
             else if ((CurrentState == State.Carrying || CurrentState == State.CarryingItem) && !_isFlying)
                 Animation.Play((!_isWalking ? "standc_" : "walkc_") + Direction);
+
             else if (CurrentState == State.Carrying && _isFlying)
                 Animation.Play("flying_" + Direction);
+
             else if (CurrentState == State.Pushing)
                 Animation.Play("push_" + Direction);
+
             else if (CurrentState == State.Grabbing)
                 Animation.Play("grab_" + Direction);
+
             else if (CurrentState == State.Pulling)
                 Animation.Play("pull_" + Direction);
+
             else if (CurrentState == State.Swimming)
             {
                 Animation.Play(_diveCounter > 0 ? "dive" : "swim_" + Direction);
@@ -2430,7 +2417,7 @@ namespace ProjectZ.InGame.GameObjects
             }
 
             // stop attacking
-            if ((CurrentState == State.Attacking || CurrentState == State.AttackBlocking) && !Animation.IsPlaying)
+            if ((CurrentState == State.Attacking || CurrentState == State.AttackBlocking || CurrentState == State.AttackSwimming) && !Animation.IsPlaying)
             {
                 _isSwingingSword = false;
 
@@ -2442,6 +2429,8 @@ namespace ProjectZ.InGame.GameObjects
                         CurrentState = State.ChargeBlocking;
                     else if (CurrentState == State.Jumping)
                         CurrentState = State.ChargeJumping;
+                    else if (CurrentState == State.AttackSwimming)
+                        CurrentState = State.ChargeSwimming;
                     else
                         CurrentState = State.Charging;
 
@@ -2450,8 +2439,7 @@ namespace ProjectZ.InGame.GameObjects
                     _swordPokeCounter = _swordPokeTime;
                 }
             }
-
-            if (CurrentState == State.Charging || CurrentState == State.ChargeBlocking || CurrentState == State.ChargeJumping)
+            if (CurrentState == State.Charging || CurrentState == State.ChargeBlocking || CurrentState == State.ChargeJumping || CurrentState == State.ChargeSwimming)
                 UpdateCharging();
 
             // hit stuff with the sword
@@ -2556,10 +2544,16 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UseSword()
         {
-            if (CurrentState != State.Idle && CurrentState != State.Pushing && CurrentState != State.Rafting && CurrentState != State.Blocking &&
-                CurrentState != State.Attacking && CurrentState != State.Blocking &&
-                CurrentState != State.AttackBlocking && CurrentState != State.ChargeBlocking &&
-                (CurrentState != State.Jumping || _railJump) && (CurrentState != State.Swimming || !Map.Is2dMap))
+            if (CurrentState != State.Idle && 
+                CurrentState != State.Blocking &&
+                CurrentState != State.ChargeBlocking && 
+                CurrentState != State.Attacking && 
+                CurrentState != State.AttackBlocking && 
+                CurrentState != State.AttackSwimming && 
+                CurrentState != State.Pushing && 
+                CurrentState != State.Rafting && 
+                (CurrentState != State.Jumping || _railJump) && 
+                (CurrentState != State.Swimming || !Map.Is2dMap))
                 return;
 
             var slashSounds = new[] { "D378-02-02", "D378-20-14", "D378-21-15", "D378-24-18" };
@@ -2579,6 +2573,8 @@ namespace ProjectZ.InGame.GameObjects
 
             if (CurrentState == State.Blocking)
                 CurrentState = State.AttackBlocking;
+            else if (CurrentState == State.Swimming)
+                CurrentState = State.AttackSwimming;
             else
                 CurrentState = State.Attacking;
         }
@@ -3894,7 +3890,10 @@ namespace ProjectZ.InGame.GameObjects
 
         public void MapInit()
         {
-            if (CurrentState != State.Swimming && CurrentState != State.OcarinaTelport)
+            if (CurrentState != State.Swimming && 
+                CurrentState != State.AttackSwimming && 
+                CurrentState != State.ChargeSwimming && 
+                CurrentState != State.OcarinaTelport)
                 CurrentState = State.Idle;
 
             _boomerang.Reset();
