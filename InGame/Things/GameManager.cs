@@ -162,6 +162,10 @@ namespace ProjectZ.InGame.Things
         public int PieceOfPowerCount;
         public int PieceOfPowerDamageCount;
 
+        private bool _playPieceOfPowerMusic;
+        private bool _playPieceOfPowerDelay;
+        private float _playPieceOfPowerCounter;
+
         private readonly Dictionary<string, List<DialogPath>> _dialogPaths = new Dictionary<string, List<DialogPath>>();
         private DialogPath _currentDialogPath;
         private readonly Queue<string> _dialogPathQueue = new Queue<string>();
@@ -233,6 +237,27 @@ namespace ProjectZ.InGame.Things
             UpdateMusic();
 
             ItemDrawHelper.Update();
+
+            // Check to play the Piece of Power / Guardian Acorn music.
+            if (_playPieceOfPowerMusic)
+            {
+                // When grabbing the item, there is a delay before the music starts.
+                if (_playPieceOfPowerDelay)
+                {
+                    _playPieceOfPowerCounter += Game1.DeltaTime;
+                    if (_playPieceOfPowerCounter > 2500)
+                    {
+                        _playPieceOfPowerDelay = false;
+                        _playPieceOfPowerCounter = 0;
+                    }
+                }
+                // If transitioning maps, don't delay the music.
+                else
+                {
+                    _playPieceOfPowerMusic = false;
+                    PlayPieceOfPowerMusic();
+                }
+            }
 
             // update the dialogs; forced dialog update is used in sequences where the dialog should be updated but not the normal game
             // needs to come after the ingame overlay update because Game1.UpdateGame can be set to false by it
@@ -738,7 +763,7 @@ namespace ProjectZ.InGame.Things
             GuardianAcornIsActive = true;
             GuardianAcornDamageCount = 0;
 
-            StartPieceOfPowerMusic();
+            StartPieceOfPowerMusic(true);
         }
 
         public void StopGuardianAcorn()
@@ -755,12 +780,21 @@ namespace ProjectZ.InGame.Things
             PieceOfPowerIsActive = true;
             PieceOfPowerDamageCount = 0;
 
-            StartPieceOfPowerMusic();
+            StartPieceOfPowerMusic(true);
         }
 
-        public void StartPieceOfPowerMusic()
+        public void StartPieceOfPowerMusic(bool addDelay = false)
         {
-            // start playing music
+            _playPieceOfPowerDelay = addDelay;
+            _playPieceOfPowerMusic = true;
+
+            // If a delay was added the item was picked up.
+            if (addDelay)
+                Game1.GameManager.StopMusic();
+        }
+
+        public void PlayPieceOfPowerMusic()
+        {
             Game1.GameManager.SetMusic(72, 1);
         }
 
