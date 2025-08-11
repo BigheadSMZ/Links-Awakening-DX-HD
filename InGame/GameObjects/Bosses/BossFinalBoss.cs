@@ -51,17 +51,17 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         private string _saveKey;
 
-        // state slime
+        // State: Giant Zol
         private const int SlimeDamageTime = 2200;
         private const int RotateTime = 2500;
         private int _slimeLives = 3;
         private bool _slimeForm;
 
-        // state man
+        // State: Agahnim's Shadow
         private bool _manInit = true;
         private int _manLives = 4;
 
-        // state ganon
+        // State: Shadow of Ganon
         private int _ganonLives = 12;
 
         private Vector2 _ganonTargetPosition;
@@ -73,7 +73,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
         private int _batIndex;
         private int _batIndexStart;
 
-        // state moldorm
+        // State: Moldorm
         private int _moldormLives = 16;
 
         private const int TailMult = 8;
@@ -101,10 +101,10 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         private int _moveCounter;
 
-        // state face
+        // State: Lanmola
         private float _faceParticleCounter;
 
-        // state final
+        // State: DethI
         // objects used to deal damage
         private readonly BossFinalBossFinalTail[] _finalParts = new BossFinalBossFinalTail[8];
         private readonly string[] _spriteFinalParts = new string[] { "final_part0", "final_part1", "final_part1", "final_part2" };
@@ -405,185 +405,595 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         #endregion
 
-        #region state final
+        #region State: Init
 
-        private void InitFinalDeath()
+        private void InitIdle()
         {
-            Sprite.SpriteShader = null;
-
-            Game1.GameManager.PlaySoundEffect("D370-16-10");
-            Game1.GameManager.PlaySoundEffect("D378-60-3D");
+            Game1.GameManager.StartDialogPath("final_boss_intro");
         }
 
-        private void UpdateFinalDeath()
+        private void UpdateIdle()
         {
-            // spawn the parts
-            _finalPartCounter -= Game1.DeltaTime;
-
-            // despawn?
-            if (_finalPartCounter < -300)
-                FinalExplose();
-
-            for (var i = 0; i < 4; i++)
+            if (!Game1.GameManager.DialogIsRunning() &&
+                !Game1.GameManager.InGameOverlay.TextboxOverlay.IsOpen)
             {
-                if (i * 300 >= _finalPartCounter)
-                {
-                    _finalParts[i].SetActive(false);
-                    _finalParts[i + 4].SetActive(false);
-                }
+                _aiComponent.ChangeState("moveBody");
             }
         }
 
-        private void FinalExplose()
+        private void InitMoveBody()
         {
-            if (!string.IsNullOrEmpty(_saveKey))
-                Game1.GameManager.SaveManager.SetString(_saveKey, "1");
-
-            Map.Objects.DeleteObjects.Add(this);
-
-            ExplodeAnimation();
+            Game1.GameManager.PlaySoundEffect("D360-53-35");
         }
 
-        private void InitFinalBlink()
+        private void UpdateBodyPartPosition(float state)
         {
-            Game1.GameManager.SetMusic(93, 2);
+            var direction = _bodyPosition - EntityPosition.Position;
 
-            Game1.GameManager.StopSoundEffect("D360-61-3D");
-            Game1.GameManager.PlaySoundEffect("D370-16-10");
-
-            // hack to not allow anymore attacks
-            _body.VelocityTarget = Vector2.Zero;
-            Game1.GameManager.StartDialog("nightmareFinal0");
-
-            // deactivate the damge fields
-            _damageField.IsActive = false;
-            for (var i = 0; i < 8; i++)
-                _finalParts[i].DeactivateDamageField();
+            // this is supposed to make it look better by moving the first element more than the following elements
+            // TODO: should be replaced by constant speed up moving up?
+            var stateRad = MathF.PI / 2 - state * MathF.PI / 2;
+            var max = MathF.Sin(stateRad);
+            var min = MathF.Sin(stateRad - MathF.PI / 2);
+            for (var i = 0; i < _bodyParts.Length; i++)
+            {
+                var percentage = stateRad - (float)(i + 1) / (_bodyParts.Length + 1) * MathF.PI / 2;
+                var sinState = (MathF.Sin(percentage) - min) / (max - min);
+                _bodyParts[i] = EntityPosition.Position + direction * (1 - sinState);
+            }
         }
 
-        private void TickFinalDespawn(double counter)
+        private void UpdateMoveBody()
         {
-            var time = _finalStateDeathCounter - counter;
-            Sprite.SpriteShader = time % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime ? Resources.DamageSpriteShader0 : null;
+            _moveSpeed = AnimationHelper.MoveToTarget(_moveSpeed, 1.75f, 0.05f * Game1.TimeMultiplier);
+            _bodyPosition = AnimationHelper.MoveToTarget(_bodyPosition, _bodyTargetPosition, _moveSpeed * Game1.TimeMultiplier);
+
+            var bodyState = Math.Clamp(0.5f - (_bodyPosition.Y - _bodyTargetPosition.Y) / (_moveDist * 0.5f), 0, 0.5f);
+            UpdateBodyPartPosition(bodyState);
+
+            if (_bodyPosition == _bodyTargetPosition)
+            {
+                _moveSpeed = 0.25f;
+                _animatorBody.Play("spawn");
+                _aiComponent.ChangeState("moveHead");
+            }
         }
 
-        private void InitFinalSpawn()
+        private void UpdateMoveHead()
         {
-            Game1.GameManager.PlaySoundEffect("D370-35-23");
-            Game1.GameManager.SetMusic(79, 2);
+            _moveSpeed = AnimationHelper.MoveToTarget(_moveSpeed, 1.75f, 0.05f * Game1.TimeMultiplier);
+            var newPosition = AnimationHelper.MoveToTarget(EntityPosition.Position, _bodyTargetPosition, _moveSpeed * Game1.TimeMultiplier);
+            EntityPosition.X = newPosition.X;
+            EntityPosition.Y = newPosition.Y;
 
-            _targetPosition = EntityPosition.Position;
-            _animator.Play("final_spawn");
-            _damageField.IsActive = true;
-            _damageField.CollisionBox = new CBox(EntityPosition, -8, -12, 16, 16, 8);
-            _hittableComponent.HittableBox = new CBox(EntityPosition, -6, -8, 12, 14, 8);
+            var bodyState = Math.Clamp(2.5f - (EntityPosition.Y - _bodyTargetPosition.Y) / (_moveDist * 0.5f), 0.5f, 1.0f);
+            UpdateBodyPartPosition(bodyState);
+
+            if (EntityPosition.Position == _bodyTargetPosition)
+                _aiComponent.ChangeState("wobble");
         }
 
-        private void UpdateFianalSpawn()
+        private void InitWobble()
+        {
+            _animatorBody.Play("wobble");
+        }
+
+        private void UpdateWobble()
+        {
+            if (!_animatorBody.IsPlaying)
+                _aiComponent.ChangeState("despawn");
+        }
+
+        private void InitStartDespawn()
+        {
+            _hideBody = true;
+            _animator.Play("despawn");
+            Game1.GameManager.PlaySoundEffect("D360-04-04");
+        }
+
+        private void UpdateDespawn()
         {
             if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("final");
-        }
-
-        private Vector2 RandomRoomPositionFinal()
-        {
-            var posY = 0;
-            // make it more likeley to move around at the top
-            if (Game1.RandomNumber.Next(1, 10) <= 6)
-                posY = Game1.RandomNumber.Next(8, 6 * 8);
-            else if (Game1.RandomNumber.Next(1, 10) <= 6)
-                posY = Game1.RandomNumber.Next(8, 9 * 8);
-
-            int posX;
-            if (16 < posY || posY < 64 - 16)
-                posX = Game1.RandomNumber.Next(16, 6 * 16);
-            else
-                posX = Game1.RandomNumber.Next(0, 8 * 16);
-
-            return new Vector2(_roomRectangle.X + 24 + posX, _roomRectangle.Y + 24 + posY);
-        }
-
-        private void InitFinal()
-        {
-            _finalState = true;
-            _animator.Play("final");
-        }
-
-        private void UpdateFinal()
-        {
-            _animatorEye.Update();
-
-            Game1.GameManager.PlaySoundEffect("D360-61-3D", false);
-
-            // move to the target position
-            var distance = _targetPosition - EntityPosition.Position;
-            if (distance.Length() > 4)
-            {
-                distance.Normalize();
-                _body.VelocityTarget = AnimationHelper.MoveToTarget(_body.VelocityTarget, distance * 0.5f, 0.0125f * Game1.TimeMultiplier);
-            }
-            else
-            {
-                // generate new target position
-                _targetPosition = RandomRoomPositionFinal();
-            }
-
-            if (!_animatorEye.IsPlaying)
-                _finalEyeCounter -= Game1.DeltaTime;
-
-            if (_finalEyeCounter <= 0)
-            {
-                // open the eye
-                if (_finalEyeState == 0)
-                {
-                    _finalEyeState = 1;
-                    _finalEyeCounter += 1250 + Game1.RandomNumber.Next(750);
-                    _animatorEye.Play("eye_open");
-                }
-                // close the eye
-                else if (_finalEyeState == 1)
-                {
-                    _finalEyeState = 0;
-                    _finalEyeCounter += 2500 + Game1.RandomNumber.Next(2500);
-                    _animatorEye.Play("eye_close");
-                }
-            }
-
-            // spawn the parts
-            if (_finalPartCounter < 4 * 300)
-                _finalPartCounter += Game1.DeltaTime;
-
-            if (_finalPartCounter > 300)
-            {
-                _finalPart0 += Game1.DeltaTime * _finalPartSpeed0;
-                _finalPart1 += Game1.DeltaTime * _finalPartSpeed1;
-
-                var directionPart0 = new Vector2(MathF.Cos(_finalPart0), MathF.Sin(_finalPart0));
-                SetFinalPartsPosition(directionPart0, 0);
-                var directionPart1 = new Vector2(-MathF.Cos(_finalPart1), MathF.Sin(_finalPart1));
-                SetFinalPartsPosition(directionPart1, 1);
-            }
-        }
-
-        private void SetFinalPartsPosition(Vector2 direction, int index)
-        {
-            var position = new Vector2(EntityPosition.X, EntityPosition.Y - 5);
-
-            for (var i = 0; i < 4; i++)
-            {
-                if ((i + 1) * 300 > _finalPartCounter)
-                    break;
-
-                _finalParts[i + index * 4].SetActive(true);
-
-                position += direction * _finalPartDistance[i];
-                _finalParts[i + index * 4].EntityPosition.Set(position);
-            }
+                _aiComponent.ChangeState("slimeSpawn");
         }
 
         #endregion
 
-        #region state face
+        #region State: Giant Zol
+
+        private void InitSlimeSpawn()
+        {
+            _slimeForm = true;
+            _hideHead = false;
+            _pushRepel = true;
+            _bodyShadow.IsActive = true;
+            _damageField.IsActive = true;
+
+            _hittableComponent.HittableBox = new CBox(EntityPosition, -8, -8, 0, 16, 16, 8, true);
+            _hittableComponent.IsActive = true;
+
+            _drawComponent.Layer = Values.LayerPlayer;
+
+            _animator.Play("slime_spawn");
+        }
+
+        private void UpdateSlimeSpawn()
+        {
+            if (!_animator.IsPlaying)
+                _aiComponent.ChangeState("slimeJump");
+        }
+
+        private void InitSlimeJump()
+        {
+            _animator.Play("slime_jump");
+
+            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
+            if (playerDirection != Vector2.Zero)
+                playerDirection.Normalize();
+
+            _body.IsGrounded = false;
+            _body.Velocity.X = playerDirection.X * 0.5f;
+            _body.Velocity.Y = playerDirection.Y * 0.5f;
+            _body.Velocity.Z = 1.75f;
+        }
+
+        private void UpdateSlimeJump()
+        {
+            if (_body.IsGrounded)
+            {
+                Game1.GameManager.PlaySoundEffect("D360-32-20");
+
+                if (Game1.RandomNumber.Next(0, 2) == 0)
+                    _aiComponent.ChangeState("slimeWait");
+                else
+                    _aiComponent.ChangeState("slimeDespawn");
+            }
+            else if (_body.Velocity.Y < -0.5f)
+            {
+                _animator.Play("slime_land");
+            }
+        }
+
+        private void InitSlimeWait()
+        {
+            _animator.Play("slime");
+        }
+
+        private void InitSlimeDespawn()
+        {
+            _bodyShadow.IsActive = false;
+            _damageField.IsActive = false;
+            _hittableComponent.IsActive = false;
+            _pushRepel = false;
+
+            _animator.Play("slime_despawn");
+
+            EntityPosition.Offset(new Vector2(0, -2));
+        }
+
+        private void UpdateSlimeDespawn()
+        {
+            if (!_animator.IsPlaying)
+                _aiComponent.ChangeState("slimeHidden");
+        }
+
+        private void InitSlimeHidden()
+        {
+            _hideHead = true;
+        }
+
+        private void EndSlimeHidden()
+        {
+            // random new position
+            EntityPosition.Set(RandomRoomPosition());
+
+            _aiComponent.ChangeState("slimeSpawn");
+        }
+
+        private void InitSlimeDamaged()
+        {
+            _animator.Play("slime_damaged");
+            Game1.GameManager.PlaySoundEffect("D360-55-37");
+        }
+
+        private void TickSlimeDamaged(double counter)
+        {
+            var time = SlimeDamageTime - counter;
+            if (time < AiDamageState.CooldownTime && time % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime)
+                Sprite.SpriteShader = Resources.DamageSpriteShader0;
+            else
+                Sprite.SpriteShader = null;
+        }
+
+        private void EndSlimeDamge()
+        {
+            _slimeForm = false;
+
+            if (_slimeLives <= 0)
+                _aiComponent.ChangeState("slimeExplode");
+            else
+                _aiComponent.ChangeState("slimeDespawn");
+        }
+
+        private void InitSlimeHideExplode()
+        {
+            _pushRepel = false;
+            _hideHead = true;
+            _bodyShadow.IsActive = false;
+            _damageField.IsActive = false;
+            _hittableComponent.IsActive = false;
+
+            InitSlimeExplode();
+        }
+
+        private void InitSlimeExplode()
+        {
+            EntityPosition.Offset(new Vector2(0, -2));
+            Game1.GameManager.PlaySoundEffect("D370-33-21");
+
+            _body.VelocityTarget = Vector2.Zero;
+            ExplodeAnimation();
+        }
+
+        #endregion
+
+        #region State: Agahnim's Shadow
+
+        // @TODO:
+        // type 2 spawn rate
+
+        private void SlimeEnd()
+        {
+            _aiComponent.ChangeState("manMove");
+            _manTargetPosition = new Vector2(_roomRectangle.Center.X, _roomRectangle.Y + 43);
+        }
+
+        private void InitManSpawn()
+        {
+            _animator.Play("man_spawn");
+        }
+
+        private void UpdateManSpawn()
+        {
+            if (_animator.IsPlaying)
+                return;
+
+            _pushRepel = true;
+            _damageField.IsActive = true;
+            Game1.GameManager.PlaySoundEffect("D370-35-23");
+            _aiComponent.ChangeState("manPreAttack");
+        }
+
+        private void UpdateManPreAttack()
+        {
+            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
+            _direction = AnimationHelper.GetDirection(playerDirection);
+
+            if (_manInit)
+            {
+                _animator.Play("man_" + _direction);
+                _animator.Pause();
+            }
+            else
+            {
+                _animator.Play("man_attack_" + _direction);
+            }
+        }
+
+        private void InitManAttack()
+        {
+            _manInit = false;
+            _animator.Play("man_" + _direction);
+            Game1.GameManager.PlaySoundEffect("D370-34-22");
+
+            _objFireball = new BossFinalBossFireball(this, EntityPosition.Position + _fireballOffset[_direction]);
+            Map.Objects.SpawnObject(_objFireball);
+        }
+
+        private void TestProjectileSpawn()
+        {
+            _animator.Play("man_" + _direction);
+            _objFireball = new BossFinalBossFireball(this, EntityPosition.Position + _fireballOffset[_direction]);
+            Map.Objects.SpawnObject(_objFireball);
+
+            _objFireball.Fire();
+        }
+
+        private void UpdateManAttack()
+        {
+            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
+            var newDirection = AnimationHelper.GetDirection(playerDirection);
+
+            if (newDirection != _direction)
+            {
+                _direction = newDirection;
+                _animator.Play("man_" + _direction);
+                _objFireball.EntityPosition.Set(EntityPosition.Position + _fireballOffset[_direction]);
+            }
+
+            if (_objFireball.IsReady)
+            {
+                _aiComponent.ChangeState("manPostAttack");
+                _objFireball.Fire();
+            }
+        }
+
+        private void InitPostAttack()
+        {
+            _animator.Play("man_attack_" + _direction);
+        }
+
+        private void UpdateManPostAttack() { }
+
+        private void InitManDespawn()
+        {
+            _pushRepel = false;
+            _damageField.IsActive = false;
+            _animator.Play("man_despawn");
+        }
+
+        private void UpdateManDespawn()
+        {
+            if (!_animator.IsPlaying)
+                _aiComponent.ChangeState("manMove");
+        }
+
+        private void InitManMove()
+        {
+            Game1.GameManager.PlaySoundEffect("D360-53-35");
+            _body.CollisionTypes = Values.CollisionTypes.None;
+            _manTargetPosition = RandomRoomPositionSide();
+        }
+
+        private void UpdateManMove()
+        {
+            var direction = _manTargetPosition - EntityPosition.Position;
+
+            if (direction.Length() < 2)
+            {
+                _body.CollisionTypes = Values.CollisionTypes.Normal;
+                _aiComponent.ChangeState("manMoveWait");
+            }
+            else
+            {
+                direction.Normalize();
+                var targetVelocity = AnimationHelper.MoveToTarget(new Vector2(_body.Velocity.X, _body.Velocity.Y), direction, 0.15f * Game1.TimeMultiplier);
+                _body.Velocity.X = targetVelocity.X;
+                _body.Velocity.Y = targetVelocity.Y;
+            }
+        }
+
+        private void InitManRotate()
+        {
+            Game1.GameManager.PlaySoundEffect("D360-54-36");
+            _animator.Play("man_rotate");
+            // first frame = up
+            // make sure to not jump to a different direction
+            _animator.SetFrame((_direction + 3) % 4);
+        }
+
+        private void TickRotate(double time)
+        {
+            // speed up the rotation speed
+            var rotateSpeed = Math.Clamp((RotateTime - (float)time) / (RotateTime * 0.65f), 0, 1);
+            _animator.SpeedMultiplier = rotateSpeed * 3 + 1;
+        }
+
+        private void EndRotate()
+        {
+            _pushRepel = false;
+            EntityPosition.Set(new Vector2(EntityPosition.X, EntityPosition.Y - 4));
+
+            _animator.SpeedMultiplier = 1;
+            _aiComponent.ChangeState("explode");
+        }
+
+        #endregion
+
+        #region State: Moldorm
+
+        private void InitMoldormSpawn()
+        {
+            _animator.Play("meldorm_spawn");
+        }
+
+        private void UpdateMoldormSpawn()
+        {
+            if (!_animator.IsPlaying)
+                _aiComponent.ChangeState("moldorm");
+        }
+
+        private void InitMoldorm()
+        {
+            _pushRepel = true;
+            _body.CollisionTypes = Values.CollisionTypes.Normal;
+            _drawMoldormTail = true;
+            _damageField.IsActive = true;
+
+            for (var i = 0; i < _moldormPositions.Length; i++)
+                _moldormPositions[i] = EntityPosition.Position;
+
+            for (var i = 0; i < _moldormTails.Length; i++)
+            {
+                string animationId;
+                if (i == _moldormTails.Length - 1)
+                    animationId = "moldorm_tail";
+                else if (i == _moldormTails.Length - 2)
+                    animationId = "moldorm_body_2";
+                else
+                    animationId = "moldorm_body";
+
+                _moldormTails[i] = new BossFinalBossTail(Map, this, animationId, i == _moldormTails.Length - 1);
+                Map.Objects.SpawnObject(_moldormTails[i]);
+            }
+        }
+
+        private void UpdateMoldormTail()
+        {
+            // blinking tail
+            _moldormTails[3].Sprite.SpriteShader = Game1.TotalGameTime % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime ? Resources.DamageSpriteShader0 : null;
+        }
+
+        private void UpdateMoldorm()
+        {
+            UpdateMoldormTail();
+
+            // change the direction?
+            _moldormChangeCounter -= Game1.DeltaTime;
+            if (_moldormChangeCounter < 0)
+            {
+                _moldormChangeCounter += Game1.RandomNumber.Next(500, 2000);
+                _moldormDirection = -_moldormDirection;
+            }
+
+            _moldormRadiant += Game1.TimeMultiplier * 0.065f * _moldormDirection;
+
+            _moldormSpeed = _moldormSpeedUp.State ? MoldormSpeedNormal : MoldormSpeedFast;
+            if (_moldormHit)
+            {
+                _moldormSpeed = 0;
+                UpdateMoldormTail(EntityPosition);
+            }
+            else
+            {
+                _moldormSoundCounter -= Game1.DeltaTime * _moldormSpeed;
+                if (_moldormSoundCounter < 0)
+                {
+                    _moldormSoundCounter += 250;
+                    Game1.GameManager.PlaySoundEffect("D360-56-38");
+                }
+            }
+
+            _body.VelocityTarget = new Vector2(MathF.Sin(_moldormRadiant), MathF.Cos(_moldormRadiant)) * _moldormSpeed;
+
+            _directionChangeMultiplier = AnimationHelper.MoveToTarget(_directionChangeMultiplier, 1, 0.1f * Game1.TimeMultiplier);
+        }
+
+        private void InitMoldormDying()
+        {
+            _body.VelocityTarget = Vector2.Zero;
+        }
+
+        private void UpdateMoldormDying()
+        {
+            UpdateMoldormTail();
+
+            _moldormRadiant += Game1.TimeMultiplier * 0.065f * _moldormDirection;
+
+            UpdateMoldormTail(EntityPosition);
+        }
+
+        private void MoldormExplode()
+        {
+            _aiComponent.ChangeState("moldormDespawn");
+            _animator.Play("slime_despawn");
+
+            _drawMoldormTail = false;
+
+            _pushRepel = false;
+            _damageField.IsActive = false;
+            _bodyShadow.IsActive = false;
+            _drawComponent.Layer = Values.LayerBottom;
+
+            Game1.GameManager.PlaySoundEffect("D378-55-37");
+
+            ExplosionParticle();
+        }
+
+        private void UpdateMoldormDespawn()
+        {
+            if (!_animator.IsPlaying)
+                _aiComponent.ChangeState("move");
+        }
+
+        private void OnUpdatePosition(CPosition position)
+        {
+            if (_aiComponent.CurrentStateId == "moldorm")
+                UpdateMoldormTail(position);
+        }
+
+        private void UpdateMoldormTail(CPosition position)
+        {
+            // set the rotation to be 0 < rotation < Pi * 2 to allow for correct calculations
+            while (_moldormRadiant < MathF.PI * 2)
+                _moldormRadiant += MathF.PI * 2;
+            _moldormRadiant %= MathF.PI * 2;
+
+            var radiantIndex = (int)(((_moldormRadiant + MathF.PI / 8) / (2 * MathF.PI)) * 8) % 8;
+            _animator.Play("moldorm_head_" + (8 - radiantIndex) % 8);
+
+            _moldormPositions[0] = position.Position;
+
+            if (!_aiDamageState.IsInDamageState())
+            {
+                if (_moldormHit)
+                {
+                    _moldormHit = false;
+                    _moldormSpeedUp.Reset();
+                }
+
+                _partDist = new float[] { 12, 12, 12, 10 };
+            }
+            else
+            {
+                for (int i = 0; i < _partDist.Length; i++)
+                {
+                    if (_partDist[i] > 0)
+                    {
+                        _partDist[i] -= Game1.TimeMultiplier * 1.75f;
+                        if (_partDist[i] < 0)
+                            _partDist[i] = 0;
+                        break;
+                    }
+                }
+            }
+
+            var partPos = 0f;
+            var partIndex = 0;
+            var targetDist = _partDist[0] / TailMult;
+
+            for (int i = 1; i < _moldormPositions.Length; i++)
+            {
+                // this loop is only used to make sure to not have and endless loop incase of a problem with the code below
+                while (partIndex + 1 < _moldormPositions.Length)
+                {
+                    var dist = (_moldormPositions[partIndex + 1] - _moldormPositions[partIndex]).Length();
+                    if (dist - partPos >= targetDist)
+                    {
+                        var percentage = dist > 0 ? (dist - partPos - targetDist) / dist : 1;
+                        var newPosition = Vector2.Lerp(_moldormPositions[partIndex + 1], _moldormPositions[partIndex], percentage);
+                        partPos += targetDist;
+                        if (i / TailMult < _partDist.Length)
+                            targetDist = _partDist[i / TailMult] / TailMult;
+
+                        _moldormPositionsNew[i] = newPosition;
+
+                        break;
+                    }
+                    else
+                    {
+                        partIndex++;
+                        targetDist -= (dist - partPos);
+                        partPos = 0;
+                    }
+                }
+
+                // the tail is not expaneded
+                if (partIndex + 1 >= _moldormPositions.Length)
+                    _moldormPositionsNew[i] = _moldormPositions[_moldormPositions.Length - 1];
+            }
+
+            for (int i = 1; i < _moldormPositions.Length; i++)
+                _moldormPositions[i] = _moldormPositionsNew[i];
+
+            // set the newly calculated positions
+            for (var i = 0; i < _moldormTails.Length; i++)
+                _moldormTails[i].EntityPosition.Set(_moldormPositions[(i + 1) * TailMult]);
+        }
+
+        #endregion
+
+        #region State: Lanmola
 
         private void InitFaceDespawn()
         {
@@ -664,7 +1074,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         #endregion
 
-        #region state ganon
+        #region State: Shadow of Ganon
 
         public void CatchWeapon()
         {
@@ -884,304 +1294,185 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         #endregion
 
-        #region state moldorm
+        #region State: DethI
 
-        private void InitMoldormSpawn()
+        private void InitFinalDeath()
         {
-            _animator.Play("meldorm_spawn");
+            Sprite.SpriteShader = null;
+
+            Game1.GameManager.PlaySoundEffect("D370-16-10");
+            Game1.GameManager.PlaySoundEffect("D378-60-3D");
         }
 
-        private void UpdateMoldormSpawn()
+        private void UpdateFinalDeath()
         {
-            if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("moldorm");
-        }
+            // spawn the parts
+            _finalPartCounter -= Game1.DeltaTime;
 
-        private void InitMoldorm()
-        {
-            _pushRepel = true;
-            _body.CollisionTypes = Values.CollisionTypes.Normal;
-            _drawMoldormTail = true;
-            _damageField.IsActive = true;
+            // despawn?
+            if (_finalPartCounter < -300)
+                FinalExplose();
 
-            for (var i = 0; i < _moldormPositions.Length; i++)
-                _moldormPositions[i] = EntityPosition.Position;
-
-            for (var i = 0; i < _moldormTails.Length; i++)
+            for (var i = 0; i < 4; i++)
             {
-                string animationId;
-                if (i == _moldormTails.Length - 1)
-                    animationId = "moldorm_tail";
-                else if (i == _moldormTails.Length - 2)
-                    animationId = "moldorm_body_2";
-                else
-                    animationId = "moldorm_body";
-
-                _moldormTails[i] = new BossFinalBossTail(Map, this, animationId, i == _moldormTails.Length - 1);
-                Map.Objects.SpawnObject(_moldormTails[i]);
-            }
-        }
-
-        private void UpdateMoldormTail()
-        {
-            // blinking tail
-            _moldormTails[3].Sprite.SpriteShader = Game1.TotalGameTime % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime ? Resources.DamageSpriteShader0 : null;
-        }
-
-        private void UpdateMoldorm()
-        {
-            UpdateMoldormTail();
-
-            // change the direction?
-            _moldormChangeCounter -= Game1.DeltaTime;
-            if (_moldormChangeCounter < 0)
-            {
-                _moldormChangeCounter += Game1.RandomNumber.Next(500, 2000);
-                _moldormDirection = -_moldormDirection;
-            }
-
-            _moldormRadiant += Game1.TimeMultiplier * 0.065f * _moldormDirection;
-
-            _moldormSpeed = _moldormSpeedUp.State ? MoldormSpeedNormal : MoldormSpeedFast;
-            if (_moldormHit)
-            {
-                _moldormSpeed = 0;
-                UpdateMoldormTail(EntityPosition);
-            }
-            else
-            {
-                _moldormSoundCounter -= Game1.DeltaTime * _moldormSpeed;
-                if (_moldormSoundCounter < 0)
+                if (i * 300 >= _finalPartCounter)
                 {
-                    _moldormSoundCounter += 250;
-                    Game1.GameManager.PlaySoundEffect("D360-56-38");
+                    _finalParts[i].SetActive(false);
+                    _finalParts[i + 4].SetActive(false);
                 }
             }
-
-            _body.VelocityTarget = new Vector2(MathF.Sin(_moldormRadiant), MathF.Cos(_moldormRadiant)) * _moldormSpeed;
-
-            _directionChangeMultiplier = AnimationHelper.MoveToTarget(_directionChangeMultiplier, 1, 0.1f * Game1.TimeMultiplier);
         }
 
-        private void InitMoldormDying()
+        private void FinalExplose()
         {
+            if (!string.IsNullOrEmpty(_saveKey))
+                Game1.GameManager.SaveManager.SetString(_saveKey, "1");
+
+            Map.Objects.DeleteObjects.Add(this);
+
+            ExplodeAnimation();
+        }
+
+        private void InitFinalBlink()
+        {
+            Game1.GameManager.SetMusic(93, 2);
+
+            Game1.GameManager.StopSoundEffect("D360-61-3D");
+            Game1.GameManager.PlaySoundEffect("D370-16-10");
+
+            // hack to not allow anymore attacks
             _body.VelocityTarget = Vector2.Zero;
-        }
+            Game1.GameManager.StartDialog("nightmareFinal0");
 
-        private void UpdateMoldormDying()
-        {
-            UpdateMoldormTail();
-
-            _moldormRadiant += Game1.TimeMultiplier * 0.065f * _moldormDirection;
-
-            UpdateMoldormTail(EntityPosition);
-        }
-
-        private void MoldormExplode()
-        {
-            _aiComponent.ChangeState("moldormDespawn");
-            _animator.Play("slime_despawn");
-
-            _drawMoldormTail = false;
-
-            _pushRepel = false;
+            // deactivate the damge fields
             _damageField.IsActive = false;
-            _bodyShadow.IsActive = false;
-            _drawComponent.Layer = Values.LayerBottom;
-
-            Game1.GameManager.PlaySoundEffect("D378-55-37");
-
-            ExplosionParticle();
+            for (var i = 0; i < 8; i++)
+                _finalParts[i].DeactivateDamageField();
         }
 
-        private void UpdateMoldormDespawn()
+        private void TickFinalDespawn(double counter)
+        {
+            var time = _finalStateDeathCounter - counter;
+            Sprite.SpriteShader = time % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime ? Resources.DamageSpriteShader0 : null;
+        }
+
+        private void InitFinalSpawn()
+        {
+            Game1.GameManager.PlaySoundEffect("D370-35-23");
+            Game1.GameManager.SetMusic(79, 2);
+
+            _targetPosition = EntityPosition.Position;
+            _animator.Play("final_spawn");
+            _damageField.IsActive = true;
+            _damageField.CollisionBox = new CBox(EntityPosition, -8, -12, 16, 16, 8);
+            _hittableComponent.HittableBox = new CBox(EntityPosition, -6, -8, 12, 14, 8);
+        }
+
+        private void UpdateFianalSpawn()
         {
             if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("move");
+                _aiComponent.ChangeState("final");
         }
 
-        private void OnUpdatePosition(CPosition position)
+        private Vector2 RandomRoomPositionFinal()
         {
-            if (_aiComponent.CurrentStateId == "moldorm")
-                UpdateMoldormTail(position);
+            var posY = 0;
+            // make it more likeley to move around at the top
+            if (Game1.RandomNumber.Next(1, 10) <= 6)
+                posY = Game1.RandomNumber.Next(8, 6 * 8);
+            else if (Game1.RandomNumber.Next(1, 10) <= 6)
+                posY = Game1.RandomNumber.Next(8, 9 * 8);
+
+            int posX;
+            if (16 < posY || posY < 64 - 16)
+                posX = Game1.RandomNumber.Next(16, 6 * 16);
+            else
+                posX = Game1.RandomNumber.Next(0, 8 * 16);
+
+            return new Vector2(_roomRectangle.X + 24 + posX, _roomRectangle.Y + 24 + posY);
         }
 
-        private void UpdateMoldormTail(CPosition position)
+        private void InitFinal()
         {
-            // set the rotation to be 0 < rotation < Pi * 2 to allow for correct calculations
-            while (_moldormRadiant < MathF.PI * 2)
-                _moldormRadiant += MathF.PI * 2;
-            _moldormRadiant %= MathF.PI * 2;
+            _finalState = true;
+            _animator.Play("final");
+        }
 
-            var radiantIndex = (int)(((_moldormRadiant + MathF.PI / 8) / (2 * MathF.PI)) * 8) % 8;
-            _animator.Play("moldorm_head_" + (8 - radiantIndex) % 8);
+        private void UpdateFinal()
+        {
+            _animatorEye.Update();
 
-            _moldormPositions[0] = position.Position;
+            Game1.GameManager.PlaySoundEffect("D360-61-3D", false);
 
-            if (!_aiDamageState.IsInDamageState())
+            // move to the target position
+            var distance = _targetPosition - EntityPosition.Position;
+            if (distance.Length() > 4)
             {
-                if (_moldormHit)
-                {
-                    _moldormHit = false;
-                    _moldormSpeedUp.Reset();
-                }
-
-                _partDist = new float[] { 12, 12, 12, 10 };
+                distance.Normalize();
+                _body.VelocityTarget = AnimationHelper.MoveToTarget(_body.VelocityTarget, distance * 0.5f, 0.0125f * Game1.TimeMultiplier);
             }
             else
             {
-                for (int i = 0; i < _partDist.Length; i++)
-                {
-                    if (_partDist[i] > 0)
-                    {
-                        _partDist[i] -= Game1.TimeMultiplier * 1.75f;
-                        if (_partDist[i] < 0)
-                            _partDist[i] = 0;
-                        break;
-                    }
-                }
+                // generate new target position
+                _targetPosition = RandomRoomPositionFinal();
             }
 
-            var partPos = 0f;
-            var partIndex = 0;
-            var targetDist = _partDist[0] / TailMult;
+            if (!_animatorEye.IsPlaying)
+                _finalEyeCounter -= Game1.DeltaTime;
 
-            for (int i = 1; i < _moldormPositions.Length; i++)
+            if (_finalEyeCounter <= 0)
             {
-                // this loop is only used to make sure to not have and endless loop incase of a problem with the code below
-                while (partIndex + 1 < _moldormPositions.Length)
+                // open the eye
+                if (_finalEyeState == 0)
                 {
-                    var dist = (_moldormPositions[partIndex + 1] - _moldormPositions[partIndex]).Length();
-                    if (dist - partPos >= targetDist)
-                    {
-                        var percentage = dist > 0 ? (dist - partPos - targetDist) / dist : 1;
-                        var newPosition = Vector2.Lerp(_moldormPositions[partIndex + 1], _moldormPositions[partIndex], percentage);
-                        partPos += targetDist;
-                        if (i / TailMult < _partDist.Length)
-                            targetDist = _partDist[i / TailMult] / TailMult;
-
-                        _moldormPositionsNew[i] = newPosition;
-
-                        break;
-                    }
-                    else
-                    {
-                        partIndex++;
-                        targetDist -= (dist - partPos);
-                        partPos = 0;
-                    }
+                    _finalEyeState = 1;
+                    _finalEyeCounter += 1250 + Game1.RandomNumber.Next(750);
+                    _animatorEye.Play("eye_open");
                 }
-
-                // the tail is not expaneded
-                if (partIndex + 1 >= _moldormPositions.Length)
-                    _moldormPositionsNew[i] = _moldormPositions[_moldormPositions.Length - 1];
+                // close the eye
+                else if (_finalEyeState == 1)
+                {
+                    _finalEyeState = 0;
+                    _finalEyeCounter += 2500 + Game1.RandomNumber.Next(2500);
+                    _animatorEye.Play("eye_close");
+                }
             }
 
-            for (int i = 1; i < _moldormPositions.Length; i++)
-                _moldormPositions[i] = _moldormPositionsNew[i];
+            // spawn the parts
+            if (_finalPartCounter < 4 * 300)
+                _finalPartCounter += Game1.DeltaTime;
 
-            // set the newly calculated positions
-            for (var i = 0; i < _moldormTails.Length; i++)
-                _moldormTails[i].EntityPosition.Set(_moldormPositions[(i + 1) * TailMult]);
+            if (_finalPartCounter > 300)
+            {
+                _finalPart0 += Game1.DeltaTime * _finalPartSpeed0;
+                _finalPart1 += Game1.DeltaTime * _finalPartSpeed1;
+
+                var directionPart0 = new Vector2(MathF.Cos(_finalPart0), MathF.Sin(_finalPart0));
+                SetFinalPartsPosition(directionPart0, 0);
+                var directionPart1 = new Vector2(-MathF.Cos(_finalPart1), MathF.Sin(_finalPart1));
+                SetFinalPartsPosition(directionPart1, 1);
+            }
+        }
+
+        private void SetFinalPartsPosition(Vector2 direction, int index)
+        {
+            var position = new Vector2(EntityPosition.X, EntityPosition.Y - 5);
+
+            for (var i = 0; i < 4; i++)
+            {
+                if ((i + 1) * 300 > _finalPartCounter)
+                    break;
+
+                _finalParts[i + index * 4].SetActive(true);
+
+                position += direction * _finalPartDistance[i];
+                _finalParts[i + index * 4].EntityPosition.Set(position);
+            }
         }
 
         #endregion
 
-        #region state init
-
-        private void InitIdle()
-        {
-            Game1.GameManager.StartDialogPath("final_boss_intro");
-        }
-
-        private void UpdateIdle()
-        {
-            if (!Game1.GameManager.DialogIsRunning() &&
-                !Game1.GameManager.InGameOverlay.TextboxOverlay.IsOpen)
-            {
-                _aiComponent.ChangeState("moveBody");
-            }
-        }
-
-        private void InitMoveBody()
-        {
-            Game1.GameManager.PlaySoundEffect("D360-53-35");
-        }
-
-        private void UpdateBodyPartPosition(float state)
-        {
-            var direction = _bodyPosition - EntityPosition.Position;
-
-            // this is supposed to make it look better by moving the first element more than the following elements
-            // TODO: should be replaced by constant speed up moving up?
-            var stateRad = MathF.PI / 2 - state * MathF.PI / 2;
-            var max = MathF.Sin(stateRad);
-            var min = MathF.Sin(stateRad - MathF.PI / 2);
-            for (var i = 0; i < _bodyParts.Length; i++)
-            {
-                var percentage = stateRad - (float)(i + 1) / (_bodyParts.Length + 1) * MathF.PI / 2;
-                var sinState = (MathF.Sin(percentage) - min) / (max - min);
-                _bodyParts[i] = EntityPosition.Position + direction * (1 - sinState);
-            }
-        }
-
-        private void UpdateMoveBody()
-        {
-            _moveSpeed = AnimationHelper.MoveToTarget(_moveSpeed, 1.75f, 0.05f * Game1.TimeMultiplier);
-            _bodyPosition = AnimationHelper.MoveToTarget(_bodyPosition, _bodyTargetPosition, _moveSpeed * Game1.TimeMultiplier);
-
-            var bodyState = Math.Clamp(0.5f - (_bodyPosition.Y - _bodyTargetPosition.Y) / (_moveDist * 0.5f), 0, 0.5f);
-            UpdateBodyPartPosition(bodyState);
-
-            if (_bodyPosition == _bodyTargetPosition)
-            {
-                _moveSpeed = 0.25f;
-                _animatorBody.Play("spawn");
-                _aiComponent.ChangeState("moveHead");
-            }
-        }
-
-        private void UpdateMoveHead()
-        {
-            _moveSpeed = AnimationHelper.MoveToTarget(_moveSpeed, 1.75f, 0.05f * Game1.TimeMultiplier);
-            var newPosition = AnimationHelper.MoveToTarget(EntityPosition.Position, _bodyTargetPosition, _moveSpeed * Game1.TimeMultiplier);
-            EntityPosition.X = newPosition.X;
-            EntityPosition.Y = newPosition.Y;
-
-            var bodyState = Math.Clamp(2.5f - (EntityPosition.Y - _bodyTargetPosition.Y) / (_moveDist * 0.5f), 0.5f, 1.0f);
-            UpdateBodyPartPosition(bodyState);
-
-            if (EntityPosition.Position == _bodyTargetPosition)
-                _aiComponent.ChangeState("wobble");
-        }
-
-        private void InitWobble()
-        {
-            _animatorBody.Play("wobble");
-        }
-
-        private void UpdateWobble()
-        {
-            if (!_animatorBody.IsPlaying)
-                _aiComponent.ChangeState("despawn");
-        }
-
-        private void InitStartDespawn()
-        {
-            _hideBody = true;
-            _animator.Play("despawn");
-            Game1.GameManager.PlaySoundEffect("D360-04-04");
-        }
-
-        private void UpdateDespawn()
-        {
-            if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("slimeSpawn");
-        }
-
-        #endregion
-
-        #region state explode
+        #region State: Explode
 
         private void InitExplode()
         {
@@ -1255,297 +1546,6 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 _aiComponent.ChangeState("ganonSpawn");
 
             _moveCounter++;
-        }
-
-        #endregion
-
-        #region state slime
-
-        private void InitSlimeSpawn()
-        {
-            _slimeForm = true;
-            _hideHead = false;
-            _pushRepel = true;
-            _bodyShadow.IsActive = true;
-            _damageField.IsActive = true;
-
-            _hittableComponent.HittableBox = new CBox(EntityPosition, -8, -8, 0, 16, 16, 8, true);
-            _hittableComponent.IsActive = true;
-
-            _drawComponent.Layer = Values.LayerPlayer;
-
-            _animator.Play("slime_spawn");
-        }
-
-        private void UpdateSlimeSpawn()
-        {
-            if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("slimeJump");
-        }
-
-        private void InitSlimeJump()
-        {
-            _animator.Play("slime_jump");
-
-            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
-            if (playerDirection != Vector2.Zero)
-                playerDirection.Normalize();
-
-            _body.IsGrounded = false;
-            _body.Velocity.X = playerDirection.X * 0.5f;
-            _body.Velocity.Y = playerDirection.Y * 0.5f;
-            _body.Velocity.Z = 1.75f;
-        }
-
-        private void UpdateSlimeJump()
-        {
-            if (_body.IsGrounded)
-            {
-                Game1.GameManager.PlaySoundEffect("D360-32-20");
-
-                if (Game1.RandomNumber.Next(0, 2) == 0)
-                    _aiComponent.ChangeState("slimeWait");
-                else
-                    _aiComponent.ChangeState("slimeDespawn");
-            }
-            else if (_body.Velocity.Y < -0.5f)
-            {
-                _animator.Play("slime_land");
-            }
-        }
-
-        private void InitSlimeWait()
-        {
-            _animator.Play("slime");
-        }
-
-        private void InitSlimeDespawn()
-        {
-            _bodyShadow.IsActive = false;
-            _damageField.IsActive = false;
-            _hittableComponent.IsActive = false;
-            _pushRepel = false;
-
-            _animator.Play("slime_despawn");
-
-            EntityPosition.Offset(new Vector2(0, -2));
-        }
-
-        private void UpdateSlimeDespawn()
-        {
-            if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("slimeHidden");
-        }
-
-        private void InitSlimeHidden()
-        {
-            _hideHead = true;
-        }
-
-        private void EndSlimeHidden()
-        {
-            // random new position
-            EntityPosition.Set(RandomRoomPosition());
-
-            _aiComponent.ChangeState("slimeSpawn");
-        }
-
-        private void InitSlimeDamaged()
-        {
-            _animator.Play("slime_damaged");
-            Game1.GameManager.PlaySoundEffect("D360-55-37");
-        }
-
-        private void TickSlimeDamaged(double counter)
-        {
-            var time = SlimeDamageTime - counter;
-            if (time < AiDamageState.CooldownTime && time % (AiDamageState.BlinkTime * 2) < AiDamageState.BlinkTime)
-                Sprite.SpriteShader = Resources.DamageSpriteShader0;
-            else
-                Sprite.SpriteShader = null;
-        }
-
-        private void EndSlimeDamge()
-        {
-            _slimeForm = false;
-
-            if (_slimeLives <= 0)
-                _aiComponent.ChangeState("slimeExplode");
-            else
-                _aiComponent.ChangeState("slimeDespawn");
-        }
-
-        private void InitSlimeHideExplode()
-        {
-            _pushRepel = false;
-            _hideHead = true;
-            _bodyShadow.IsActive = false;
-            _damageField.IsActive = false;
-            _hittableComponent.IsActive = false;
-
-            InitSlimeExplode();
-        }
-
-        private void InitSlimeExplode()
-        {
-            EntityPosition.Offset(new Vector2(0, -2));
-            Game1.GameManager.PlaySoundEffect("D370-33-21");
-
-            _body.VelocityTarget = Vector2.Zero;
-            ExplodeAnimation();
-        }
-
-        #endregion
-
-        #region state man
-
-        // @TODO:
-        // type 2 spawn rate
-
-        private void SlimeEnd()
-        {
-            _aiComponent.ChangeState("manMove");
-            _manTargetPosition = new Vector2(_roomRectangle.Center.X, _roomRectangle.Y + 43);
-        }
-
-        private void InitManSpawn()
-        {
-            _animator.Play("man_spawn");
-        }
-
-        private void UpdateManSpawn()
-        {
-            if (_animator.IsPlaying)
-                return;
-
-            _pushRepel = true;
-            _damageField.IsActive = true;
-            Game1.GameManager.PlaySoundEffect("D370-35-23");
-            _aiComponent.ChangeState("manPreAttack");
-        }
-
-        private void TestProjectileSpawn()
-        {
-            _animator.Play("man_" + _direction);
-            _objFireball = new BossFinalBossFireball(this, EntityPosition.Position + _fireballOffset[_direction]);
-            Map.Objects.SpawnObject(_objFireball);
-
-            _objFireball.Fire();
-        }
-
-        private void UpdateManPreAttack()
-        {
-            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
-            _direction = AnimationHelper.GetDirection(playerDirection);
-
-            if (_manInit)
-            {
-                _animator.Play("man_" + _direction);
-                _animator.Pause();
-            }
-            else
-            {
-                _animator.Play("man_attack_" + _direction);
-            }
-        }
-
-        private void InitManAttack()
-        {
-            _manInit = false;
-            _animator.Play("man_" + _direction);
-            Game1.GameManager.PlaySoundEffect("D370-34-22");
-
-            _objFireball = new BossFinalBossFireball(this, EntityPosition.Position + _fireballOffset[_direction]);
-            Map.Objects.SpawnObject(_objFireball);
-        }
-
-        private void UpdateManAttack()
-        {
-            var playerDirection = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
-            var newDirection = AnimationHelper.GetDirection(playerDirection);
-
-            if (newDirection != _direction)
-            {
-                _direction = newDirection;
-                _animator.Play("man_" + _direction);
-                _objFireball.EntityPosition.Set(EntityPosition.Position + _fireballOffset[_direction]);
-            }
-
-            if (_objFireball.IsReady)
-            {
-                _aiComponent.ChangeState("manPostAttack");
-                _objFireball.Fire();
-            }
-        }
-
-        private void InitPostAttack()
-        {
-            _animator.Play("man_attack_" + _direction);
-        }
-
-        private void UpdateManPostAttack() { }
-
-        private void InitManDespawn()
-        {
-            _pushRepel = false;
-            _damageField.IsActive = false;
-            _animator.Play("man_despawn");
-        }
-
-        private void UpdateManDespawn()
-        {
-            if (!_animator.IsPlaying)
-                _aiComponent.ChangeState("manMove");
-        }
-
-        private void InitManMove()
-        {
-            Game1.GameManager.PlaySoundEffect("D360-53-35");
-            _body.CollisionTypes = Values.CollisionTypes.None;
-            _manTargetPosition = RandomRoomPositionSide();
-        }
-
-        private void UpdateManMove()
-        {
-            var direction = _manTargetPosition - EntityPosition.Position;
-
-            if (direction.Length() < 2)
-            {
-                _body.CollisionTypes = Values.CollisionTypes.Normal;
-                _aiComponent.ChangeState("manMoveWait");
-            }
-            else
-            {
-                direction.Normalize();
-                var targetVelocity = AnimationHelper.MoveToTarget(new Vector2(_body.Velocity.X, _body.Velocity.Y), direction, 0.15f * Game1.TimeMultiplier);
-                _body.Velocity.X = targetVelocity.X;
-                _body.Velocity.Y = targetVelocity.Y;
-            }
-        }
-
-        private void InitManRotate()
-        {
-            Game1.GameManager.PlaySoundEffect("D360-54-36");
-            _animator.Play("man_rotate");
-            // first frame = up
-            // make sure to not jump to a different direction
-            _animator.SetFrame((_direction + 3) % 4);
-        }
-
-        private void TickRotate(double time)
-        {
-            // speed up the rotation speed
-            var rotateSpeed = Math.Clamp((RotateTime - (float)time) / (RotateTime * 0.65f), 0, 1);
-            _animator.SpeedMultiplier = rotateSpeed * 3 + 1;
-        }
-
-        private void EndRotate()
-        {
-            _pushRepel = false;
-            EntityPosition.Set(new Vector2(EntityPosition.X, EntityPosition.Y - 4));
-
-            _animator.SpeedMultiplier = 1;
-            _aiComponent.ChangeState("explode");
         }
 
         #endregion
@@ -1653,7 +1653,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
 
         public Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
-            // slime attacked by powder
+            // Giant Zol
             if (_slimeForm && (damageType & HitType.MagicPowder) != 0)
             {
                 _body.Velocity.X = direction.X;
@@ -1674,12 +1674,13 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 return Values.HitCollision.Enemy;
             }
 
+            // Moldorm
             if (_aiComponent.CurrentStateId == "moldorm")
             {
                 return Values.HitCollision.RepellingParticle;
             }
 
-            // ganon damage form
+            // Shadow of Ganon
             if (_ganonForm && !_aiDamageState.IsInDamageState() && (((damageType & HitType.PegasusBootsSword) != 0) || (damageType & HitType.SwordSpin) != 0))
             {
                 _ganonLives -= damage;
@@ -1696,9 +1697,10 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 return Values.HitCollision.Repelling;
             }
 
+            // Lanmola
             if (_aiComponent.CurrentStateId == "face" && !_aiDamageState.IsInDamageState())
             {
-                if ((damageType & (HitType.Hookshot | HitType.MagicRod | HitType.Bomb | HitType.Boomerang | HitType.Bow)) != 0)
+                if ((damageType & (HitType.Hookshot | HitType.MagicRod | HitType.Bomb | HitType.Boomerang | HitType.Bow | HitType.SwordSpin)) != 0)
                 {
                     _aiDamageState.SetDamageState();
                     _aiComponent.ChangeState("faceExplode");
@@ -1718,17 +1720,22 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 }
             }
 
+            // DethI
             if (_aiComponent.CurrentStateId == "final")
             {
                 // bow hit from below with an open eye
                 if (!_aiDamageState.IsInDamageState() && (
-                    (_finalEyeState == 0 && _animatorEye.CurrentFrameIndex < 1) ||
-                    (_finalEyeState == 1 && _animatorEye.CurrentFrameIndex >= 1)) && (damageType & HitType.Bow) != 0 &&
-                    MathF.Abs(direction.Y) > MathF.Abs(direction.X) && direction.Y < 0)
+                    (_finalEyeState == 0 && _animatorEye.CurrentFrameIndex < 1) || (_finalEyeState == 1 && _animatorEye.CurrentFrameIndex >= 1)) && 
+                    MathF.Abs(direction.Y) > MathF.Abs(direction.X) && direction.Y < 0 &&
+                    (damageType & HitType.Bow) != 0 | (damageType & HitType.Boomerang) != 0)
                 {
                     _aiDamageState.SetDamageState();
 
-                    _finalStateLives--;
+                    if ((damageType & HitType.Boomerang) != 0)
+                        _finalStateLives = 0;
+                    else
+                        _finalStateLives--;
+
                     if (_finalStateLives <= 0)
                         _aiComponent.ChangeState("finalBlink");
 

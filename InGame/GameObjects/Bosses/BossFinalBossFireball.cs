@@ -211,7 +211,7 @@ namespace ProjectZ.InGame.GameObjects.Bosses
                 return Values.HitCollision.None;
 
             if (_damageState)
-                OnDeath();
+                OnDeath(true);
             else
                 Repell();
 
@@ -226,8 +226,11 @@ namespace ProjectZ.InGame.GameObjects.Bosses
             return true;
         }
 
-        private void OnDeath()
+        private void OnDeath(bool PlaySound = false)
         {
+            if (PlaySound)
+                Game1.GameManager.PlaySoundEffect("D378-54-36");
+
             var posX = (int)EntityPosition.X;
             var posY = (int)EntityPosition.Y;
             var speed = 2.75f / 1.4f;
