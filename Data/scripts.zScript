@@ -9,7 +9,6 @@ test_dialog_3:0 -> [dialog:choice:npc_hippo_0:choice_Nope:choice_Cant:choice_Nop
 test_sign_0:0 -> [music:53:1] -> [stop_music:3000:1]
 test_sign_1:0 -> npc_tracy_8
 
-
 // Init Overworld
 overworld:0 -> [set:dungeon_1:0] -> [set:dungeon_2:0] -> [set:dungeon_3:0] -> [set:dungeon_4:0] -> [set:dungeon_5:0] -> [set:dungeon_6:0] -> [set:dungeon_7:0] -> [set:dungeon_8:0] -> [set:crystal_hard:0] -> [set:pondReset:0] -> [set:rabbit_0Jump:533] -> [set:rabbit_1Jump:533] -> [set:rabbit_3Jump:533] -> [path:overworldMusic]
 
@@ -20,11 +19,6 @@ overworldMusic:0 ->
 // Play the same music while inside houses
 houseMusic:introMusic:1 -> [music:28:1]
 houseMusic:0 ->
-
-bowWowHouse:villageAttacked:1 -> [set:npc09Jump:1125] -> [set:npc09Range:128] -> [music:13:2]
-bowWowHouse:0 ->
-
-ocarina:0 -> ocarina
 
 // Dungeon intro text
 dungeon_1:0 -> dungeon_1 -> [set:1]
@@ -116,6 +110,13 @@ bird_hit_marin:9 -> marin_cucco_1 -> [set:0]
 // Marin on the mountain
 marin_help:0 -> [update_objects] -> marin_4_0 -> marin_4_1
 marin_saved:0 -> [save_history:true] -> [set:link_direction:2] -> [freeze:250] -> marin_4_2 -> marin_4_3 -> marin_4_4 -> [set:seq_tarin:1] -> [set:seqTarinFade:-125] -> [set:seqTarinMove:72,0,1] -> [freeze:seqTarinMoving:0] -> [set:seqTarinAnimation:stand_1] -> [set:maria_play_animation:stand_3] -> marin_4_5 -> [freeze:600] -> [set:link_direction:3] -> marin_4_6 -> [freeze:600] -> [set:maria_play_animation:stand_0] -> [set:seqTarinAnimation:-] -> [set:seqTarinMove:-72,0,0.5] -> [set:maria_walk:0,14,0.5] -> [freeze:1] -> [set:maria_walk:-14,0,0.5] -> [freeze:marinMoving:0] -> [set:maria_play_animation:stand_1] -> [freeze:1000] -> [set:seqTarinFade:125] -> [freeze:500] -> [set:maria_walk:-64,0,0.75] -> [freeze:1000] -> [set:maria_fade:125] -> [set:seq_tarin:0] -> [set:marin_thanks:1] -> [set:owl:8_0] -> [save_history:false]
+
+// Madame Meow-Meow when Bow-Wow was taken.
+bowWowHouse:villageAttacked:1 -> [set:npc09Jump:1125] -> [set:npc09Range:128] -> [music:13:2]
+bowWowHouse:0 ->
+
+// Obtained the ocarina.
+ocarina:0 -> ocarina
 
 // Papahl at home
 npc08:0 -> npc08_0
@@ -494,6 +495,7 @@ trade13:0 -> trade13 -> [set:npc_painter:2]
 
 // woman with the broom
 npc_grandmother:villageAttacked:1 -> npc_broom_bowwow
+
 // init state
 npc_grandmother:missing_broom:0 -> npc_broom_0
 
@@ -947,69 +949,68 @@ npc_painter:1 -> npc_painter_1
 // player has the lense
 npc_painter:2 -> npc_painter_2
 
-// signpost game
+// Signpost Maze > Ocarina Song 3
 signpost_failed:0 -> [sound:D360-29-1D] -> [freeze:250] -> signpost_TryAgain -> [set:sgame:0]
 
+shieldGame1:mamu_gone:0 -> signpost_Down
 shieldGame1:mamu_gone:1 -> signpost_Gone
-shieldGame1:sgame:0 -> signpost_Down -> [set:sgame:1]
-shieldGame1:sgame:1 -> signpost_Down -> [set:sgame:1]
-shieldGame1:0 -> [path:signpost_failed]
 
 shieldGame2:mamu_gone:1 -> signpost_Gone
-shieldGame2:sgame:1 -> signpost_Right -> [set:sgame:2]
+shieldGame2:sgame:0 -> signpost_Right -> [set:sgame:1]
+shieldGame2:sgame:1 -> signpost_Right -> [set:sgame:1]
 shieldGame2:0 -> [path:signpost_failed]
 
 shieldGame3:mamu_gone:1 -> signpost_Gone
-shieldGame3:sgame:2 -> signpost_Down -> [set:sgame:3]
+shieldGame3:sgame:1 -> signpost_Down -> [set:sgame:2]
 shieldGame3:0 -> [path:signpost_failed]
 
 shieldGame4:mamu_gone:1 -> signpost_Gone
-shieldGame4:sgame:3 -> signpost_Left -> [set:sgame:4]
+shieldGame4:sgame:2 -> signpost_Left -> [set:sgame:3]
 shieldGame4:0 -> [path:signpost_failed]
 
 shieldGame5:mamu_gone:1 -> signpost_Gone
-shieldGame5:sgame:4 -> signpost_Up -> [set:sgame:5]
+shieldGame5:sgame:3 -> signpost_Up -> [set:sgame:4]
 shieldGame5:0 -> [path:signpost_failed]
 
 shieldGame6:mamu_gone:1 -> signpost_Gone
-shieldGame6:sgame:5 -> signpost_Right -> [set:sgame:6]
+shieldGame6:sgame:4 -> signpost_Right -> [set:sgame:5]
 shieldGame6:0 -> [path:signpost_failed]
 
 shieldGame7:mamu_gone:1 -> signpost_Gone
-shieldGame7:sgame:6 -> signpost_Down -> [set:sgame:7]
+shieldGame7:sgame:5 -> signpost_Down -> [set:sgame:6]
 shieldGame7:0 -> [path:signpost_failed]
 
 shieldGame8:mamu_gone:1 -> signpost_Gone
-shieldGame8:sgame:7 -> signpost_Right -> [set:sgame:8]
+shieldGame8:sgame:6 -> signpost_Right -> [set:sgame:7]
 shieldGame8:0 -> [path:signpost_failed]
 
 shieldGame9:mamu_gone:1 -> signpost_Gone
-shieldGame9:sgame:8 -> signpost_Up -> [set:sgame:9]
+shieldGame9:sgame:7 -> signpost_Up -> [set:sgame:8]
 shieldGame9:0 -> [path:signpost_failed]
 
 shieldGame10:mamu_gone:1 -> signpost_Gone
-shieldGame10:sgame:9 -> signpost_Left -> [set:sgame:10]
+shieldGame10:sgame:8 -> signpost_Left -> [set:sgame:9]
 shieldGame10:0 -> [path:signpost_failed]
 
 shieldGame11:mamu_gone:1 -> signpost_Gone
-shieldGame11:sgame:10 -> signpost_Down -> [set:sgame:11]
+shieldGame11:sgame:9 -> signpost_Down -> [set:sgame:10]
 shieldGame11:0 -> [path:signpost_failed]
 
 shieldGame12:mamu_gone:1 -> signpost_Gone
-shieldGame12:sgame:11 -> signpost_Right -> [set:sgame:12]
+shieldGame12:sgame:10 -> signpost_Right -> [set:sgame:11]
 shieldGame12:0 -> [path:signpost_failed]
 
 shieldGame13:mamu_gone:1 -> signpost_Gone
-shieldGame13:sgame:12 -> signpost_Down -> [set:sgame:13]
+shieldGame13:sgame:11 -> signpost_Down -> [set:sgame:12]
 shieldGame13:0 -> [path:signpost_failed]
 
 shieldGame14:mamu_gone:1 -> signpost_Gone
-shieldGame14:sgame:13 -> signpost_Left -> [set:sgame:14]
+shieldGame14:sgame:12 -> signpost_Left -> [set:sgame:13]
 shieldGame14:0 -> [path:signpost_failed]
 
 shieldGame15:mamu_gone:1 -> signpost_Gone
 // spawn the stairs
-shieldGame15:sgame:14 -> signpost_Great -> [wait:dialogOpen:0] -> [set:sgame:15] -> [set:frogStairs:1]
+shieldGame15:sgame:13 -> signpost_Great -> [wait:dialogOpen:0] -> [set:sgame:14] -> [set:frogStairs:1]
 shieldGame15:0 -> [path:signpost_failed]
 
 shieldGameStairs:0 -> [spawn:animatorL:3.Particles/spawn.run.True] -> [sound:D360-02-02] -> [set:1] -> [path:shieldGameStairs]
@@ -1156,7 +1157,6 @@ d1_instrument_music:0 ->
 
 // trigger the bowWow missing part; update npc dialogs
 instrument0:0 -> [update_objects] -> instrument0 -> [set:npc_boy_0:1] -> [set:npc_boy_1:1] -> [set:ulrira:2_0] -> [set:owl:2_0] -> [set:villageAttacked:1] -> [set:bowWow:1] -> [set:mc_enemies:1] -> [set:tarin:3]
-
 
 // == dungeon two ==
 d2_open_door:0 -> [sound:D360-02-02]
