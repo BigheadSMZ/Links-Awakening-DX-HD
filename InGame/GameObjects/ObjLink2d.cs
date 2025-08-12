@@ -430,7 +430,9 @@ namespace ProjectZ.InGame.GameObjects
                     Animation.Play("grab_" + Direction);
                 else if (CurrentState == State.Pulling)
                     Animation.Play("pull_" + Direction);
-                else if (CurrentState == State.Swimming || (CurrentState == State.ChargeSwimming && _swimDirection % 2 == 0))
+
+                // Show swimming sprite during swimming or charge swimming.
+                else if (CurrentState == State.Swimming || CurrentState == State.ChargeSwimming)
                 {
                     Animation.Play("swim_2d_" + _swimDirection);
                     Animation.SpeedMultiplier = _swimAnimationMult;
@@ -600,6 +602,9 @@ namespace ProjectZ.InGame.GameObjects
                 _swimAnimationMult = moveVector.Length() / MaxSwimSpeed2D;
 
                 Direction = AnimationHelper.GetDirection(moveVector);
+
+                // TODO: Sword does not update postion when swimming + charging + changing directions
+                // so currently lock the facing direction when the charge started. 
                 if (moveVector.X != 0 && CurrentState != State.ChargeSwimming)
                     _swimDirection = moveVector.X < 0 ? 0 : 2;
             }

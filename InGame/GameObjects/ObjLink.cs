@@ -2248,10 +2248,10 @@ namespace ProjectZ.InGame.GameObjects
                 _drawBody.Layer = (CurrentState == State.Swimming && _diveCounter > 0) ? Values.LayerBottom : Values.LayerPlayer;
 
             if (CurrentState == State.Swimming && _diveCounter > 0 ||
-               CurrentState == State.Drowning ||
-               CurrentState == State.Drowned ||
-               CurrentState == State.BedTransition ||
-               _isTrapped)
+                CurrentState == State.Drowning ||
+                CurrentState == State.Drowned ||
+                CurrentState == State.BedTransition ||
+                _isTrapped)
                 _shadowComponent.IsActive = false;
             else
                 _shadowComponent.IsActive = true;
@@ -2361,7 +2361,10 @@ namespace ProjectZ.InGame.GameObjects
             if (!_isLocked)
             {
                 // interact with object
-                if ((CurrentState == State.Idle || CurrentState == State.Pushing || CurrentState == State.Swimming || CurrentState == State.CarryingItem) &&
+                if ((CurrentState == State.Idle || 
+                    CurrentState == State.Pushing || 
+                    CurrentState == State.Swimming || 
+                    CurrentState == State.CarryingItem) &&
                     ControlHandler.ButtonPressed(CButtons.A) && InteractWithObject())
                     InputHandler.ResetInputState();
 
@@ -4836,8 +4839,14 @@ namespace ProjectZ.InGame.GameObjects
                 MapManager.ObjLink.StopFlying();
 
             // make sure the player walks
-            if (MapTransitionStart.HasValue && MapTransitionEnd.HasValue &&
-                CurrentState != State.Swimming && CurrentState != State.BedTransition && CurrentState != State.Knockout && CurrentState != State.OcarinaTelport)
+            if (MapTransitionStart.HasValue && 
+                MapTransitionEnd.HasValue &&
+                CurrentState != State.Swimming && 
+                CurrentState != State.AttackSwimming && 
+                CurrentState != State.ChargeSwimming && 
+                CurrentState != State.BedTransition && 
+                CurrentState != State.Knockout && 
+                CurrentState != State.OcarinaTelport)
                 CurrentState = State.Idle;
 
             _body.VelocityTarget = Vector2.Zero;
