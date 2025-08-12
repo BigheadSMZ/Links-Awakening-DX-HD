@@ -28,7 +28,7 @@ namespace ProjectZ.InGame.GameObjects.Things
         private const int ExplosionTime = 1500;
 
         private double _bombCounter;
-        private double _explostionTime;
+        private double _explosionTime;
         private double _lastHitTime;
         private double _deepWaterCounter;
 
@@ -71,8 +71,8 @@ namespace ProjectZ.InGame.GameObjects.Things
             _animator.OnAnimationFinished = FinishedAnimation;
             _animator.Play("idle");
 
-            _explostionTime = explosionTime;
-            _bombCounter = _explostionTime;
+            _explosionTime = explosionTime;
+            _bombCounter = _explosionTime;
 
             var sprite = new CSprite(EntityPosition);
             var animationComponent = new AnimationComponent(_animator, sprite, Vector2.Zero);
@@ -308,7 +308,7 @@ namespace ProjectZ.InGame.GameObjects.Things
         private Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
         {
             // got picked up by an arrow?
-            if (_playerBomb && _bombCounter + 175 > _explostionTime && gameObject is ObjArrow objArrow)
+            if (_playerBomb && _bombCounter + 175 > _explosionTime && gameObject is ObjArrow objArrow)
             {
                 _arrowMode = true;
                 Body.IgnoresZ = true;

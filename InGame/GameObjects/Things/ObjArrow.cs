@@ -32,6 +32,7 @@ namespace ProjectZ.InGame.GameObjects.Things
         private Vector2[] _bombOffset = new Vector2[] { new Vector2(-4, 0), new Vector2(0, -4), new Vector2(4, 0), new Vector2(0, 6) };
         private ObjBomb _objBomb;
         private bool _bombMode;
+        private HitType _hitType = HitType.Bow;
 
         private Vector2 _startPosition;
         private Point[] _collisionBoxSize = { new Point(2, 2), new Point(2, 2), new Point(2, 2), new Point(2, 2) };
@@ -165,7 +166,11 @@ namespace ProjectZ.InGame.GameObjects.Things
 
         private void DealDamage()
         {
-            var collision = Map.Objects.Hit(this, EntityPosition.Position, _damageBox.Box, HitType.Bow, 2, false, false);
+            // Deal bomb damage to the target hit if it's a bomb arrow.
+            if (_bombMode)
+                _hitType = HitType.Bomb;
+
+            var collision = Map.Objects.Hit(this, EntityPosition.Position, _damageBox.Box, _hitType, 2, false, false);
             if ((collision & (Values.HitCollision.Blocking | Values.HitCollision.Enemy)) != 0)
             {
                 Map.Objects.DeleteObjects.Add(this);
