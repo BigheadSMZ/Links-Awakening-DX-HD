@@ -1762,8 +1762,10 @@ namespace ProjectZ.InGame.GameObjects
                 if (_swimBoostCount > -300)
                     _swimBoostCount -= Game1.DeltaTime;
                 else if (ControlHandler.ButtonPressed(CButtons.A))
+                {
                     _swimBoostCount = 300;
-
+                    Game1.GameManager.PlaySoundEffect("D360-15-0F");
+                }
                 if (_swimBoostCount > 0)
                     _moveVelocity *= SwimSpeedA;
                 else
