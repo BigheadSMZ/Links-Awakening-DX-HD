@@ -19,6 +19,7 @@ namespace ProjectZ.InGame.GameObjects.Dungeon
         private Vector2 _direction;
 
         public bool _boomerangCollect;
+        public bool _boomerangHealed;
 
         private float _currentRotation;
         private float _directionChange;
@@ -107,8 +108,10 @@ namespace ProjectZ.InGame.GameObjects.Dungeon
             else
                 UpdateCollected();
 
-            if (_boomerangCollect)
+            // Bool "_boomerangHealed" prevents fairy from healing more than once.
+            if (_boomerangCollect & !_boomerangHealed)
             {
+                _boomerangHealed = true;
                 _boomerangCollect = false;
                 CollectFairy();
             }

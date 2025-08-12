@@ -150,21 +150,21 @@ namespace ProjectZ.InGame.GameObjects.Things
                 if ((collisionObject.CollisionType & Values.CollisionTypes.Item) != 0 &&
                      collisionObject.Collision(_damageBox.Box, 0, 0, ref collidingBox))
                 {
-                    var newItem = collisionObject.Owner;
+                    // Boomerang comes in contact with item.
                     if (collisionObject.Owner.GetType() == (typeof(ObjItem)))
                     {
-                        ObjItem newItemObjI = (newItem as ObjItem);
+                        ObjItem newItem = (collisionObject.Owner as ObjItem);
 
-                        if (newItemObjI.Collected)
+                        if (!newItem.Collected)
                         {
-                            _item = newItemObjI;
+                            _item = newItem;
                             _item.InitCollection();
                         }
                     }
+                    // Boomerang comes in contact with a fairy.
                     else if (collisionObject.Owner.GetType() == (typeof(ObjDungeonFairy)))
                     {
-                        ObjDungeonFairy grabbedFairy = (newItem as ObjDungeonFairy);
-
+                        ObjDungeonFairy grabbedFairy = (collisionObject.Owner as ObjDungeonFairy);
                         grabbedFairy.BoomerangCollect();
                     }
                 }
