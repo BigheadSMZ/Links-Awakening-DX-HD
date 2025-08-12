@@ -17,6 +17,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly Animator _animator;
         private readonly AiDamageState _damageState;
         private readonly AiStunnedState _stunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private float _jumpVelocity = 1.0f;
 
@@ -54,14 +55,14 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _aiComponent.States.Add("jumping", stateJumping);
             _damageState = new AiDamageState(this, _body, _aiComponent, sprite, 4, true, false);
             new AiFallState(_aiComponent, _body, null, null, 100);
-            _stunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900);
+            _stunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900) { ShakeOffset = 1, SilentStateChange = false, ReturnState = "waiting" };
 
             _aiComponent.ChangeState("jumping");
 
             var damageBox = new CBox(EntityPosition, -7, -11, 0, 14, 11, 4);
             var hittableBox = new CBox(EntityPosition, -6, -12, 0, 12, 12, 8, true);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 1));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageBox, HitType.Enemy, 1));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(AiComponent.Index, _aiComponent);
@@ -76,13 +77,13 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         {
             if (songIndex == 0)
                 _damageState.BaseOnDeath(false);
-
         }
 
         private void InitWaiting()
         {
             _body.VelocityTarget = Vector2.Zero;
             _animator.Play("stand");
+            _damageField.IsActive = true;
         }
 
         private void EndWaiting()
@@ -158,6 +159,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             {
                 direction *= 0.25f;
                 StartStun();
+                _damageField.IsActive = false;
             }
 
             _damageState.HitKnockBack(gameObject, direction, damageType, pieceOfPower, false);

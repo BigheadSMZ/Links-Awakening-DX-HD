@@ -16,6 +16,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly AiStunnedState _stunnedState;
         private readonly Animator _animator;
         private readonly AiDamageState _damageState;
+        private readonly DamageFieldComponent _damageField;
 
         private Vector2 _vecDirection;
 
@@ -75,7 +76,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             var damageCollider = new CBox(EntityPosition, -7, -11, 0, 14, 11, 4);
             var hittableRectangle = new CBox(EntityPosition, -8, -14, 16, 14, 8);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageField =new DamageFieldComponent(damageCollider, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableRectangle, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush) { RepelMultiplier = 1.25f });
@@ -120,7 +121,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                 if (_vecDirection != Vector2.Zero)
                     _vecDirection.Normalize();
             }
-
+            _damageField.IsActive = true;
             _wasFollowing = _isFollowing;
             _isFollowing = false;
         }
@@ -144,6 +145,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                 _body.VelocityTarget = Vector2.Zero;
                 _animator.Play("stunned");
                 _stunnedState.StartStun();
+                _damageField.IsActive = false;
             }
 
             _body.Velocity.X = direction.X * 3.0f;

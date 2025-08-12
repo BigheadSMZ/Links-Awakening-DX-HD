@@ -18,6 +18,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly AnimationComponent _animatorComponent;
         private readonly AiDamageState _aiDamageState;
         private readonly AiStunnedState _aiStunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private readonly Rectangle _fieldRectangle;
 
@@ -67,7 +68,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             var pushableBox = new CBox(EntityPosition, -7, -14, 2, 14, 14, 8);
 
             AddComponent(PushableComponent.Index, new PushableComponent(pushableBox, OnPush));
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 2));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageBox, HitType.Enemy, 2));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(AiComponent.Index, _aiComponent);
             AddComponent(BodyComponent.Index, _body);
@@ -78,6 +79,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void Update()
         {
+            _damageField.IsActive = true;
+
             var moved = false;
             if (_fieldRectangle.Contains(MapManager.ObjLink.EntityPosition.Position))
             {
@@ -97,7 +100,9 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                     {
                         moved = true;
 
-                        if (MapManager.ObjLink.CurrentState != ObjLink.State.Charging && MapManager.ObjLink.CurrentState != ObjLink.State.ChargeBlocking)
+                        if (MapManager.ObjLink.CurrentState != ObjLink.State.Charging && 
+                            MapManager.ObjLink.CurrentState != ObjLink.State.ChargeBlocking && 
+                            MapManager.ObjLink.CurrentState != ObjLink.State.ChargeJumping)
                         {
                             // deadzone to not have a fixed point where the direction gets changed
                             if (Math.Abs(direction.X) * ((_direction % 2 == 0) ? 1.1f : 1f) >
@@ -155,6 +160,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             if (damageType == HitType.Hookshot || damageType == HitType.Boomerang)
             {
                 _aiStunnedState.StartStun();
+                _damageField.IsActive = false;
 
                 _body.VelocityTarget = Vector2.Zero;
 

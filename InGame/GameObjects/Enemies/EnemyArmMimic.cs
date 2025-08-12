@@ -17,6 +17,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly AiDamageState _aiDamageState;
         private readonly AiTriggerTimer _repelTimer;
         private readonly AiStunnedState _aiStunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private Vector2 _lastPosition;
         private int _direction;
@@ -59,7 +60,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             var damageBox = new CBox(EntityPosition, -6, -12, 2, 12, 12, 4);
             var pushableBox = new CBox(EntityPosition, -5, -14, 2, 10, 14, 4);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(hittableBox, HitType.Enemy, 12));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(hittableBox, HitType.Enemy, 12));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(AiComponent.Index, aiComponent);
             AddComponent(BodyComponent.Index, _body);
@@ -73,6 +74,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         {
             var moved = false;
             var playerDistance = MapManager.ObjLink.EntityPosition.Position - EntityPosition.Position;
+
+             _damageField.IsActive = true;
 
             // move when near the player
             if (playerDistance.Length() < 80)
@@ -132,11 +135,12 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             if (damageType == HitType.Hookshot || damageType == HitType.Boomerang)
             {
                 _body.VelocityTarget = Vector2.Zero;
+                _damageField.IsActive = false;
                 _body.Velocity.X += direction.X * 4.0f;
                 _body.Velocity.Y += direction.Y * 4.0f;
 
-                _aiStunnedState.StartStun();
                 _animator.Pause();
+                _aiStunnedState.StartStun();
 
                 return Values.HitCollision.Enemy;
             }

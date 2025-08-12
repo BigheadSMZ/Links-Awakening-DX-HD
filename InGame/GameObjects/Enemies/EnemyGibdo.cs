@@ -15,6 +15,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly AiComponent _aiComponent;
         private readonly AiDamageState _damageState;
         private readonly AiStunnedState _aiStunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private const float MoveSpeed = 0.5f;
 
@@ -48,9 +49,9 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
             var stateWalking = new AiState { Init = InitWalking };
             stateWalking.Trigger.Add(new AiTriggerRandomTime(() => _aiComponent.ChangeState("walk"), 550, 850));
-
             _aiComponent = new AiComponent();
             _aiComponent.States.Add("walk", stateWalking);
+
             _damageState = new AiDamageState(this, _body, _aiComponent, sprite, 6, false)
             {
                 HitMultiplierX = 1.0f,
@@ -58,16 +59,14 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                 OnDeath = OnDeath,
                 OnBurn = () => _animator.Pause()
             };
-            _aiStunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900);
+            _aiStunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900) { ShakeOffset = 1, SilentStateChange = false, ReturnState = "walk" };
             new AiFallState(_aiComponent, _body, OnHoleAbsorb);
-
-            _aiComponent.ChangeState("walk");
 
             var damageBox = new CBox(EntityPosition, -7, -14, 0, 14, 14, 4);
             var pushableBox = new CBox(EntityPosition, -6, -13, 0, 12, 13, 4);
             var hittableBox = new CBox(EntityPosition, -7, -15, 14, 15, 8);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 4));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageBox, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(AiComponent.Index, _aiComponent);
@@ -75,6 +74,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             AddComponent(BaseAnimationComponent.Index, animationComponent);
             AddComponent(DrawComponent.Index, new BodyDrawComponent(_body, sprite, Values.LayerPlayer));
             AddComponent(DrawShadowComponent.Index, new DrawShadowCSpriteComponent(sprite));
+
+            _aiComponent.ChangeState("walk");
         }
 
         private Values.HitCollision OnHit(GameObject gameObject, Vector2 direction, HitType damageType, int damage, bool pieceOfPower)
@@ -91,7 +92,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
                 _body.VelocityTarget = Vector2.Zero;
                 _body.Velocity.X += direction.X * 0.75f;
                 _body.Velocity.Y += direction.Y * 0.75f;
-
+                _damageField.IsActive = false;
                 _aiStunnedState.StartStun();
                 _animator.Pause();
 
@@ -121,7 +122,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private void InitWalking()
         {
             _animator.Play("idle");
-
+            _damageField.IsActive = true;
             // walk into a random direction
             _direction = Game1.RandomNumber.Next(0, 4);
             _body.VelocityTarget = AnimationHelper.DirectionOffset[_direction] * MoveSpeed;

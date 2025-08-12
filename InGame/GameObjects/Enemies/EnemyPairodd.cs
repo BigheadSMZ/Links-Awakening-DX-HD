@@ -20,6 +20,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly AiTriggerTimer _teleportCooldown;
         private readonly AiTriggerCountdown _shootCountdown;
         private readonly AiStunnedState _aiStunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private readonly Rectangle _fieldRectangle;
         private readonly Vector2 _centerPosition;
@@ -41,8 +42,10 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _sprite = new CSprite(EntityPosition);
             var animationComponent = new AnimationComponent(_animator, _sprite, new Vector2(-8, -16));
 
-            _body = new BodyComponent(EntityPosition, -7, -12, 14, 12, 8);
-
+            _body = new BodyComponent(EntityPosition, -7, -12, 14, 12, 8)
+            {
+                FieldRectangle = map.GetField(posX, posY)
+            };
             var stateIdle = new AiState(UpdateIdle);
             stateIdle.Trigger.Add(_teleportCooldown = new AiTriggerTimer(300));
             var stateSpawn = new AiState(UpdateSpawn);
@@ -59,14 +62,17 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _aiComponent.States.Add("preDespawn", statePreDespawn);
             _aiComponent.States.Add("despawn", stateDespawn);
             _aiComponent.States.Add("hidden", stateHidden);
-            _damageState = new AiDamageState(this, _body, _aiComponent, _sprite, 2, false) { OnBurn = () => _animator.Pause() };
-            _aiStunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900);
+
+            _damageState = new AiDamageState(this, _body, _aiComponent, _sprite, 2, true, false) { OnBurn = () => _animator.Pause() };
+            _aiStunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900) { ShakeOffset = 1, SilentStateChange = false, ReturnState = "idle" };
             new AiFallState(_aiComponent, _body, OnHoleAbsorb);
 
+            var damageBox = new CBox(EntityPosition, -7, -12, 0, 12, 7);
             var hittableBox = new CBox(EntityPosition, -7, -14, 14, 14, 8);
 
-            AddComponent(BodyComponent.Index, _body);
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageBox, HitType.Enemy, 4));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
+            AddComponent(BodyComponent.Index, _body);
             AddComponent(BaseAnimationComponent.Index, animationComponent);
             AddComponent(AiComponent.Index, _aiComponent);
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush));
@@ -113,6 +119,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _damageState.IsActive = true;
             _shadowComponent.IsActive = true;
             _body.IsActive = true;
+            _damageState.IsActive = true;
+            _damageField.IsActive = true;
             _shootCountdown.OnInit();
         }
 
@@ -146,9 +154,10 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
             _aiComponent.ChangeState("despawn");
             _animator.Play("despawn");
-            _damageState.IsActive = false;
             _shadowComponent.IsActive = false;
             _body.IsActive = false;
+            _damageState.IsActive = false;
+            _damageField.IsActive = false;
         }
 
         private void UpdateDespawn()
@@ -189,6 +198,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             if (damageType == HitType.Boomerang)
             {
                 _damageState.SetDamageState(false);
+                _damageField.IsActive = false;
 
                 _body.Velocity.X += direction.X * 2.5f;
                 _body.Velocity.Y += direction.Y * 2.5f;

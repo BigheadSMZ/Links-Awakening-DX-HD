@@ -17,7 +17,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private readonly BodyComponent _body;
         private readonly AiComponent _aiComponent;
         private readonly AiDamageState _damageState;
-        private readonly AiStunnedState _sunnedState;
+        private readonly AiStunnedState _stunnedState;
+        private readonly DamageFieldComponent _damageField;
 
         private readonly float _moveSpeed = 0.33f;
         private const int ShockTime = 550;
@@ -58,17 +59,15 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _aiComponent.States.Add("shocking", stateShocking);
             _aiComponent.States.Add("postShock", statePostShock);
             _damageState = new AiDamageState(this, _body, _aiComponent, sprite, 4, false) { OnDeath = OnDeath, OnBurn = () => _animator.Pause() };
-            _sunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900) { ShakeOffset = 1, SilentStateChange = false, ReturnState = "walking" };
+            _stunnedState = new AiStunnedState(_aiComponent, animationComponent, 3300, 900) { ShakeOffset = 1, SilentStateChange = false, ReturnState = "walking" };
             new AiFallState(_aiComponent, _body, OnHolePull, OnHoleDeath, 400);
-
-            _aiComponent.ChangeState("walking");
 
             var interactionBox = new CBox(EntityPosition, -10, -16, 20, 20, 8);
             var hittableBox = new CBox(EntityPosition, -6, -14, 12, 14, 8);
             var damageBox = new CBox(EntityPosition, -5, -12, 0, 10, 12, 4);
             var pushableBox = new CBox(EntityPosition, -4, -11, 0, 8, 11, 4);
 
-            AddComponent(DamageFieldComponent.Index, new DamageFieldComponent(damageBox, HitType.Enemy, 2));
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageBox, HitType.Enemy, 2));
             AddComponent(HittableComponent.Index, new HittableComponent(hittableBox, OnHit));
             AddComponent(PushableComponent.Index, new PushableComponent(pushableBox, OnPush));
             AddComponent(BodyComponent.Index, _body);
@@ -77,6 +76,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             AddComponent(InteractComponent.Index, new InteractComponent(interactionBox, OnInteract));
             AddComponent(DrawComponent.Index, new BodyDrawComponent(_body, sprite, Values.LayerPlayer));
             AddComponent(DrawShadowComponent.Index, new DrawShadowCSpriteComponent(sprite));
+
+            _aiComponent.ChangeState("walking");
         }
 
         private void OnDeath(bool pieceOfPower)
@@ -100,6 +101,10 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         {
             _animator.Play(_isCukeman ? "cukeman" : "walk");
 
+            if (!_stunnedState.IsStunned())
+            {
+                _damageField.IsActive = true;
+            }
             // new random direction
             var directionIndex = Game1.RandomNumber.Next(0, 8);
             var radius = directionIndex / 4.0 * Math.PI;
@@ -143,7 +148,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             if ((damageType & HitType.Hookshot) != 0)
             {
                 _animator.Pause();
-                _sunnedState.StartStun();
+                _stunnedState.StartStun();
+                _damageField.IsActive = false;
 
                 _body.Velocity.X = direction.X * 5;
                 _body.Velocity.Y = direction.Y * 5;
@@ -164,7 +170,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
                 return Values.HitCollision.Enemy;
             }
-            else if (!_sunnedState.IsStunned() && ((damageType & HitType.Sword) != 0 || damageType == HitType.PegasusBootsSword))
+            else if (!_stunnedState.IsStunned() && ((damageType & HitType.Sword) != 0 || damageType == HitType.PegasusBootsSword))
             {
                 StartShock();
 
