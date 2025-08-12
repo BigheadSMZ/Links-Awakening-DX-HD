@@ -16,8 +16,8 @@ namespace ProjectZ.InGame.SaveLoad
 
         public static bool SaveExists(int slot)
         {
-            return SaveManager.FileExists(Values.PathSaveFolder + "/" + SaveFileName + slot) &&
-                   SaveManager.FileExists(Values.PathSaveFolder + "/" + SaveFileNameGame + slot);
+            return SaveManager.FileExists(Values.PathSaveFolder + SaveFileName + slot) &&
+                   SaveManager.FileExists(Values.PathSaveFolder + SaveFileNameGame + slot);
         }
 
         public static bool CopySaveFile(int from, int to)
@@ -61,14 +61,14 @@ namespace ProjectZ.InGame.SaveLoad
         public static void SaveGame(GameManager gameManager)
         {
             // save the game variables
-            gameManager.SaveManager.Save(Values.PathSaveFolder + "/" + SaveFileNameGame + gameManager.SaveSlot, Values.SaveRetries);
+            gameManager.SaveManager.Save(Values.PathSaveFolder + SaveFileNameGame + gameManager.SaveSlot, Values.SaveRetries);
 
             // player variables
             // is this state already created before starting a sequence?
             if (playerSaveState == null)
                 FillSaveState(ref playerSaveState, gameManager);
 
-            playerSaveState.Save(Values.PathSaveFolder + "/" + SaveFileName + gameManager.SaveSlot, Values.SaveRetries);
+            playerSaveState.Save(Values.PathSaveFolder + SaveFileName + gameManager.SaveSlot, Values.SaveRetries);
             playerSaveState = null;
         }
 
@@ -171,7 +171,7 @@ namespace ProjectZ.InGame.SaveLoad
         public static void LoadSaveFile(GameManager gameManager, int slot)
         {
             // save game variables
-            if (!gameManager.SaveManager.LoadFile(Values.PathSaveFolder + "/" + SaveFileNameGame + slot))
+            if (!gameManager.SaveManager.LoadFile(Values.PathSaveFolder + SaveFileNameGame + slot))
                 return;
 
             var saveManager = new SaveManager();
@@ -181,7 +181,7 @@ namespace ProjectZ.InGame.SaveLoad
             gameManager.CollectedItems.Clear();
             gameManager.DungeonMaps = new Dictionary<string, GameManager.MiniMap>();
 
-            if (!saveManager.LoadFile(Values.PathSaveFolder + "/" + SaveFileName + slot))
+            if (!saveManager.LoadFile(Values.PathSaveFolder + SaveFileName + slot))
                 return;
 
             gameManager.SaveName = saveManager.GetString("savename");

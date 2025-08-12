@@ -260,7 +260,7 @@ namespace ProjectZ.InGame.Screens
             if (Game1.FinishedLoading && Game1.LoadFirstSave)
             {
                 Game1.LoadFirstSave = false;
-                if (SaveManager.FileExists(Values.PathSaveFolder + "/" + SaveGameSaveLoad.SaveFileName + "0"))
+                if (SaveManager.FileExists(Values.PathSaveFolder + SaveGameSaveLoad.SaveFileName + "0"))
                 {
                     // change to the game screen
                     Game1.ScreenManager.ChangeScreen(Values.ScreenNameGame);

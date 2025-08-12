@@ -53,7 +53,7 @@ namespace ProjectZ.InGame.Things
 
         // _activeRenderTarget == null ???
 
-        // TODO: Based on the comment above, it seems the original developer has experienced this issue. Unfortunately, it
+        // TODO:RT: Based on the comment above, it seems the original developer has experienced this issue. Unfortunately, it
         // was never actually fixed so the game would just outright crash. For now, if the render target is null return a
         // basic matrix instead of crashing the game with a null exception.
         // See also: ..\InGame\Map\MapManager.cs
@@ -291,7 +291,7 @@ namespace ProjectZ.InGame.Things
         {
             if (GameSettings.EnableShadows && MapManager.CurrentMap.UseShadows && !UseShockEffect)
             {
-                // TODO: Another place where null render target causes a crash. For now, just don't draw anything
+                // TODO:RT: Another place where null render target causes a crash. For now, just don't draw anything
                 // on the screen instead of crashing the game.
                 // See also: ..\InGame\Map\MapManager.cs
                 if (_shadowRenderTarget == null) return;
@@ -393,7 +393,7 @@ namespace ProjectZ.InGame.Things
             Game1.Graphics.GraphicsDevice.SetRenderTarget(Game1.MainRenderTarget);
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.AnisotropicWrap);
 
-            // TODO: Another place where null render target causes a crash. For now, just don't draw anything
+            // TODO:RT: Another place where null render target causes a crash. For now, just don't draw anything
             // on the screen instead of crashing the game.
             // See also: ..\InGame\Map\MapManager.cs
             if (_inactiveRenderTarget1 != null)
