@@ -580,7 +580,12 @@ namespace ProjectZ.InGame.GameObjects
 
             // direction can only be 0 or 2 while swimming
             if (Direction % 2 != 0)
+            {
                 Direction = _swimDirection;
+                
+            }
+            // update stored direction for sword charging
+            _lastSwimDirection = _swimDirection;
 
             var moveVector = Vector2.Zero;
             if (!_isLocked && CurrentState != State.Attacking && CurrentState != State.AttackSwimming)
