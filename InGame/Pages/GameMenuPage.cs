@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using ProjectZ.InGame.Controls;
 using ProjectZ.InGame.Interface;
+using ProjectZ.InGame.SaveLoad;
 using ProjectZ.InGame.Things;
 
 namespace ProjectZ.InGame.Pages
@@ -23,6 +24,7 @@ namespace ProjectZ.InGame.Pages
             contentLayout.AddElement(new InterfaceButton(new Point(150, 25), Point.Zero, "game_menu_back_to_game", e => ClosePage()) { Margin = new Point(0, 2) });
             contentLayout.AddElement(new InterfaceButton(new Point(150, 25), Point.Zero, "game_menu_settings", OnClickSettings) { Margin = new Point(0, 2) });
             contentLayout.AddElement(new InterfaceButton(new Point(150, 25), Point.Zero, "game_menu_exit_to_the_menu", OnClickBackToMenu) { Margin = new Point(0, 2) });
+            contentLayout.AddElement(new InterfaceButton(new Point(150, 25), Point.Zero, "game_menu_exit_the_game", OnClickExitGame) { Margin = new Point(0, 2) });
 
             mainLayout.AddElement(contentLayout);
 
@@ -69,8 +71,15 @@ namespace ProjectZ.InGame.Pages
 
         public void OnClickBackToMenu(InterfaceElement element)
         {
-            // show the yes no layout
             Game1.UiPageManager.ChangePage(typeof(ExitGamePage));
+        }
+
+        public void OnClickExitGame(InterfaceElement element)
+        {
+            // Save the game when exiting from in-game. The quit game page is reused from the game select
+            // screen where a game is not currently active. Is there a better way to do this?
+            Game1.SaveAndExitGame = true;
+            Game1.UiPageManager.ChangePage(typeof(QuitGamePage));
         }
     }
 }

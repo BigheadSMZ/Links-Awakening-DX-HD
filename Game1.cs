@@ -91,6 +91,9 @@ namespace ProjectZ
         public static bool DebugStepper;
         public static bool EditorMode;
 
+        // Save game when exiting from in-game.
+        public static bool SaveAndExitGame;
+
 #if WINDOWS
         private static Forms.Form _windowForm;
         private static Forms.FormWindowState _lastWindowState;
