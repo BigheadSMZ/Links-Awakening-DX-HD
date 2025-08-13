@@ -118,7 +118,7 @@ namespace ProjectZ.InGame.Map
         public void Update(bool frozen)
         {
             // mode used for opened dialog
-            if (frozen)
+            if (frozen || Game1.GameManager.DeepFreeze)
             {
                 // notify all key listener
                 UpdateKeyListeners();
@@ -127,10 +127,9 @@ namespace ProjectZ.InGame.Map
 
                 AddSpawnedObjects();
 
-                return;
+                if (frozen) return;
             }
-
-            if (Game1.GameManager.FreezeWorldAroundPlayer)
+            if (Game1.GameManager.FreezeWorldAroundPlayer || Game1.GameManager.DeepFreeze)
             {
                 Game1.GameManager.FreezeWorldAroundPlayer = false;
 
@@ -140,7 +139,6 @@ namespace ProjectZ.InGame.Map
 
                 return;
             }
-
             Game1.StopWatchTracker.Start("update gameobjects");
 
             _systemAnimator.Update(false);

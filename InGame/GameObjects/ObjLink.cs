@@ -1155,6 +1155,13 @@ namespace ProjectZ.InGame.GameObjects
 
         private void OnKeyChange()
         {
+            var strFreeze = "freezeGame";
+            var FreezeGame = Game1.GameManager.SaveManager.GetString(strFreeze, "0");
+            if (FreezeGame == "1")
+                Game1.GameManager.DeepFreeze = true;
+            else if (FreezeGame == "0")
+                Game1.GameManager.DeepFreeze = false;
+
             var strCloak = "cloak_transition";
             var cloakTransition = Game1.GameManager.SaveManager.GetString(strCloak);
             if (cloakTransition == "1")

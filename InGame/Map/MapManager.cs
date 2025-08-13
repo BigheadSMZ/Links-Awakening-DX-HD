@@ -121,7 +121,7 @@ namespace ProjectZ.InGame.Map
 
         private void DrawBlur(SpriteBatch spriteBatch, RenderTarget2D blurRT0, RenderTarget2D blurRT1, RenderTarget2D blurRT2)
         {
-            // TODO: Another place where null render target causes a crash. For now, just don't draw anything
+            // TODO:RT: Another place where null render target causes a crash. For now, just don't draw anything
             // on the screen instead of crashing the game.
             // See also: ..\InGame\Things\GameManager.cs
             if (blurRT0 == null) return;
