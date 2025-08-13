@@ -658,7 +658,7 @@ namespace ProjectZ.InGame.Overlay
             if (itemName == "heart")
             {
                 ownedCount = Game1.GameManager.CurrentHealth;
-                maxCount = Game1.GameManager.MaxHearths * 4;
+                maxCount = Game1.GameManager.MaxHearts * 4;
             }
             else if (buyItem != null)
             {
@@ -743,7 +743,7 @@ namespace ProjectZ.InGame.Overlay
 
         public override bool Execute()
         {
-            var fullHearts = Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearths * 4;
+            var fullHearts = Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearts * 4;
             Game1.GameManager.SaveManager.SetString("fullHearts", fullHearts ? "1" : "0");
             Game1.GameManager.HealPlayer(99);
             ItemDrawHelper.EnableHeartAnimationSound();

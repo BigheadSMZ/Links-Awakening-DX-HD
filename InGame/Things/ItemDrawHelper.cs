@@ -16,8 +16,8 @@ namespace ProjectZ.InGame.Things
         private static Rectangle RecHeart;
         private static Rectangle RecRubee;
 
-        private static int _hearthDistance = 1;
-        private static int _heartsDistance = 1;
+        private static int _heartsDistanceA = 1;
+        private static int _heartsDistanceB = 1;
 
         private static readonly int LetterMargin = 1;
 
@@ -423,8 +423,8 @@ namespace ProjectZ.InGame.Things
 
         public static Rectangle GetHeartRectangle(Point position, int scale)
         {
-            var width = MathHelper.Clamp(Game1.GameManager.MaxHearths, 0, 7);
-            var height = (int)Math.Ceiling(Game1.GameManager.MaxHearths / 7.0f);
+            var width = MathHelper.Clamp(Game1.GameManager.MaxHearts, 0, 7);
+            var height = (int)Math.Ceiling(Game1.GameManager.MaxHearts / 7.0f);
             return new Rectangle(position.X - _paddingHud * scale, position.Y - _paddingHud * scale,
                 (width * RecHeart.Width + (width - 1) + _paddingHud * 2) * scale,
                 (RecHeart.Height * height + _paddingHud * 2) * scale);
@@ -432,8 +432,8 @@ namespace ProjectZ.InGame.Things
 
         public static void DrawHearts(SpriteBatch spriteBatch, Point position, int scale, Color color)
         {
-            // draw the hearths
-            for (var i = 0; i < Game1.GameManager.MaxHearths; i++)
+            // draw the hearts
+            for (var i = 0; i < Game1.GameManager.MaxHearts; i++)
             {
                 var heartValue = _heartCount - i * 4;
                 var type = 0;
@@ -444,12 +444,12 @@ namespace ProjectZ.InGame.Things
                     type = 4 - heartValue;
 
                 spriteBatch.Draw(SpriteHeart.Texture, new Rectangle(
-                        position.X + (RecHeart.Width + _hearthDistance) * (i % 7) * scale,
-                        position.Y + (RecHeart.Width + _hearthDistance) * (i / 7) * scale,
+                        position.X + (RecHeart.Width + _heartsDistanceA) * (i % 7) * scale,
+                        position.Y + (RecHeart.Width + _heartsDistanceA) * (i / 7) * scale,
                         RecHeart.Width * scale,
                         RecHeart.Height * scale),
                     new Rectangle(
-                        RecHeart.X + type * (RecHeart.Width + (int)(_heartsDistance * SpriteHeart.Scale)),
+                        RecHeart.X + type * (RecHeart.Width + (int)(_heartsDistanceB * SpriteHeart.Scale)),
                         RecHeart.Y, RecHeart.Width, RecHeart.Height), color);
             }
         }

@@ -202,7 +202,9 @@ namespace ProjectZ.InGame.Overlay
 
         public void Draw(SpriteBatch spriteBatch, Rectangle drawPosition, Color color)
         {
-            spriteBatch.Draw(_renderTarget, drawPosition, color);
+            // TODO:RT: Render target can be null.
+            if (_renderTarget != null)
+                spriteBatch.Draw(_renderTarget, drawPosition, color);
         }
 
         public void DrawRT(SpriteBatch spriteBatch)
@@ -288,7 +290,7 @@ namespace ProjectZ.InGame.Overlay
             spriteBatch.Begin(SpriteSortMode.Deferred, null, SamplerState.PointClamp, null, null, null, Matrix.CreateScale(Game1.UiRtScale));
 
             {
-                var heartOffset = new Point(0, Game1.GameManager.MaxHearths > 7 ? 0 : 4);
+                var heartOffset = new Point(0, Game1.GameManager.MaxHearts > 7 ? 0 : 4);
                 ItemDrawHelper.DrawHearts(spriteBatch, _heartsPosition + heartOffset, 1, Color.White);
 
                 // draw the skirt

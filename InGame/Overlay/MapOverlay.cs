@@ -288,6 +288,9 @@ namespace ProjectZ.InGame.Overlay
 
         public void Draw(SpriteBatch spriteBatch, Rectangle drawPosition, Color color, Matrix? matrix = null)
         {
+            // TODO:RT: Render target can be null.
+            if (_renderTarget == null) { return; }
+
             Resources.RoundedCornerEffect.Parameters["scale"].SetValue(Game1.UiRtScale);
             Resources.RoundedCornerEffect.Parameters["radius"].SetValue(2f);
             Resources.RoundedCornerEffect.Parameters["width"].SetValue(_width);

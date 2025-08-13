@@ -80,6 +80,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void InitDespawn()
         {
+            // Proper block sound effect: D360-22-16
             _pushableComponent.IsActive = false;
             _body.IgnoresZ = false;
             _damageField.IsActive = false;

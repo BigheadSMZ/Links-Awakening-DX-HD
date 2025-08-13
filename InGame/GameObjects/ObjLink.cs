@@ -2147,7 +2147,7 @@ namespace ProjectZ.InGame.GameObjects
 
             // Calculate the pecentage of heart's remaining.
             double currentHP = Game1.GameManager.CurrentHealth;
-            double maximumHP = Game1.GameManager.MaxHearths * 4;
+            double maximumHP = Game1.GameManager.MaxHearts * 4;
 
             // Play the beep if health is below 20 percent.
             if (currentHP / maximumHP < 0.20)
@@ -3289,7 +3289,7 @@ namespace ProjectZ.InGame.GameObjects
                 _stopCharging = true;
 
             // shoot the sword if the player has the l2 sword and full health
-            if (!_shotSword && Game1.GameManager.SwordLevel == 2 && Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearths * 4 && AnimatorWeapons.CurrentFrameIndex == 2)
+            if (!_shotSword && Game1.GameManager.SwordLevel == 2 && Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearts * 4 && AnimatorWeapons.CurrentFrameIndex == 2)
             {
                 _shotSword = true;
 
@@ -4037,11 +4037,11 @@ namespace ProjectZ.InGame.GameObjects
             _body.IsActive = true;
 
             var hearts = 3;
-            if (Game1.GameManager.MaxHearths >= 14)
+            if (Game1.GameManager.MaxHearts >= 14)
                 hearts = 10;
-            else if (Game1.GameManager.MaxHearths >= 10)
+            else if (Game1.GameManager.MaxHearts >= 10)
                 hearts = 7;
-            else if (Game1.GameManager.MaxHearths >= 6)
+            else if (Game1.GameManager.MaxHearts >= 6)
                 hearts = 5;
 
             Game1.GameManager.CurrentHealth = hearts * 4;
@@ -4689,13 +4689,13 @@ namespace ProjectZ.InGame.GameObjects
                     _additionalPickupDialog = "heartMeterFilled";
             }
 
-            // hearth
+            // hearts
             if (item.Name == "heart")
             {
                 Game1.GameManager.CurrentHealth += itemCollected.Count * 4;
 
-                if (Game1.GameManager.CurrentHealth > Game1.GameManager.MaxHearths * 4)
-                    Game1.GameManager.CurrentHealth = Game1.GameManager.MaxHearths * 4;
+                if (Game1.GameManager.CurrentHealth > Game1.GameManager.MaxHearts * 4)
+                    Game1.GameManager.CurrentHealth = Game1.GameManager.MaxHearts * 4;
             }
             // pick up item is an accessory
             else if ((item.ShowAnimation == 1 || item.ShowAnimation == 2) && showItem)

@@ -12,8 +12,8 @@ namespace ProjectZ.InGame.SaveLoad
         public class SaveState
         {
             public string Name;
-            public int MaxHearth;
-            public int CurrentHearth;
+            public int MaxHearts;
+            public int CurrentHearts;
             public int CurrentRubee;
         }
 
@@ -32,8 +32,8 @@ namespace ProjectZ.InGame.SaveLoad
                 {
                     SaveStates[i] = new SaveState();
                     SaveStates[i].Name = saveManager.GetString("savename");
-                    SaveStates[i].CurrentHearth = saveManager.GetInt("currentHearth");
-                    SaveStates[i].MaxHearth = saveManager.GetInt("maxHearth");
+                    SaveStates[i].CurrentHearts = saveManager.GetInt("currentHearts");
+                    SaveStates[i].MaxHearts = saveManager.GetInt("maxHearts");
                     SaveStates[i].CurrentRubee = saveManager.GetInt("rubyCount", 0);
                 }
                 else

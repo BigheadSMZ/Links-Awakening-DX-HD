@@ -109,7 +109,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
 
             // delay the spawning a little bit
             if (_hiddenStartTime + 10000 < Game1.TotalGameTime &&
-                Game1.GameManager.CurrentHealth < Game1.GameManager.MaxHearths * 4)
+                Game1.GameManager.CurrentHealth < Game1.GameManager.MaxHearts * 4)
                 _aiComponent.ChangeState("idle");
         }
 
@@ -123,7 +123,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
             UpdatePosition();
 
             // hide when the player has full health
-            if (_healMode && Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearths * 4)
+            if (_healMode && Game1.GameManager.CurrentHealth >= Game1.GameManager.MaxHearts * 4)
                 _aiComponent.ChangeState("hidden");
         }
 
@@ -133,7 +133,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
 
             // different speeds depending on the health of the player
             var healingSteps = (DespawnStart - HealingStart) / HealingStepTime;
-            var neededSteps = Game1.GameManager.MaxHearths * 4 - Game1.GameManager.CurrentHealth;
+            var neededSteps = Game1.GameManager.MaxHearts * 4 - Game1.GameManager.CurrentHealth;
             _healStepAmount = Math.Clamp((int)Math.Ceiling(neededSteps / (float)healingSteps), 1, 8);
 
             Game1.GameManager.SetMusic(11, 2);
@@ -160,7 +160,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
             if (_healCounter > HealingStepTime)
             {
                 _healCounter -= HealingStepTime;
-                if (Game1.GameManager.CurrentHealth < Game1.GameManager.MaxHearths * 4)
+                if (Game1.GameManager.CurrentHealth < Game1.GameManager.MaxHearts * 4)
                 {
                     Game1.GameManager.PlaySoundEffect("D370-06-06", true);
                     Game1.GameManager.HealPlayer(_healStepAmount);

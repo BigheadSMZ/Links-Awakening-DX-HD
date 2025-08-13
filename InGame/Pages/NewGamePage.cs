@@ -91,7 +91,6 @@ namespace ProjectZ.InGame.Pages
                 newGameLayout.AddElement(keyboardLayout);
             }
 
-
             var nglBottomLayout = new InterfaceListLayout { Size = new Point(200, 20), HorizontalMode = true, Selectable = true };
             nglBottomLayout.AddElement(new InterfaceButton(new Point(99, 20), new Point(1, 0), "new_game_menu_back", OnClickBackButton));
             nglBottomLayout.AddElement(new InterfaceButton(new Point(99, 20), new Point(1, 0), "new_game_menu_start_game", OnClickNewGameButton));

@@ -130,7 +130,7 @@ namespace ProjectZ.InGame.Things
 
         public int DeathCount;
 
-        public int MaxHearths = 3;
+        public int MaxHearts = 3;
         public int CurrentHealth = 4 * 3;
 
         public int SwordLevel;
@@ -717,8 +717,8 @@ namespace ProjectZ.InGame.Things
         public void HealPlayer(int hearts)
         {
             CurrentHealth += hearts;
-            if (CurrentHealth > MaxHearths * 4)
-                CurrentHealth = MaxHearths * 4;
+            if (CurrentHealth > MaxHearts * 4)
+                CurrentHealth = MaxHearts * 4;
         }
 
         public void InflictDamage(int damage)
@@ -1290,7 +1290,7 @@ namespace ProjectZ.InGame.Things
                     while (heart?.Count >= 4)
                     {
                         heart.Count -= 4;
-                        Game1.GameManager.MaxHearths++;
+                        Game1.GameManager.MaxHearts++;
                         Game1.GameManager.HealPlayer(99);
                         ItemDrawHelper.EnableHeartAnimationSound();
                     }
@@ -1438,8 +1438,8 @@ namespace ProjectZ.InGame.Things
             OcarinaSongs[1] = 0;
             OcarinaSongs[2] = 0;
 
-            MaxHearths = 3;
-            CurrentHealth = MaxHearths * 4;
+            MaxHearts = 3;
+            CurrentHealth = MaxHearts * 4;
 
             PlayerMapPosition = null;
             MapVisibility = new bool[16, 16];

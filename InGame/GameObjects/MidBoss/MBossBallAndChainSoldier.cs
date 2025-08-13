@@ -214,8 +214,6 @@ namespace ProjectZ.InGame.GameObjects.MidBoss
                 var target = isSwinging ? 300.0f : 500.0f;
                 _currentBallSpeed = AnimationHelper.MoveToTarget(_currentBallSpeed, target, target * 0.1f * Game1.TimeMultiplier);
 
-                Game1.DebugText += "\nball: " + (int)_currentBallSpeed;
-
                 // 2 times per second or 4 if he is swinging fast
                 _ballState += Game1.DeltaTime / _currentBallSpeed * MathF.PI * 2;
 

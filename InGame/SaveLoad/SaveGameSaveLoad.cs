@@ -87,9 +87,9 @@ namespace ProjectZ.InGame.SaveLoad
             saveManager = new SaveManager();
 
             saveManager.SetString("savename", gameManager.SaveName);
-            saveManager.SetInt("maxHearth", gameManager.MaxHearths);
+            saveManager.SetInt("maxHearts", gameManager.MaxHearts);
             saveManager.SetInt("deathCount", gameManager.DeathCount);
-            saveManager.SetInt("currentHearth", gameManager.CurrentHealth);
+            saveManager.SetInt("currentHearts", gameManager.CurrentHealth);
             saveManager.SetInt("cloak", gameManager.CloakType);
             saveManager.SetInt("ocarinaSong", gameManager.SelectedOcarinaSong);
             saveManager.SetInt("guardianAcornCount", gameManager.GuardianAcornCount);
@@ -185,8 +185,8 @@ namespace ProjectZ.InGame.SaveLoad
                 return;
 
             gameManager.SaveName = saveManager.GetString("savename");
-            gameManager.MaxHearths = saveManager.GetInt("maxHearth");
-            gameManager.CurrentHealth = saveManager.GetInt("currentHearth");
+            gameManager.MaxHearts = saveManager.GetInt("maxHearts");
+            gameManager.CurrentHealth = saveManager.GetInt("currentHearts");
             gameManager.CloakType = saveManager.GetInt("cloak", 0);
             gameManager.SelectedOcarinaSong = saveManager.GetInt("ocarinaSong", -1);
             gameManager.GuardianAcornCount = saveManager.GetInt("guardianAcornCount", 0);

@@ -201,7 +201,7 @@ namespace ProjectZ.InGame.GameObjects.Things
             {
                 // TODO_End reevaluate
                 // need to find a source for this data
-                // rube1 = 6/100, hearth = 3/100
+                // rube1 = 6/100, hearts = 3/100
                 string strObject = null;
                 var random = Game1.RandomNumber.Next(0, 100);
                 if (random < 6)

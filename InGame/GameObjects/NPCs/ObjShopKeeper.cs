@@ -142,7 +142,7 @@ namespace ProjectZ.InGame.GameObjects.NPCs
                 Game1.GameManager.UseShockEffect = false;
 
                 // make sure the player actually dies
-                Game1.GameManager.InflictDamage(Game1.GameManager.MaxHearths * 4 * 2);
+                Game1.GameManager.InflictDamage(Game1.GameManager.MaxHearts * 4 * 2);
                 Game1.GameManager.RemoveItem("potion", 1);
             }
 
