@@ -603,9 +603,7 @@ namespace ProjectZ.InGame.GameObjects
 
                 Direction = AnimationHelper.GetDirection(moveVector);
 
-                // TODO: Sword does not update postion when swimming + charging + changing directions
-                // so currently lock the facing direction when the charge started. 
-                if (moveVector.X != 0 && CurrentState != State.ChargeSwimming)
+                if (moveVector.X != 0)
                     _swimDirection = moveVector.X < 0 ? 0 : 2;
             }
             else

@@ -267,6 +267,9 @@ namespace ProjectZ.InGame.GameObjects
         private bool _isSwingingSword;
         public bool CarrySword;
 
+        // used for 2D Link charging and swimming
+        private int _lastSwimDirection;
+
         // items
         private ObjBoomerang _boomerang = new ObjBoomerang();
         private Vector2[] _boomerangOffset;
@@ -817,7 +820,7 @@ namespace ProjectZ.InGame.GameObjects
                 return;
 
             // draw the player sprite behind the sword
-            if (Direction != 1 && !_isTrapped)
+            if (Direction != 1 && !_isTrapped  && CurrentState != State.ChargeSwimming)
                 _bodyDrawFunction(spriteBatch);
 
             // draw the sword/magic rod
@@ -836,15 +839,23 @@ namespace ProjectZ.InGame.GameObjects
                             Game1.TotalGameTime % (8 / 0.06) >= 4 / 0.06 &&
                             ObjectManager.CurrentEffect != Resources.DamageSpriteShader0.Effect;
 
-                // change the draw shader
+                // Change the draw shader
                 if (changeColor)
                 {
                     spriteBatch.End();
                     ObjectManager.SpriteBatchBegin(spriteBatch, Resources.DamageSpriteShader0);
                 }
 
-                AnimatorWeapons.Draw(spriteBatch, new Vector2(EntityPosition.X - 7, EntityPosition.Y - 16 - EntityPosition.Z), Color.White);
+                //  Draw the sword. Use offset of 6 instead of 7 when 2D Link is swimming and charging.
+                var swordXOffset = (Is2DMode && CurrentState == State.ChargeSwimming) ? 6 : 7;
 
+                AnimatorWeapons.Draw(
+                    spriteBatch,
+                    new Vector2(EntityPosition.X - swordXOffset, EntityPosition.Y - 16 - EntityPosition.Z),
+                    Color.White
+                );
+
+                // Change the draw shader
                 if (changeColor)
                 {
                     spriteBatch.End();
@@ -875,7 +886,7 @@ namespace ProjectZ.InGame.GameObjects
             }
 
             // draw the player sprite in front of the sword
-            if (Direction == 1 && !_isTrapped)
+            if (Direction == 1 && !_isTrapped || CurrentState == State.ChargeSwimming)
                 _bodyDrawFunction(spriteBatch);
 
             if (_drawInstrumentEffect)
@@ -3176,6 +3187,16 @@ namespace ProjectZ.InGame.GameObjects
                 else
                     ReturnToIdle();
             }
+            // Probably a hacky way of updating the sword position while swimming in 2D mode.
+            var moveVector = ControlHandler.GetMoveVector2();
+            var moveDirX = moveVector.X switch
+            {
+                < 0 => _lastSwimDirection = 0,
+                > 0 => _lastSwimDirection = 2,
+                _   => _lastSwimDirection
+            };
+            if (CurrentState == State.ChargeSwimming && moveDirX % 2 == 0)
+                AnimatorWeapons.Play("stand_" + moveDirX);
         }
 
         private void StartSwordSpin()
