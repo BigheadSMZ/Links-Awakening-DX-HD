@@ -32,7 +32,7 @@ namespace ProjectZ.InGame.SaveLoad
                 {
                     SaveStates[i] = new SaveState();
                     SaveStates[i].Name = saveManager.GetString("savename");
-                    SaveStates[i].CurrentHearts = saveManager.GetInt("currentHearts");
+                    SaveStates[i].CurrentHearts = saveManager.GetInt("currentHealth");
                     SaveStates[i].MaxHearts = saveManager.GetInt("maxHearts");
                     SaveStates[i].CurrentRubee = saveManager.GetInt("rubyCount", 0);
                 }

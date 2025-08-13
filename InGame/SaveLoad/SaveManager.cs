@@ -209,7 +209,7 @@ namespace ProjectZ.InGame.SaveLoad
             // Retain compatiblity with older saves that used "Hearth" instead of "Hearts".
             if ((key == "maxHearts") & (_intDictionary.ContainsKey("maxHearth")))
                 key = "maxHearth";
-            if ((key == "currentHearts") & (_intDictionary.ContainsKey("currentHearth")))
+            if ((key == "currentHealth") & (_intDictionary.ContainsKey("currentHearth")))
                 key = "currentHearth";
             return _intDictionary[key];
         }
