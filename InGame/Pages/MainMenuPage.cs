@@ -397,7 +397,7 @@ namespace ProjectZ.InGame.Pages
                     // only draw the hearts the player has
                     _heartImage[i][j].Hidden = SaveStateManager.SaveStates[i].MaxHearts <= j;
 
-                    var state = 4 - MathHelper.Clamp(SaveStateManager.SaveStates[i].CurrentHearts - (j * 4), 0, 4);
+                    var state = 4 - MathHelper.Clamp(SaveStateManager.SaveStates[i].CurrentHealth - (j * 4), 0, 4);
 
                     ((InterfaceImage)_heartImage[i][j]).SourceRectangle = new Rectangle(
                         _heartSprite.ScaledRectangle.X + (_heartSprite.ScaledRectangle.Width + _heartSprite.TextureScale) * state,
