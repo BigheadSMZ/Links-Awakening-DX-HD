@@ -53,6 +53,7 @@ settings_game_header Game Settings
 settings_game_language Language: English
 settings_game_change_language Change Language
 settings_game_autosave Autosave
+settings_game_heartbeep Low Hearts Alarm
 settings_game_change_smooth_camera Smooth Camera
 settings_game_fullscreen_windowed Borderless Windowed
 settings_game_fullscreen_mode Fullscreen

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Timers;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -371,8 +370,7 @@ namespace ProjectZ.InGame.GameObjects
         public int SaveDirection;
 
         // low hearts
-        private Timer _lowHealthTimer;
-        public bool playLowHealthBeep = true;
+        private float _lowHealthBeepCounter;
 
         // other stuff
         public Point CollisionBoxSize;
@@ -587,8 +585,8 @@ namespace ProjectZ.InGame.GameObjects
 
                 return;
             }
-
-            UpdateHeartWarningTimer();
+            // Low health beep.
+            UpdateHeartWarningSound();
 
             if (CurrentState == State.FinalInstruments)
             {
@@ -2142,38 +2140,26 @@ namespace ProjectZ.InGame.GameObjects
                 Animation.Play(_drownCounter > 300 ? "swim_" + Direction : "dive");
         }
 
-        private void UpdateHeartWarningTimer()
+        private void UpdateHeartWarningSound()
         {
-            if (Game1.GameManager.CurrentHealth <= 4 &&
-                Game1.GameManager.CurrentHealth > 0)
-                HeartWarningTimerStart();
-            else if (Game1.GameManager.CurrentHealth > 4 || 
-                Game1.GameManager.CurrentHealth <= 0)
-                HeartWarningTimerStop();
-        }
+            // Don't play the beep if the user disabled it.
+            if (!GameSettings.HeartBeep) return;
 
-        private void HeartWarningTimerStart()
-        {
-            if (_lowHealthTimer == null)
+            // Calculate the pecentage of heart's remaining.
+            double currentHP = Game1.GameManager.CurrentHealth;
+            double maximumHP = Game1.GameManager.MaxHearths * 4;
+
+            // Play the beep if health is below 20 percent.
+            if (currentHP / maximumHP < 0.20)
             {
-                _lowHealthTimer = new Timer();
-                _lowHealthTimer.Interval = 1000;
-                _lowHealthTimer.AutoReset = true;
-                _lowHealthTimer.Elapsed += new ElapsedEventHandler(HeartWarningTimerElapsed);
+                _lowHealthBeepCounter += Game1.DeltaTime;
+
+                if (_lowHealthBeepCounter > 825)
+                {
+                    _lowHealthBeepCounter = 0;
+                    Game1.GameManager.PlaySoundEffect("D370-04-04");
+                }
             }
-            _lowHealthTimer.Start();
-        }
-
-        private void HeartWarningTimerStop()
-        {
-            if (_lowHealthTimer != null && _lowHealthTimer.Enabled)
-                _lowHealthTimer.Stop();
-        }
-
-        private void HeartWarningTimerElapsed(object sender, ElapsedEventArgs e)
-        {
-            if (playLowHealthBeep)
-                Game1.GameManager.PlaySoundEffect("D370-04-04");
         }
 
         private void UpdateDive()

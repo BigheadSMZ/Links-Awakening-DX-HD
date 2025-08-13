@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using ProjectZ.Base;
 using ProjectZ.Base.UI;
 using ProjectZ.InGame.Controls;
-using ProjectZ.InGame.Map;
 using ProjectZ.InGame.Overlay.Sequences;
 using ProjectZ.InGame.Pages;
 using ProjectZ.InGame.Things;
@@ -146,12 +145,6 @@ namespace ProjectZ.InGame.Overlay
                 UpdateGameScale(GameScaleDirection.Decrease);
             if (_currentMenuState == MenuState.None && ControlHandler.ButtonPressed(CButtons.R))
                 UpdateGameScale(GameScaleDirection.Increase);
-
-            // toggle low heart beeps
-            if (_currentMenuState == MenuState.None)
-                MapManager.ObjLink.playLowHealthBeep = true;
-            else
-                MapManager.ObjLink.playLowHealthBeep = false;
 
             if (_currentMenuState == MenuState.None)
             {
@@ -478,7 +471,7 @@ namespace ProjectZ.InGame.Overlay
 
         private static void UpdateGameScale(GameScaleDirection scaleDirection)
         {
-            int newScale = GameSettings.GameScale + (short)scaleDirection;
+            var newScale = GameSettings.GameScale + (short)scaleDirection;
             if (newScale >= -1 && newScale <= 11)
             {
                 GameSettings.GameScale = newScale;
