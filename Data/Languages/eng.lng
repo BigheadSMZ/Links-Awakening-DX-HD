@@ -28,7 +28,7 @@ new_game_menu_start_game Start Game
 game_menu_header Menu
 game_menu_back_to_game Back to Game
 game_menu_settings Settings
-game_menu_exit_to_the_menu Exit to the Menu
+game_menu_exit_to_the_menu Quit to Menu
 game_menu_exit_the_game Save & Exit
 
 game_menu_exit_header Are you sure?
