@@ -3257,7 +3257,7 @@ namespace ProjectZ.InGame.GameObjects
             if (Game1.GameManager.CloakType == GameManager.CloakRed)
                 damage *= 2;
 
-            var pieceOfPower = Game1.GameManager.PieceOfPowerIsActive || Game1.GameManager.SwordLevel == 2;
+            var pieceOfPower = Game1.GameManager.PieceOfPowerIsActive || Game1.GameManager.CloakType == GameManager.CloakRed;
             var hitCollision = Map.Objects.Hit(this, damageOrigin, SwordDamageBox, hitType, damage, pieceOfPower, out var direction, true);
 
             if (_pokeStart)
