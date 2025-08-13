@@ -151,6 +151,7 @@ namespace ProjectZ.InGame.Screens
         private Vector2 _mountainLeftPosition;
         private Vector2 _cloundLeftPosition;
         private Vector2 _wavePosition;
+        private Vector2 _linkPosition;
         private Vector2 _marinPosition;
         private Vector2 _marinGoal;
 
@@ -292,22 +293,21 @@ namespace ProjectZ.InGame.Screens
                     _cameraCenter = new Vector2(0, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
                     _cameraStart = _cameraCenter;
                     _cameraTarget = new Vector2(_cameraCenter.X, _logoPosition.Y + _spriteLogo0.ScaledRectangle.Height + 5);
-                    _marinPosition.X = -1000;
-                    _marinPosition.Y = -1000;
                     _logoCounter = 1500;
                     _currentState = States.StrandPanning;
+                    _linkPosition = new Vector2(-1000,-1000);
+                    _marinPosition = new Vector2(-1000,-1000);
                 }
             }
-
             if (!Game1.FinishedLoading)
                 _loadingAnimator.Update();
+
             if (Game1.FinishedLoading)
+            {
                 _loadingTransparency = AnimationHelper.MoveToTarget(_loadingTransparency, 0, 0.125f * Game1.TimeMultiplier);
-
+            }
             UpdateOcean();
-
             UpdateBeach();
-
             _scale = MathHelper.Clamp(Math.Min(Game1.WindowWidth / _screenWidth, Game1.WindowHeight / _screenHeight), 1, 10);
         }
 
@@ -434,6 +434,7 @@ namespace ProjectZ.InGame.Screens
             _currentState = States.StrandFading;
 
             _cameraCenter = new Vector2(-400, 210);
+            _linkPosition = new Vector2(-8, 225);
             _marinPosition = new Vector2(-250, 219);
 
             _marinAnimator.Play("stand");
@@ -863,12 +864,12 @@ namespace ProjectZ.InGame.Screens
                 new Rectangle(_waveRectangle.X + screenLeft - (int)strandOffset.X, _waveRectangle.Y + _currentFrame * 32, width, _waveRectangle.Height),
                 Color.White, 0, new Vector2(1 - strandOffset.X % 1, 0), SpriteEffects.None, 0);
 
-            // draw marin
-            _marinAnimator.DrawBasic(spriteBatch, _marinPosition, Color.White);
-
-            // draw link
-            _linkAnimator.DrawBasic(spriteBatch, new Vector2(-8, 225), Color.White);
-
+            // draw link and marin
+            if (_logoState != 1)
+            {
+                _linkAnimator.DrawBasic(spriteBatch, _linkPosition, Color.White);
+                _marinAnimator.DrawBasic(spriteBatch, _marinPosition, Color.White);
+            }
             // draw the logo
             {
                 var logoHeight = (int)(_spriteLogo0.SourceRectangle.Height * (MathF.Sin(_logoState * MathF.PI - MathF.PI / 2) * 0.5f + 0.5f));
