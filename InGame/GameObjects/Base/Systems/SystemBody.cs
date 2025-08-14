@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using ProjectZ.Base;
 using ProjectZ.InGame.GameObjects.Base.Components;
@@ -34,6 +36,28 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
                 if (!gameObject.IsActive)
                     continue;
 
+                var component = gameObject.Components[BodyComponent.Index] as BodyComponent;
+                if (component.IsActive)
+                    UpdateBody(component);
+            }
+        }
+
+        public void UpdateTypes(int threadIndex, int threadCount, Type[] objectTypes)
+        {
+            if (Game1.TimeMultiplier <= 0)
+                return;
+
+            _objectList.Clear();
+            Pool.GetComponentList(_objectList,
+                (int)((MapManager.Camera.X - Game1.RenderWidth / 2) / MapManager.Camera.Scale),
+                (int)((MapManager.Camera.Y - Game1.RenderHeight / 2) / MapManager.Camera.Scale),
+                (int)(Game1.RenderWidth / MapManager.Camera.Scale),
+                (int)(Game1.RenderHeight / MapManager.Camera.Scale), BodyComponent.Mask);
+
+            foreach (var gameObject in _objectList)
+            {
+                if (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
+                    continue;
                 var component = gameObject.Components[BodyComponent.Index] as BodyComponent;
                 if (component.IsActive)
                     UpdateBody(component);

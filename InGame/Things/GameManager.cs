@@ -113,7 +113,7 @@ namespace ProjectZ.InGame.Things
         public float DrawPlayerOnTopPercentage;
 
         public bool FreezeWorldAroundPlayer;
-        public bool DeepFreeze;
+        public bool FreezeWorldForEvents;
 
         // save game data
         public string LoadedMap;

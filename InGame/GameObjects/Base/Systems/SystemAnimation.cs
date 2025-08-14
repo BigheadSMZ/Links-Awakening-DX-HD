@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using ProjectZ.InGame.GameObjects.Base.Components;
 using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.Map;
@@ -28,6 +30,25 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
                 var animationComponent = (gameObject.Components[BaseAnimationComponent.Index]) as BaseAnimationComponent;
 
                 // update the animation
+                if (!dialogOpen || animationComponent.UpdateWithOpenDialog)
+                    animationComponent.UpdateAnimation();
+            }
+        }
+
+        public void UpdateTypes(bool dialogOpen, Type[] objectTypes)
+        {
+            _objectList.Clear();
+            Pool.GetComponentList(_objectList,
+                (int)((MapManager.Camera.X - Game1.RenderWidth / 2) / MapManager.Camera.Scale),
+                (int)((MapManager.Camera.Y - Game1.RenderHeight / 2) / MapManager.Camera.Scale),
+                (int)(Game1.RenderWidth / MapManager.Camera.Scale),
+                (int)(Game1.RenderHeight / MapManager.Camera.Scale), BaseAnimationComponent.Mask);
+
+            foreach (var gameObject in _objectList)
+            {
+                if (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
+                    continue;
+                var animationComponent = (gameObject.Components[BaseAnimationComponent.Index]) as BaseAnimationComponent;
                 if (!dialogOpen || animationComponent.UpdateWithOpenDialog)
                     animationComponent.UpdateAnimation();
             }

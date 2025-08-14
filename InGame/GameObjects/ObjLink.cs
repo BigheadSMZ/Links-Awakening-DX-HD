@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework;
@@ -1158,9 +1159,9 @@ namespace ProjectZ.InGame.GameObjects
             var strFreeze = "freezeGame";
             var FreezeGame = Game1.GameManager.SaveManager.GetString(strFreeze, "0");
             if (FreezeGame == "1")
-                Game1.GameManager.DeepFreeze = true;
+                Game1.GameManager.FreezeWorldForEvents = true;
             else if (FreezeGame == "0")
-                Game1.GameManager.DeepFreeze = false;
+                Game1.GameManager.FreezeWorldForEvents = false;
 
             var strCloak = "cloak_transition";
             var cloakTransition = Game1.GameManager.SaveManager.GetString(strCloak);
@@ -1448,10 +1449,6 @@ namespace ProjectZ.InGame.GameObjects
 
         private void Update3D()
         {
-
-#if DEBUG
-            //Debug.WriteLine(CurrentState);
-#endif
             _isWalking = false;
             WasHoleReset = false;
 

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectZ.Base;
@@ -8,6 +10,7 @@ using ProjectZ.InGame.GameObjects.Base;
 using ProjectZ.InGame.GameObjects.Base.Components;
 using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.GameObjects.Base.Systems;
+using ProjectZ.InGame.GameObjects.NPCs;
 using ProjectZ.InGame.GameObjects.Things;
 using ProjectZ.InGame.SaveLoad;
 using ProjectZ.InGame.Things;
@@ -60,12 +63,17 @@ namespace ProjectZ.InGame.Map
         private readonly List<GameObject> db_bodyList = new List<GameObject>();
         private readonly List<GameObject> db_gameObjectList = new List<GameObject>();
 
+        public Type[] _AlwaysAnimateTypes;
+
         private bool _keyChanged;
         private bool _finishedLoading;
 
         public ObjectManager(Map owner)
         {
             Owner = owner;
+
+            // The type of game objects that are not frozen during events.
+            _AlwaysAnimateTypes = new Type[]{ typeof(ObjGhost), typeof(ObjOwl) };
         }
 
         public void LoadObjects()
@@ -117,47 +125,45 @@ namespace ProjectZ.InGame.Map
 
         public void Update(bool frozen)
         {
-            // mode used for opened dialog
-            if (frozen || Game1.GameManager.DeepFreeze)
+            // Freeze the world when a dialog is open.
+            if (frozen)
             {
-                // notify all key listener
                 UpdateKeyListeners();
-
                 UpdateDeleteObjects();
-
                 AddSpawnedObjects();
-
-                if (frozen) return;
-            }
-            if (Game1.GameManager.FreezeWorldAroundPlayer || Game1.GameManager.DeepFreeze)
-            {
-                Game1.GameManager.FreezeWorldAroundPlayer = false;
-
-                // only update the player
-                var updateComponent = (UpdateComponent)MapManager.ObjLink.Components[UpdateComponent.Index];
-                updateComponent?.UpdateFunction();
-
                 return;
             }
+            // Freeze most things except specific types when an event takes place.
+            else if (Game1.GameManager.FreezeWorldForEvents)
+            {
+                _systemAnimator.UpdateTypes(false, _AlwaysAnimateTypes);
+                UpdateGameObjectTypes(_AlwaysAnimateTypes);
+                _systemAi.UpdateTypes(_AlwaysAnimateTypes);
+                UpdateKeyListeners();
+                _systemBody.UpdateTypes(0, 1, _AlwaysAnimateTypes);
+                UpdatePlayerCollision();
+                UpdateDeleteObjects();
+                AddSpawnedObjects();
+                return;
+            }
+            // If the world is frozen still update Link.
+            if (Game1.GameManager.FreezeWorldAroundPlayer)
+            {
+                Game1.GameManager.FreezeWorldAroundPlayer = false;
+                var updateComponent = (UpdateComponent)MapManager.ObjLink.Components[UpdateComponent.Index];
+                updateComponent?.UpdateFunction();
+                return;
+            }
+            // Normal behavior; everything is active.
             Game1.StopWatchTracker.Start("update gameobjects");
-
             _systemAnimator.Update(false);
-
             UpdateGameObjects();
-
             _systemAi.Update();
-
-            // notify all key listener
             UpdateKeyListeners();
-
             _systemBody.Update(0, 1);
-
             UpdatePlayerCollision();
-
             UpdateDamageFields();
-
             UpdateDeleteObjects();
-
             AddSpawnedObjects();
         }
 
@@ -198,6 +204,25 @@ namespace ProjectZ.InGame.Map
             foreach (var gameObject in _updateGameObject)
             {
                 if (gameObject.IsActive)
+                    (gameObject.Components[UpdateComponent.Index] as UpdateComponent)?.UpdateFunction();
+            }
+        }
+
+        private void UpdateGameObjectTypes(Type[]objectTypes)
+        {
+            _updateGameObject.Clear();
+
+            // only update the objects that are in a tile that is visible
+            var updateFieldSize = new Vector2(Game1.RenderWidth, Game1.RenderHeight);
+            _gameObjectPool.GetComponentList(_updateGameObject,
+               (int)((MapManager.Camera.X - updateFieldSize.X / 2) / MapManager.Camera.Scale),
+               (int)((MapManager.Camera.Y - updateFieldSize.Y / 2) / MapManager.Camera.Scale),
+               (int)(updateFieldSize.X / MapManager.Camera.Scale),
+               (int)(updateFieldSize.Y / MapManager.Camera.Scale), UpdateComponent.Mask);
+
+            foreach (var gameObject in _updateGameObject)
+            {
+                if (gameObject.IsActive || objectTypes.Contains(gameObject.GetType()))
                     (gameObject.Components[UpdateComponent.Index] as UpdateComponent)?.UpdateFunction();
             }
         }
