@@ -136,11 +136,11 @@ namespace ProjectZ.InGame.Map
             // Freeze most things except specific types when an event takes place.
             else if (Game1.GameManager.FreezeWorldForEvents)
             {
-                _systemAnimator.UpdateTypes(false, _AlwaysAnimateTypes);
-                UpdateGameObjectTypes(_AlwaysAnimateTypes);
-                _systemAi.UpdateTypes(_AlwaysAnimateTypes);
+                _systemAnimator.Update(false, _AlwaysAnimateTypes);
+                UpdateGameObjects();
+                _systemAi.Update(_AlwaysAnimateTypes);
                 UpdateKeyListeners();
-                _systemBody.UpdateTypes(0, 1, _AlwaysAnimateTypes);
+                _systemBody.Update(0, 1, _AlwaysAnimateTypes);
                 UpdatePlayerCollision();
                 UpdateDeleteObjects();
                 AddSpawnedObjects();
@@ -204,25 +204,6 @@ namespace ProjectZ.InGame.Map
             foreach (var gameObject in _updateGameObject)
             {
                 if (gameObject.IsActive)
-                    (gameObject.Components[UpdateComponent.Index] as UpdateComponent)?.UpdateFunction();
-            }
-        }
-
-        private void UpdateGameObjectTypes(Type[]objectTypes)
-        {
-            _updateGameObject.Clear();
-
-            // only update the objects that are in a tile that is visible
-            var updateFieldSize = new Vector2(Game1.RenderWidth, Game1.RenderHeight);
-            _gameObjectPool.GetComponentList(_updateGameObject,
-               (int)((MapManager.Camera.X - updateFieldSize.X / 2) / MapManager.Camera.Scale),
-               (int)((MapManager.Camera.Y - updateFieldSize.Y / 2) / MapManager.Camera.Scale),
-               (int)(updateFieldSize.X / MapManager.Camera.Scale),
-               (int)(updateFieldSize.Y / MapManager.Camera.Scale), UpdateComponent.Mask);
-
-            foreach (var gameObject in _updateGameObject)
-            {
-                if (gameObject.IsActive || objectTypes.Contains(gameObject.GetType()))
                     (gameObject.Components[UpdateComponent.Index] as UpdateComponent)?.UpdateFunction();
             }
         }

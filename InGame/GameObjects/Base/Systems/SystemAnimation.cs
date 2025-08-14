@@ -4,6 +4,7 @@ using System.Linq;
 using ProjectZ.InGame.GameObjects.Base.Components;
 using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.Map;
+using SharpDX.MediaFoundation;
 
 namespace ProjectZ.InGame.GameObjects.Base.Systems
 {
@@ -13,7 +14,7 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
 
         private readonly List<GameObject> _objectList = new List<GameObject>();
 
-        public void Update(bool dialogOpen)
+        public void Update(bool dialogOpen, Type[] objectTypes = null)
         {
             _objectList.Clear();
             Pool.GetComponentList(_objectList,
@@ -24,31 +25,16 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
 
             foreach (var gameObject in _objectList)
             {
-                if (!gameObject.IsActive)
-                    continue;
+                bool skipObject = (objectTypes == null) switch
+                {
+                    true  => (!gameObject.IsActive),
+                    false => (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
+                };
+                if (skipObject) continue;
 
                 var animationComponent = (gameObject.Components[BaseAnimationComponent.Index]) as BaseAnimationComponent;
 
                 // update the animation
-                if (!dialogOpen || animationComponent.UpdateWithOpenDialog)
-                    animationComponent.UpdateAnimation();
-            }
-        }
-
-        public void UpdateTypes(bool dialogOpen, Type[] objectTypes)
-        {
-            _objectList.Clear();
-            Pool.GetComponentList(_objectList,
-                (int)((MapManager.Camera.X - Game1.RenderWidth / 2) / MapManager.Camera.Scale),
-                (int)((MapManager.Camera.Y - Game1.RenderHeight / 2) / MapManager.Camera.Scale),
-                (int)(Game1.RenderWidth / MapManager.Camera.Scale),
-                (int)(Game1.RenderHeight / MapManager.Camera.Scale), BaseAnimationComponent.Mask);
-
-            foreach (var gameObject in _objectList)
-            {
-                if (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
-                    continue;
-                var animationComponent = (gameObject.Components[BaseAnimationComponent.Index]) as BaseAnimationComponent;
                 if (!dialogOpen || animationComponent.UpdateWithOpenDialog)
                     animationComponent.UpdateAnimation();
             }

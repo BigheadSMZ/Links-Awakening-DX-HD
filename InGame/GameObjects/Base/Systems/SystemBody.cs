@@ -9,6 +9,7 @@ using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.GameObjects.Things;
 using ProjectZ.InGame.Map;
 using ProjectZ.InGame.Things;
+using SharpDX.MediaFoundation;
 
 namespace ProjectZ.InGame.GameObjects.Base.Systems
 {
@@ -19,7 +20,7 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
         private readonly List<GameObject> _objectList = new List<GameObject>();
         private readonly List<GameObject> _holeList = new List<GameObject>();
 
-        public void Update(int threadIndex, int threadCount)
+        public void Update(int threadIndex, int threadCount, Type[] objectTypes = null)
         {
             if (Game1.TimeMultiplier <= 0)
                 return;
@@ -33,31 +34,13 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
 
             foreach (var gameObject in _objectList)
             {
-                if (!gameObject.IsActive)
-                    continue;
+                bool skipObject = (objectTypes == null) switch
+                {
+                    true  => (!gameObject.IsActive),
+                    false => (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
+                };
+                if (skipObject) continue;
 
-                var component = gameObject.Components[BodyComponent.Index] as BodyComponent;
-                if (component.IsActive)
-                    UpdateBody(component);
-            }
-        }
-
-        public void UpdateTypes(int threadIndex, int threadCount, Type[] objectTypes)
-        {
-            if (Game1.TimeMultiplier <= 0)
-                return;
-
-            _objectList.Clear();
-            Pool.GetComponentList(_objectList,
-                (int)((MapManager.Camera.X - Game1.RenderWidth / 2) / MapManager.Camera.Scale),
-                (int)((MapManager.Camera.Y - Game1.RenderHeight / 2) / MapManager.Camera.Scale),
-                (int)(Game1.RenderWidth / MapManager.Camera.Scale),
-                (int)(Game1.RenderHeight / MapManager.Camera.Scale), BodyComponent.Mask);
-
-            foreach (var gameObject in _objectList)
-            {
-                if (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
-                    continue;
                 var component = gameObject.Components[BodyComponent.Index] as BodyComponent;
                 if (component.IsActive)
                     UpdateBody(component);

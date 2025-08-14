@@ -3380,7 +3380,7 @@ namespace ProjectZ.InGame.GameObjects
                     _itemShowCounter = 250;
 
                     if (ShowItem.Name == "sword1")
-                        _itemShowCounter = 5850;
+                        _itemShowCounter = 5850; 
                     else if (ShowItem.Name.StartsWith("instrument"))
                         _itemShowCounter = 1000;
                 }
@@ -4646,12 +4646,15 @@ namespace ProjectZ.InGame.GameObjects
             _pickingUpInstrument = false;
             _pickingUpSword = false;
 
-            // upgrade the sword
             var equipmentPosition = 0;
             if (item.Name == "sword1")
             {
+                // Pick up the sword off the beach.
                 _pickingUpSword = true;
                 Game1.GameManager.SetMusic(14, 2);
+
+                //Freeze the game. The "sword1Collected:0" event in "scripts.zScript" will unfreeze after a time.
+                Game1.GameManager.SaveManager.SetString("freezeGame", "1");
             }
             else if (item.Name == "sword2")
             {

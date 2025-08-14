@@ -292,7 +292,7 @@ tarin:6 -> tarin_5
 shield_intro:0 -> shield_intro -> [set:1]
 shield_intro:1 ->
 
-sword1Collected:0 -> [set:freezeGame:1] -> [update_objects] -> [save_history:true] -> sword1 -> [countdown:750] -> [music:-1:1] -> [music:-1:2] -> [stop_music] -> [set:introMusic:0] -> [wait:dialogOpen:0] -> [music:48:0] -> [save_history:false] -> [countdown:5850] -> [set:freezeGame:0]
+sword1Collected:0 -> [update_objects] -> [save_history:true] -> sword1 -> [countdown:750] -> [music:-1:1] -> [music:-1:2] -> [stop_music] -> [set:introMusic:0] -> [wait:dialogOpen:0] -> [music:48:0] -> [save_history:false] -> [countdown:5850] -> [set:freezeGame:0]
 sword2Collected:0 -> [sound:D368-16-10] -> sword2 -> [set:hasSword2:1]
 
 heartMeterFilled:0 -> heartMeterFilled -> [sound:D360-25-19]
