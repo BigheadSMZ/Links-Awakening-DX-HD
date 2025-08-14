@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using ProjectZ.Base;
@@ -63,7 +61,7 @@ namespace ProjectZ.InGame.Map
         private readonly List<GameObject> db_bodyList = new List<GameObject>();
         private readonly List<GameObject> db_gameObjectList = new List<GameObject>();
 
-        public Type[] _AlwaysAnimateTypes;
+        public static Type[] _AlwaysAnimateTypes;
 
         private bool _keyChanged;
         private bool _finishedLoading;
@@ -74,6 +72,14 @@ namespace ProjectZ.InGame.Map
 
             // The type of game objects that are not frozen during events.
             _AlwaysAnimateTypes = new Type[]{ typeof(ObjGhost), typeof(ObjOwl) };
+        }
+
+        public static bool IsGameObjectType(GameObject gameObject, Type[] objectTypes)
+        {
+            foreach (Type objType in objectTypes)
+                if (gameObject.GetType() == objType)
+                    return true;
+            return false;
         }
 
         public void LoadObjects()

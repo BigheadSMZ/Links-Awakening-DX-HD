@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using Microsoft.Xna.Framework;
 using ProjectZ.Base;
 using ProjectZ.InGame.GameObjects.Base.Components;
@@ -9,7 +7,6 @@ using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.GameObjects.Things;
 using ProjectZ.InGame.Map;
 using ProjectZ.InGame.Things;
-using SharpDX.MediaFoundation;
 
 namespace ProjectZ.InGame.GameObjects.Base.Systems
 {
@@ -37,7 +34,7 @@ namespace ProjectZ.InGame.GameObjects.Base.Systems
                 bool skipObject = (objectTypes == null) switch
                 {
                     true  => (!gameObject.IsActive),
-                    false => (!gameObject.IsActive || !objectTypes.Contains(gameObject.GetType()))
+                    false => (!gameObject.IsActive || !ObjectManager.IsGameObjectType(gameObject, objectTypes))
                 };
                 if (skipObject) continue;
 
