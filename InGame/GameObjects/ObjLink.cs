@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework;
@@ -1531,7 +1532,9 @@ namespace ProjectZ.InGame.GameObjects
 
             if (_isFlying && CurrentState == State.Carrying)
             {
-                var moveVelocity = ControlHandler.GetMoveVector2();
+                // The hit velocity is added to the movement (*2) for the flame trap knockback on the way 
+                // to level 8 as the normal value sent back is not strong enough to knock it back.
+                var moveVelocity = ControlHandler.GetMoveVector2() + _hitVelocity * 2;
 
                 var moveVelocityLength = moveVelocity.Length();
                 if (moveVelocityLength > 1)
@@ -3762,6 +3765,11 @@ namespace ProjectZ.InGame.GameObjects
             if (CurrentState == State.Dying)
                 return;
 
+            // If carrying the rooster.
+            if (_isFlying && CurrentState == State.Carrying)
+            {
+                ReleaseCarriedObject();
+            }
             // has potion?
             var potion = Game1.GameManager.GetItem("potion");
             if (potion != null && potion.Count >= 1)
@@ -4175,6 +4183,7 @@ namespace ProjectZ.InGame.GameObjects
             if (Map.Is2dMap && _isClimbing)
                 _isClimbing = false;
 
+            // Hit velocity is responsible for knockback.
             if (!_isRafting)
                 _hitVelocity += direction;
 

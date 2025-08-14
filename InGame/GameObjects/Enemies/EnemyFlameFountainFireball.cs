@@ -40,7 +40,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
             body.VelocityTarget = velocity;
 
-            var damageBox = new CBox(EntityPosition, -3, -3, 0, 6, 6, 16);
+            var damageBox = new CBox(EntityPosition, -3, -3, 0, 6, 6, 32);
             var pushBox = new CBox(EntityPosition, -3, -3, 0, 6, 12, 8);
 
             AddComponent(DamageFieldComponent.Index, _damageComponent = new DamageFieldComponent(damageBox, HitType.Enemy, 10) { OnDamage = HitPlayer });
