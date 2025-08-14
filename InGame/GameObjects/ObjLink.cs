@@ -4983,7 +4983,7 @@ namespace ProjectZ.InGame.GameObjects
 
             // restart the music
             if (Game1.GameManager.PieceOfPowerIsActive || Game1.GameManager.GuardianAcornIsActive)
-                Game1.GameManager.StartPieceOfPowerMusic();
+                Game1.GameManager.StartPieceOfPowerMusic(1);
         }
 
         #endregion

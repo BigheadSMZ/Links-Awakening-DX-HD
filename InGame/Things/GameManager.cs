@@ -739,7 +739,7 @@ namespace ProjectZ.InGame.Things
             GuardianAcornIsActive = true;
             GuardianAcornDamageCount = 0;
 
-            StartPieceOfPowerMusic();
+            StartPieceOfPowerMusic(0);
         }
 
         public void StopGuardianAcorn()
@@ -756,13 +756,18 @@ namespace ProjectZ.InGame.Things
             PieceOfPowerIsActive = true;
             PieceOfPowerDamageCount = 0;
 
-            StartPieceOfPowerMusic();
+            StartPieceOfPowerMusic(0);
         }
-        public void StartPieceOfPowerMusic()
+        public void StartPieceOfPowerMusic(int Variation)
         {
-            Game1.GameManager.SetMusic(72, 1);
+            // 0: Delayed with sound effect, 1: Music starts instantly.
+            int trackId = Variation switch
+            {
+                0 => 38,
+                1 => 72,
+            };
+            Game1.GameManager.SetMusic(trackId, 1);
         }
-
         public void StopPieceOfPower()
         {
             PieceOfPowerIsActive = false;
