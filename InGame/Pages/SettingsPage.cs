@@ -36,10 +36,10 @@ namespace ProjectZ.InGame.Pages
             }));
 
             //// audio settings button
-            //contentLayout.AddElement(new InterfaceButton(new Point(150, 25), new Point(1, 2), "settings_menu_audio", element =>
-            //{
-            //    Game1.UiPageManager.ChangePage(typeof(AudioSettingsPage));
-            //}));
+            contentLayout.AddElement(new InterfaceButton(new Point(150, 25), new Point(1, 2), "settings_menu_audio", element =>
+            {
+               Game1.UiPageManager.ChangePage(typeof(AudioSettingsPage));
+            }));
 
             // controll settings button
             contentLayout.AddElement(new InterfaceButton(new Point(150, 25), new Point(1, 2), "settings_menu_controls", element =>
