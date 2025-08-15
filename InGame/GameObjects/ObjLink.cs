@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 using ProjectZ.Base;
 using ProjectZ.InGame.Controls;
 using ProjectZ.InGame.GameObjects.Base;
@@ -205,14 +204,16 @@ namespace ProjectZ.InGame.GameObjects
         private bool _spawnGhost;
 
         // boots
-        private int _bootsLastDirection;
         private bool _bootsHolding;
         private bool _bootsRunning;
-        private bool _wasBootsRunning;
+        private bool _bootsWasRunning;
         private bool _bootsStop;
         private float _bootsCounter;
-        private float _bootsRunTime = 500;
-        private float _bootsParticleTime = 120;
+        private float _bootsRunTime = 500f;
+        private float _bootsParticleTime = 120f;
+        private float _bootsMaxSpeed = 2f;
+        private int _bootsLastDirection;
+        private bool _bootsRunJump;
 
         // trapped state
         private int _trapInteractionCount;
@@ -1324,7 +1325,7 @@ namespace ProjectZ.InGame.GameObjects
         private void OnMoveCollision(Values.BodyCollision collision)
         {
             // knockback
-            if (CurrentState == State.Idle && _wasBootsRunning)
+            if (CurrentState == State.Idle && _bootsWasRunning)
             {
                 var knockBack = false;
 
@@ -2007,11 +2008,6 @@ namespace ProjectZ.InGame.GameObjects
             }
             else if (walkVelLength > Values.ControllerDeadzone)
             {
-#if DEBUG
-                if (InputHandler.KeyDown(Keys.LeftShift))
-                    walkVelocity *= 2.25f;
-#endif
-
                 // slow down in the grass
                 if (_body.CurrentFieldState.HasFlag(MapStates.FieldStates.Grass) && _body.IsGrounded)
                     _currentWalkSpeed *= 0.8f;
@@ -2052,30 +2048,59 @@ namespace ProjectZ.InGame.GameObjects
                     CurrentState != State.ChargeJumping)
                     Direction = vectorDirection;
             }
-
             _lastBaseMoveVelocity = _moveVelocity;
 
-            // when we walk of a cliff set the air move vector
-            // we need to make sure that the player did not started jumping
+            // Set the move vector for air movement while jumping off of a cliff.
             if (!_startedJumping && !_hasStartedJumping && _body.WasGrounded && !_body.IsGrounded)
                 _lastMoveVelocity = _moveVelocity;
 
-            // the player has momentum when he is in the air and can not be controlled directly like on the ground
-            if (!_body.IsGrounded || _body.Velocity.Z > 0)
+            // Standing on the ground, always reset the running jump variable.
+            if (_body.IsGrounded && _body.Velocity.Z <= 0)
             {
-                var distance = (_lastMoveVelocity - walkVelocity * _currentWalkSpeed).Length();
+                _bootsRunJump = false;
+            }
+            else
+            {
+                // Detect first-frame running jump
+                if (_bootsWasRunning)
+                    _bootsRunJump = true;
 
-                // trying to move in the air? => slowly change the direction in the air
-                if (distance > 0 && walkVelocity != Vector2.Zero)
+                // Calculate target and difference
+                Vector2 targetVelocity = walkVelocity * _currentWalkSpeed;
+                float velocityDiff = (_lastMoveVelocity - targetVelocity).Length();
+                float lerpAmount = Math.Clamp((0.05f / velocityDiff) * Game1.TimeMultiplier, 0, 1);
+
+                if (velocityDiff > 0 && walkVelocity != Vector2.Zero)
                 {
-                    var amount = Math.Clamp((0.05f / distance) * Game1.TimeMultiplier, 0, 1);
-                    _lastMoveVelocity = Vector2.Lerp(_lastMoveVelocity, walkVelocity * _currentWalkSpeed, amount);
-                }
+                    bool lockX = Math.Abs(_lastMoveVelocity.X) >= Math.Abs(_lastMoveVelocity.Y);
 
+                    // Compute perpendicular Lerp as usual
+                    Vector2 newMoveVelocity = Vector2.Lerp(_lastMoveVelocity, targetVelocity, lerpAmount);
+
+                    if (_bootsRunJump)
+                    {
+                        // Running jump: determine locked axis and apply smooth slowdown if opposite input
+                        float lockedAxis = lockX ? _lastMoveVelocity.X : _lastMoveVelocity.Y;
+                        float inputAxis  = lockX ? walkVelocity.X : walkVelocity.Y;
+
+                        lockedAxis = (Math.Sign(inputAxis) != Math.Sign(lockedAxis) && inputAxis != 0)
+                            ? MathHelper.Lerp(lockedAxis, inputAxis * _currentWalkSpeed, lerpAmount)
+                            : Math.Sign(lockedAxis) * _bootsMaxSpeed;
+
+                        // Recombine axes
+                        _lastMoveVelocity = lockX
+                            ? new Vector2(lockedAxis, newMoveVelocity.Y)
+                            : new Vector2(newMoveVelocity.X, lockedAxis);
+                    }
+                    else
+                    {
+                        // Normal jump: just use Lerp on both axes
+                        _lastMoveVelocity = newMoveVelocity;
+                    }
+                }
                 _moveVelocity = _lastMoveVelocity;
             }
         }
-
         private void UpdateAnimation()
         {
             if (Game1.GameManager.UseShockEffect)
@@ -3468,7 +3493,7 @@ namespace ProjectZ.InGame.GameObjects
 
         private void UpdatePegasusBoots()
         {
-            _wasBootsRunning = _bootsRunning;
+            _bootsWasRunning = _bootsRunning;
             if (CurrentState != State.Idle || _isClimbing || Map.Is2dMap && Direction % 2 != 0)
             {
                 _bootsHolding = false;
@@ -3520,7 +3545,7 @@ namespace ProjectZ.InGame.GameObjects
                 {
                     _bootsLastDirection = Direction;
                     _bootsRunning = true;
-                    _wasBootsRunning = true;
+                    _bootsWasRunning = true;
                     _bootsStop = false;
                 }
             }
@@ -3580,6 +3605,11 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState = State.ChargeJumping;
             else
             {
+                if (!_bootsRunning)
+                {
+                    _bootsWasRunning = true;
+                }
+
                 // start the jump animation
                 Animation.Play("jump_" + Direction);
                 CurrentState = State.Jumping;
