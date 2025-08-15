@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Collections.Generic;
 using System.Globalization;
 using Microsoft.Xna.Framework;
@@ -206,6 +205,7 @@ namespace ProjectZ.InGame.GameObjects
         private bool _spawnGhost;
 
         // boots
+        private int _bootsLastDirection;
         private bool _bootsHolding;
         private bool _bootsRunning;
         private bool _wasBootsRunning;
@@ -1347,7 +1347,6 @@ namespace ProjectZ.InGame.GameObjects
                 {
                     _bootsRunning = false;
                     _bootsCounter = 0;
-
                     _body.Velocity.Z = 2.0f;
                     CurrentState = State.BootKnockback;
 
@@ -1992,6 +1991,9 @@ namespace ProjectZ.InGame.GameObjects
 
             if (_bootsRunning && (walkVelLength < Values.ControllerDeadzone || vectorDirection != (Direction + 2) % 4))
             {
+                if (_bootsLastDirection != Direction)
+                    _bootsStop = true;
+
                 if (!_bootsStop)
                 {
                     _moveVelocity = AnimationHelper.DirectionOffset[Direction] * BootsRunningSpeed;
@@ -2005,12 +2007,9 @@ namespace ProjectZ.InGame.GameObjects
             }
             else if (walkVelLength > Values.ControllerDeadzone)
             {
-                _bootsCounter %= _bootsParticleTime;
-                _bootsRunning = false;
-
 #if DEBUG
                 if (InputHandler.KeyDown(Keys.LeftShift))
-                    walkVelocity *= 0.25f;
+                    walkVelocity *= 2.25f;
 #endif
 
                 // slow down in the grass
@@ -2511,6 +2510,9 @@ namespace ProjectZ.InGame.GameObjects
                     break;
                 case "ocarina":
                     UseOcarina();
+                    break;
+                case "pegasusBoots":
+                    UsePegasusBoots();
                     break;
             }
         }
@@ -3067,6 +3069,12 @@ namespace ProjectZ.InGame.GameObjects
                 CurrentState = State.Charging;
         }
 
+        private void UsePegasusBoots()
+        {
+            if (!_bootsHolding & _bootsRunning)
+                _bootsStop = true;
+        }
+
         private void HoldPegasusBoots()
         {
             if (CurrentState == State.BootKnockback || _isTrapped)
@@ -3510,6 +3518,7 @@ namespace ProjectZ.InGame.GameObjects
                 // start running
                 if (!_bootsRunning && _bootsCounter > _bootsRunTime)
                 {
+                    _bootsLastDirection = Direction;
                     _bootsRunning = true;
                     _wasBootsRunning = true;
                     _bootsStop = false;
