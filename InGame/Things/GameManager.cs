@@ -760,13 +760,17 @@ namespace ProjectZ.InGame.Things
         }
         public void StartPieceOfPowerMusic(int Variation)
         {
-            // 0: Delayed with sound effect, 1: Music starts instantly.
+            // 0: Delayed with sound effect
+            // 1: Music starts instantly.
             int trackId = Variation switch
             {
                 0 => 38,
                 1 => 72,
             };
             Game1.GameManager.SetMusic(trackId, 1);
+
+            // Overwrite the array with instant version.
+            _musicArray[1] = 72;
         }
         public void StopPieceOfPower()
         {
@@ -836,14 +840,14 @@ namespace ProjectZ.InGame.Things
             Game1.GbsPlayer.Stop();
         }
 
-        public void SetMusic(int songNr, int priority, bool startPlaying = true)
+        public void SetMusic(int trackID, int priority, bool startPlaying = true)
         {
             // @HACK: don't restart the overworld track if the version with the intro was already started;
             // make sure to not restart the music while showing the overworld in the final sequence
-            if ((songNr == 4 && _musicArray[priority] == 48) || (priority != 2 && _musicArray[2] == 62))
+            if ((trackID == 4 && _musicArray[priority] == 48) || (priority != 2 && _musicArray[2] == 62))
                 return;
 
-            _musicArray[priority] = songNr;
+            _musicArray[priority] = trackID;
 
             PlayMusic(startPlaying);
         }
