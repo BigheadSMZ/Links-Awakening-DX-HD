@@ -132,12 +132,12 @@ namespace ProjectZ.InGame.Overlay
         {
             // toggle game menu
             if ((_currentMenuState == MenuState.None || _currentMenuState == MenuState.Menu) &&
-                ControlHandler.ButtonPressed(CButtons.Start))
+                ControlHandler.ButtonPressed(CButtons.Select))
                 ToggleState(MenuState.Menu);
 
             // toggle inventory/map
             if ((_currentMenuState == MenuState.None || _currentMenuState == MenuState.Inventory) &&
-                ControlHandler.ButtonPressed(CButtons.Select) && !DisableInventoryToggle && !_hideHud && !TextboxOverlay.IsOpen)
+                ControlHandler.ButtonPressed(CButtons.Start) && !DisableInventoryToggle && !_hideHud && !TextboxOverlay.IsOpen)
                 ToggleState(MenuState.Inventory);
 
             // toggle map scale
@@ -171,7 +171,7 @@ namespace ProjectZ.InGame.Overlay
                 }
                 else
                 {
-                    if (ControlHandler.ButtonPressed(CButtons.Start) && !TextboxOverlay.IsOpen)
+                    if (ControlHandler.ButtonPressed(CButtons.Select) && !TextboxOverlay.IsOpen)
                         ToggleInventoryMap();
 
                     if (_updateInventory)
@@ -250,9 +250,9 @@ namespace ProjectZ.InGame.Overlay
                 {
                     var selectStr = "";
                     if (ControlHandler.LastKeyboardDown && ControlHandler.ButtonDictionary[CButtons.Start].Keys.Length > 0)
-                        selectStr = ControlHandler.ButtonDictionary[CButtons.Start].Keys[0].ToString();
+                        selectStr = ControlHandler.ButtonDictionary[CButtons.Select].Keys[0].ToString();
                     if (!ControlHandler.LastKeyboardDown && ControlHandler.ButtonDictionary[CButtons.Start].Buttons.Length > 0)
-                        selectStr = ControlHandler.ButtonDictionary[CButtons.Start].Buttons[0].ToString();
+                        selectStr = ControlHandler.ButtonDictionary[CButtons.Select].Buttons[0].ToString();
 
                     var strType = Game1.LanguageManager.GetString((_updateInventory ? "overlay_map" : "overlay_inventory"), "error");
                     var inputHelper = selectStr + ": " + strType;
