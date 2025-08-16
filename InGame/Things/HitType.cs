@@ -28,5 +28,6 @@ namespace ProjectZ.InGame.Things
         Object = 0x01 << 16,
         Enemy = 0x01 << 17,
         Boss = 0x01 << 18,
+        Projectile = 0x01 << 19,
     }
 }

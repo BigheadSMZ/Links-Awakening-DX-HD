@@ -8,6 +8,7 @@ using ProjectZ.InGame.GameObjects.Base;
 using ProjectZ.InGame.GameObjects.Base.Components;
 using ProjectZ.InGame.GameObjects.Base.Pools;
 using ProjectZ.InGame.GameObjects.Base.Systems;
+using ProjectZ.InGame.GameObjects.Enemies;
 using ProjectZ.InGame.GameObjects.NPCs;
 using ProjectZ.InGame.GameObjects.Things;
 using ProjectZ.InGame.SaveLoad;
@@ -62,7 +63,7 @@ namespace ProjectZ.InGame.Map
         private readonly List<GameObject> db_gameObjectList = new List<GameObject>();
 
         public static Type[] _AlwaysAnimateTypes;
-
+        public static Type[] _ShieldDeflectTypes;
         private bool _keyChanged;
         private bool _finishedLoading;
 
@@ -72,6 +73,9 @@ namespace ProjectZ.InGame.Map
 
             // The type of game objects that are not frozen during events.
             _AlwaysAnimateTypes = new Type[]{ typeof(ObjGhost), typeof(ObjOwl) };
+
+            // The type of game objects that can be blocked by shield.
+            _ShieldDeflectTypes = new Type[]{ typeof(EnemyOctorokShot), typeof(EnemySpear) };;
         }
 
         public static bool IsGameObjectType(GameObject gameObject, Type[] objectTypes)
@@ -258,7 +262,7 @@ namespace ProjectZ.InGame.Map
             var player = MapManager.ObjLink;
             var playerDamageBox = player.DamageCollider.Box;
 
-            // get the objects that could potentially inflic damage
+            // get the objects that could potentially inflict damage
             _damageFieldObjects.Clear();
             _gameObjectPool.GetComponentList(_damageFieldObjects,
                 (int)playerDamageBox.X, (int)playerDamageBox.Y,
@@ -927,7 +931,7 @@ namespace ProjectZ.InGame.Map
 
             foreach (var gameObject in _pushableObjectList)
             {
-                if (!gameObject.IsActive)
+                if (!gameObject.IsActive || IsGameObjectType(gameObject, _ShieldDeflectTypes))
                     continue;
 
                 var pushableComponent = gameObject.Components[PushableComponent.Index] as PushableComponent;

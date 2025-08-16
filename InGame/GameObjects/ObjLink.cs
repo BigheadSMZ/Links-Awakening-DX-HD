@@ -3135,7 +3135,6 @@ namespace ProjectZ.InGame.GameObjects
 
                 if (pushedRectangle.RepelParticle)
                 {
-                    Game1.GameManager.PlaySoundEffect("D360-07-07");
                     // poke particle
                     Map.Objects.SpawnObject(new ObjAnimator(Map,
                         (int)(pushedRectangle.PushableBox.Box.X + pushedRectangle.PushableBox.Box.Width / 2),
@@ -4193,7 +4192,10 @@ namespace ProjectZ.InGame.GameObjects
                 return false;
 
             // block the attack?
-            if (blockable && (CurrentState == State.Blocking || _bootsRunning && CarryShield))
+            if (blockable && (CurrentState == State.Blocking || 
+                CurrentState == State.AttackBlocking || 
+                CurrentState == State.ChargeBlocking || 
+                _bootsRunning && CarryShield))
             {
                 _bootsHolding = false;
                 _bootsRunning = false;
@@ -4201,10 +4203,14 @@ namespace ProjectZ.InGame.GameObjects
 
                 // is the player blocking this direction
                 var vectorDirection = ToDirection(-direction);
-                if (Direction == vectorDirection)
-                    return false;
-            }
+                if (Direction == vectorDirection & _hitCount <= 0)
+                {
+                    if (type == HitType.Projectile)
+                        Game1.GameManager.PlaySoundEffect("D360-22-16");
 
+                    return false;
+                }
+            }
             // jump a little if we get hit by a spike
             if ((type & HitType.Spikes) != 0)
             {

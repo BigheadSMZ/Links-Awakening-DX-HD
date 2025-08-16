@@ -22,6 +22,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private float _despawnPercentage = 1;
         private int _despawnTime = 750;
         private bool _repelledPlayer;
+        private bool _playSound;
 
         public EnemyOctorokShot(Map.Map map, float posX, float posY, Vector2 velocity) : base(map)
         {
@@ -68,7 +69,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
             var damageCollider = new CBox(EntityPosition, -5, -10, 0, 10, 10, 4);
 
-            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Enemy, 2) { OnDamage = OnDamage });
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Projectile, 2) { OnDamage = OnDamage });
             AddComponent(HittableComponent.Index, new HittableComponent(_body.BodyBox, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(PushableComponent.Index, _pushableComponent = new PushableComponent(_body.BodyBox, OnPush) { RepelMultiplier = 0.35f });
@@ -80,11 +81,12 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void InitDespawn()
         {
-            // Proper block sound effect: D360-22-16
             _pushableComponent.IsActive = false;
             _body.IgnoresZ = false;
             _damageField.IsActive = false;
-            Game1.GameManager.PlaySoundEffect("D360-07-07");
+
+            if (_playSound)
+                Game1.GameManager.PlaySoundEffect("D360-07-07");
         }
 
         private void UpdateIdle()
@@ -160,6 +162,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void OnCollision(Values.BodyCollision direction)
         {
+            _playSound = true;
+
             if (direction == Values.BodyCollision.Floor)
                 return;
 

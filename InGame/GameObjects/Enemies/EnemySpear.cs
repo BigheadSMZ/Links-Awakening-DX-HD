@@ -24,6 +24,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
         private float _despawnPercentage = 1;
         private int _despawnTime = 500;
         private int dir;
+        private bool _playSound;
 
         private Point[] _collisionBoxSize = { new Point(12, 4), new Point(4, 12), new Point(12, 4), new Point(4, 12) };
 
@@ -66,7 +67,7 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _aiComponent.States.Add("despawn", stateDespawn);
             _aiComponent.ChangeState("idle");
 
-            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Enemy, 2) { OnDamage = OnDamage });
+            AddComponent(DamageFieldComponent.Index, _damageField = new DamageFieldComponent(damageCollider, HitType.Projectile, 2) { OnDamage = OnDamage });
             AddComponent(HittableComponent.Index, new HittableComponent(_body.BodyBox, OnHit));
             AddComponent(BodyComponent.Index, _body);
             AddComponent(PushableComponent.Index, new PushableComponent(_body.BodyBox, OnPush) { RepelMultiplier = 0.2f });
@@ -98,7 +99,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
             _animator.Play("rotate");
             _animator.SetFrame((dir + 1) % 4);
 
-            Game1.GameManager.PlaySoundEffect("D360-07-07");
+            if (_playSound)
+                Game1.GameManager.PlaySoundEffect("D360-07-07");
         }
 
         private void TickDespawn(double time)
@@ -150,6 +152,8 @@ namespace ProjectZ.InGame.GameObjects.Enemies
 
         private void OnCollision(Values.BodyCollision direction)
         {
+            _playSound = true;
+
             if (_aiComponent.CurrentStateId == "despawn")
                 return;
 
