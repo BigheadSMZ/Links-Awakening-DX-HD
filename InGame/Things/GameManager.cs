@@ -854,7 +854,10 @@ namespace ProjectZ.InGame.Things
             if ((trackID == 3 || trackID == 10) && _musicArray[1] == 72)
                 _musicArray[1] = trackID;
             else if ((trackID != 3 && trackID != 10) && (_musicArray[1] == 3 || _musicArray[1] == 10))
+            {
+                _musicArray[0] = trackID;
                 _musicArray[1] = 72;
+            }
             else
                 _musicArray[priority] = trackID;
 
