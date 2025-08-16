@@ -418,11 +418,11 @@ namespace ProjectZ.InGame.GameObjects
                     else
                         Animation.Play("stand" + shieldString + Direction);
                 }
-                else if (!_isWalking && (CurrentState == State.Charging))
+                else if (!_isWalking && (CurrentState == State.Charging || CurrentState == State.ChargeBlocking || CurrentState == State.ChargeJumping))
                     Animation.Play("stand" + shieldString + Direction);
                 else if (CurrentState == State.Carrying)
                     Animation.Play((_isWalking ? "walkc_" : "standc_") + Direction);
-                else if (_isWalking && CurrentState == State.Charging)
+                else if (_isWalking && (CurrentState == State.Charging || CurrentState == State.ChargeBlocking || CurrentState == State.ChargeJumping))
                     Animation.Play("walk" + shieldString + Direction);
                 else if (CurrentState == State.Blocking)
                     Animation.Play((!_isWalking ? "standb" : "walkb") + shieldString + Direction);
@@ -516,7 +516,7 @@ namespace ProjectZ.InGame.GameObjects
                 // reset boot counter if the player changes the direction
                 if (newDirection != Direction)
                     _bootsCounter %= _bootsParticleTime;
-                _bootsRunning = false;
+                    _bootsRunning = false;
 
                 if (newDirection != 3 &&
                     CurrentState != State.Charging && 
