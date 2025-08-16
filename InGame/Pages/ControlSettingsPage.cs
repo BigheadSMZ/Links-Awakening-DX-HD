@@ -28,9 +28,9 @@ namespace ProjectZ.InGame.Pages
             var controllerHeight = (int)(height * Values.MenuContentSize);
 
             var buttonWidth = 65;
-            var lableWidth = 90;
-            var lableHeight = 12;
-            var headerHeight = 14;
+            var lableWidth = 140;
+            var lableHeight = 10;
+            var headerHeight = 12;
 
             var remapHeader = new InterfaceListLayout { AutoSize = true, Margin = new Point(0, 1), HorizontalMode = true, CornerRadius = 0, Color = Values.MenuButtonColor };
             remapHeader.AddElement(new InterfaceListLayout() { Size = new Point(buttonWidth, headerHeight) });

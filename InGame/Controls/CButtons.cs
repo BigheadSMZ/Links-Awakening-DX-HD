@@ -6,17 +6,19 @@ namespace ProjectZ.InGame.Controls
     public enum CButtons
     {
         None = 0,
-        Left = 1,
-        Right = 2,
-        Up = 4,
-        Down = 8,
+        Up = 1,
+        Down = 2,
+        Left = 4,
+        Right = 8,
         A = 16,
         B = 32,
         X = 64,
         Y = 128,
         Select = 256,
         Start = 512,
-        L = 1024,
-        R = 2048
+        LB = 1024,
+        RB = 2048,
+        LT = 4096,
+        RT = 8192
     }
 }
