@@ -33,12 +33,13 @@ namespace ProjectZ.InGame.GameObjects.Things
             {
                 var track = _musicData[position.X, position.Y];
 
-                if (_lastTrack != track)
+                if (int.TryParse(track, out var trackID))
                 {
-                    _lastTrack = track;
-
-                    if (int.TryParse(track, out var songNr))
-                        Game1.GameManager.SetMusic(songNr, 0, false);
+                    if (_lastTrack != track)
+                    {
+                        _lastTrack = track;
+                        Game1.GameManager.SetMusic(trackID, 0, false);
+                    }
                 }
             }
         }

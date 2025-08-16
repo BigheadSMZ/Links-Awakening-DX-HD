@@ -50,7 +50,6 @@ namespace ProjectZ.InGame.Things
 
             public SoundEffectInstance Instance;
         }
-
         // _activeRenderTarget == null ???
 
         // TODO:RT: Based on the comment above, it seems the original developer has experienced this issue. Unfortunately, it
@@ -277,7 +276,6 @@ namespace ProjectZ.InGame.Things
 
                 Resources.BlurEffectH.Parameters["pixelX"].SetValue(1.0f / _shadowRenderTarget.Width);
                 Resources.BlurEffectV.Parameters["pixelY"].SetValue(1.0f / _shadowRenderTarget.Height);
-
                 Resources.BlurEffectH.Parameters["mult0"].SetValue(0.35f);
                 Resources.BlurEffectH.Parameters["mult1"].SetValue(0.15f);
                 Resources.BlurEffectV.Parameters["mult0"].SetValue(0.35f);
@@ -769,8 +767,13 @@ namespace ProjectZ.InGame.Things
             };
             Game1.GameManager.SetMusic(trackId, 1);
 
-            // Overwrite the array with instant version.
-            _musicArray[1] = 72;
+            // @HACK: When music is restarted for any reason: map/area transition, healing
+            // from a great fairy, etc. we want the version without the starting sound effect.
+            if (Variation == 0)
+            {
+                Game1.GbsPlayer.CurrentTrack = 72;
+                _musicArray[1] = 72;
+            }
         }
         public void StopPieceOfPower()
         {
@@ -835,19 +838,25 @@ namespace ProjectZ.InGame.Things
                     return;
                 }
             }
-
             // no music is playing?
             Game1.GbsPlayer.Stop();
         }
 
         public void SetMusic(int trackID, int priority, bool startPlaying = true)
         {
-            // @HACK: don't restart the overworld track if the version with the intro was already started;
-            // make sure to not restart the music while showing the overworld in the final sequence
+            // @HACK: Don't restart the overworld track if the version with the intro was already started.
+            // Make sure to not restart the music while showing the overworld in the final sequence.
             if ((trackID == 4 && _musicArray[priority] == 48) || (priority != 2 && _musicArray[2] == 62))
                 return;
 
-            _musicArray[priority] = trackID;
+            // @HACK: Mabe and Animal Villages should always play the music even when the player has a piece of
+            // power or guardian acorn. This hack forces it to play and restores the power up music when leaving.
+            if ((trackID == 3 || trackID == 10) && _musicArray[1] == 72)
+                _musicArray[1] = trackID;
+            else if ((trackID != 3 && trackID != 10) && (_musicArray[1] == 3 || _musicArray[1] == 10))
+                _musicArray[1] = 72;
+            else
+                _musicArray[priority] = trackID;
 
             PlayMusic(startPlaying);
         }
