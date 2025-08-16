@@ -486,6 +486,10 @@ namespace ProjectZ.InGame.Overlay
             // If both LT and RT are pressed together, set the scaling to auto-scaling and store the current scale.
             else if (ControlHandler.ButtonDown(CButtons.RT) && ControlHandler.ButtonDown(CButtons.LT))
             {
+                // Don't allow overwriting the current stored scale with concurrent LT+RT presses.
+                if (!_AutoScaleSet)
+                    return;
+
                 _StoredScale = GameSettings.GameScale;
                 _AutoScaleSet = true;
                 GameSettings.GameScale = 11;
