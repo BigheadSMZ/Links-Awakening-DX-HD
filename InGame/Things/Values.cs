@@ -98,7 +98,7 @@ namespace ProjectZ.InGame.Things
         public static int LightLayer2 = 2;  // dark room
         public static int LightLayer3 = 3;
 
-        public static int HandItemSlots = 4;
+        public static int HandItemSlots = 6;
 
         public static int MinWidth = 160 * 2 + 60;   // 160
         public static int MinHeight = 128 * 2;  // 128

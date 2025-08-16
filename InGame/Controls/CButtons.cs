@@ -14,11 +14,11 @@ namespace ProjectZ.InGame.Controls
         B = 32,
         X = 64,
         Y = 128,
-        Select = 256,
-        Start = 512,
-        LB = 1024,
-        RB = 2048,
-        LT = 4096,
-        RT = 8192
+        LB = 256,
+        RB = 512,
+        LT = 1024,
+        RT = 2048,
+        Select = 4096,
+        Start = 8192
     }
 }

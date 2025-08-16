@@ -14,22 +14,27 @@ namespace ProjectZ.InGame.Overlay
 
         public Point ItemSlotPosition;
 
+        // 4 5
         //  3
         // 2 1
         //  0
         private static Rectangle[] _itemSlots = {
-            new Rectangle(RecItemselection.Width + DistX / 2 - RecItemselection.Width / 2,
-                RecItemselection.Height * 2 + DistY * 2,
-                RecItemselection.Width, RecItemselection.Height),
+
+            new Rectangle(RecItemselection.Width + DistX / 2 - RecItemselection.Width / 2, RecItemselection.Height * 2 + DistY * 2,
+                RecItemselection.Width, RecItemselection.Height / 2 * 2),
             new Rectangle(RecItemselection.Width + DistX, RecItemselection.Height + DistY,
-                RecItemselection.Width, RecItemselection.Height),
-            new Rectangle(0, RecItemselection.Height + DistY,
-                RecItemselection.Width, RecItemselection.Height),
+                RecItemselection.Width, RecItemselection.Height / 2 * 2),
+            new Rectangle(0, RecItemselection.Height + DistY, 
+                RecItemselection.Width, RecItemselection.Height / 2 * 2), 
             new Rectangle(RecItemselection.Width + DistX / 2 - RecItemselection.Width / 2, 0,
-                RecItemselection.Width, RecItemselection.Height)
+                RecItemselection.Width, RecItemselection.Height / 2 * 2),
+            new Rectangle(0, -RecItemselection.Height - DistY,
+                RecItemselection.Width, RecItemselection.Height / 2 * 2),
+            new Rectangle(RecItemselection.Width + DistX, -RecItemselection.Height - DistY,
+                RecItemselection.Width, RecItemselection.Height / 2 * 2)
         };
 
-        private static readonly UiRectangle[] _uiBackgroundBoxes = new UiRectangle[4];
+        private static readonly UiRectangle[] _uiBackgroundBoxes = new UiRectangle[6];
 
         public ItemSlotOverlay()
         {

@@ -38,12 +38,12 @@ namespace ProjectZ.InGame.Controls
             ButtonDictionary.Add(CButtons.B, new ButtonMapper(new[] { Keys.D }, new[] { Buttons.B }));
             ButtonDictionary.Add(CButtons.X, new ButtonMapper(new[] { Keys.A }, new[] { Buttons.X }));
             ButtonDictionary.Add(CButtons.Y, new ButtonMapper(new[] { Keys.W }, new[] { Buttons.Y }));
-            ButtonDictionary.Add(CButtons.Select, new ButtonMapper(new[] { Keys.Space }, new[] { Buttons.Back }));
-            ButtonDictionary.Add(CButtons.Start, new ButtonMapper(new[] { Keys.Enter }, new[] { Buttons.Start }));
             ButtonDictionary.Add(CButtons.LB, new ButtonMapper(new[] { Keys.OemMinus }, new[] { Buttons.LeftShoulder }));
             ButtonDictionary.Add(CButtons.RB, new ButtonMapper(new[] { Keys.OemPlus }, new[] { Buttons.RightShoulder }));
             ButtonDictionary.Add(CButtons.LT, new ButtonMapper(new[] { Keys.OemOpenBrackets }, new[] { Buttons.LeftTrigger }));
             ButtonDictionary.Add(CButtons.RT, new ButtonMapper(new[] { Keys.OemCloseBrackets }, new[] { Buttons.RightTrigger }));
+            ButtonDictionary.Add(CButtons.Select, new ButtonMapper(new[] { Keys.Space }, new[] { Buttons.Back }));
+            ButtonDictionary.Add(CButtons.Start, new ButtonMapper(new[] { Keys.Enter }, new[] { Buttons.Start }));
         }
 
         public static void SaveButtonMaps(SaveManager saveManager)
@@ -157,8 +157,11 @@ namespace ProjectZ.InGame.Controls
             if (direction.Length() >= Values.ControllerDeadzone)
             {
                 var dir = AnimationHelper.GetDirection(direction);
-                if (((dir == 0 && button == CButtons.Left) || (dir == 1 && button == CButtons.Up) ||
-                    (dir == 2 && button == CButtons.Right) || (dir == 3 && button == CButtons.Down)) && (_scrollCounter < 0 || _initDirection))
+                if (((dir == 0 && button == CButtons.Left) || 
+                    (dir == 1 && button == CButtons.Up) ||
+                    (dir == 2 && button == CButtons.Right) || 
+                    (dir == 3 && button == CButtons.Down)) && 
+                    (_scrollCounter < 0 || _initDirection))
                     return true;
             }
 
