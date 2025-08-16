@@ -81,6 +81,9 @@ namespace ProjectZ.InGame.Overlay
         private bool _updateInventory = true;
         private bool _isChanging;
 
+        private bool _AutoScaleSet;
+        private int _StoredScale = -2;
+
         public OverlayManager()
         {
             // setup blurry overlay
@@ -469,14 +472,39 @@ namespace ProjectZ.InGame.Overlay
             _currentMenuState = newState;
         }
 
-        private static void UpdateGameScale(GameScaleDirection scaleDirection)
+        private void UpdateGameScale(GameScaleDirection scaleDirection)
         {
-            var newScale = GameSettings.GameScale + (short)scaleDirection;
-            if (newScale >= -1 && newScale <= 11)
+            // When adjust scaling settings for the first time: the current scaling is auto-scale, a scale has not been stored, and
+            // auto-scaling has not been set with the controller, set a scale that attempts to transition smoothly from the current size.
+            if (!_AutoScaleSet & GameSettings.GameScale == 11 & _StoredScale == -2)
             {
-                GameSettings.GameScale = newScale;
-                Game1.ScaleChanged = true;
+                if (scaleDirection == GameScaleDirection.Increase)
+                    GameSettings.GameScale = _StoredScale = 6;
+                else
+                    GameSettings.GameScale = _StoredScale = 3;
             }
+            // If both LT and RT are pressed together, set the scaling to auto-scaling and store the current scale.
+            else if (ControlHandler.ButtonDown(CButtons.RT) && ControlHandler.ButtonDown(CButtons.LT))
+            {
+                _StoredScale = GameSettings.GameScale;
+                _AutoScaleSet = true;
+                GameSettings.GameScale = 11;
+            }
+            // If either LT or RT were pressed and auto-scaling is set, restore the stored scaling value.
+            else if (_AutoScaleSet)
+            {
+                _AutoScaleSet = false;
+                GameSettings.GameScale = _StoredScale;
+            }
+            // If either LT or RT were pressed and auto-scaling is not set, scale up or down.
+            else
+            {
+                var newScale = GameSettings.GameScale + (short)scaleDirection;
+                if (newScale is >= -1 and <= 10)
+                    GameSettings.GameScale = _StoredScale = newScale;
+            }
+            // Apply current scaling settings.
+            Game1.ScaleChanged = true;
         }
 
         public void CloseOverlay()

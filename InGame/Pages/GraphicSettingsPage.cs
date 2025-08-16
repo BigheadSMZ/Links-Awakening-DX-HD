@@ -30,7 +30,7 @@ namespace ProjectZ.InGame.Pages
                     GameSettings.GameScale = number;
                     Game1.ScaleChanged = true;
                 })
-            { SetString = number => GameSettings.GameScale == 11 ? "auto" : " x" + (number < 1 ? "1/" + (2 - number) : number.ToString()) };
+            { SetString = number => GameSettings.GameScale == 11 ? "Auto-Detect" : " x" + (number < 1 ? "1/" + (2 - number) : number.ToString()) };
             contentLayout.AddElement(_gameScaleSlider);
 
             // Slider to adjust the user interface.
@@ -41,7 +41,7 @@ namespace ProjectZ.InGame.Pages
                     GameSettings.UiScale = number;
                     Game1.ScaleChanged = true;
                 })
-            { SetString = number => GameSettings.UiScale == 0 ? "auto" : " x" + number };
+            { SetString = number => GameSettings.UiScale == 0 ? "Auto-Detect" : " x" + number };
             contentLayout.AddElement(_uiScaleSlider);
 
             // Fullscreen toggler.
