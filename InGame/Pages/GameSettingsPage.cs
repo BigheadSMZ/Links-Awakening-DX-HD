@@ -31,6 +31,10 @@ namespace ProjectZ.InGame.Pages
                 "settings_game_heartbeep", GameSettings.HeartBeep, newState => { GameSettings.HeartBeep = newState; });
             contentLayout.AddElement(toggleHeartBeep);
 
+            var toggleScreenShake = InterfaceToggle.GetToggleButton(new Point(buttonWidth, 18), new Point(5, 2),
+                "settings_game_screenshake", GameSettings.ScreenShake, newState => { GameSettings.ScreenShake = newState; });
+            contentLayout.AddElement(toggleScreenShake);
+
             gameSettingsList.AddElement(contentLayout);
 
             _bottomBar = new InterfaceListLayout() { Size = new Point(width, (int)(height * Values.MenuFooterSize)), Selectable = true, HorizontalMode = true };

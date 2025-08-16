@@ -4240,17 +4240,15 @@ namespace ProjectZ.InGame.GameObjects
             _hitCount = damageCooldown;
             Game1.GameManager.InflictDamage(damage);
 
-            // TODO_2: this should be optional (in config file or game settings?)
-            //if(false)
+            // Shake the screen on damage if the user has it enabled.
+            if (GameSettings.ScreenShake)
             {
-                // freeze the screen and shake
                 var freezeTime = 67;
                 var shakeMult = (100.0f / freezeTime) * MathF.PI;
                 Game1.FreezeTime = Game1.TotalGameTime + freezeTime;
                 Game1.GameManager.ShakeScreen(freezeTime, (int)(direction.X * 2), (int)(direction.Y * 2), shakeMult, shakeMult);
                 UpdateDamageShader();
             }
-
             return true;
         }
 
