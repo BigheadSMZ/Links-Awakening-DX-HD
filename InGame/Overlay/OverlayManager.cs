@@ -487,7 +487,7 @@ namespace ProjectZ.InGame.Overlay
             else if (ControlHandler.ButtonDown(CButtons.RT) && ControlHandler.ButtonDown(CButtons.LT))
             {
                 // Don't allow overwriting the current stored scale with concurrent LT+RT presses.
-                if (!_AutoScaleSet)
+                if (_AutoScaleSet)
                     return;
 
                 _StoredScale = GameSettings.GameScale;
